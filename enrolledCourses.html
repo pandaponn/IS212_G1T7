@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title> My Courses </title>
+
+    <link rel="stylesheet" href="">
+    <!-- Bootstrap libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        .not-active {
+            pointer-events: none;
+            cursor: default;
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main-container" class="container">
+        <h1 class="display-4">My Enrolled Courses</h1>
+        <div id="courseCards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            
+        </div>
+    </div>
+    <div class="container" id="displayError"></div>
+
+    <script>
+        // Helper function to display error message
+        function showError(message) {
+            $('#courseCards').hide();
+            // Display an error under the main container
+            $("#displayError").append("<label>" + message + "</label>");
+        }
+
+        // anonymous async function
+        // - using await requires the function that calls it to be async
+        $(async () => {
+            var getCoursesURL = "http://127.0.0.1:5100/mono/enrolledCourses/1";
+
+            try {
+                const response = await fetch(getCoursesURL, { method: "GET" });
+                const result = await response.json();
+
+                var rows = "";
+                if (response.status === 200) {
+                    // success case
+                    var CourseDetails = result.data.CourseDetails;
+                    console.log(CourseDetails);
+
+                    for (var course in CourseDetails) {
+                        console.log(CourseDetails[course]);
+
+                        var CourseName = CourseDetails[course].CourseName;
+                        var ClassId = CourseDetails[course].ClassId;
+                        var CourseId = CourseDetails[course].CourseId;
+                        var StartDateTime = CourseDetails[course].StartDateTime;
+                        var EndDateTime = CourseDetails[course].EndDateTime;
+
+                        rows += `
+                        <div class="col">
+                            <div class="card shadow-sm">
+                                <div class="card-header">
+                                    <h4> ${CourseName} </h4>
+                                    <span> CourseId ${CourseId}, ClassId ${ClassId} </span>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        Start Date & Time: ${StartDateTime} <br>
+                                        End Date & Time: ${EndDateTime}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                onclick="window.location.href='showMaterials.html?ClassId=${ClassId}&CourseId=${CourseId}'">View</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+
+                    // add all the rows to the table
+                    $("#courseCards").append(rows);
+                } else if (response.status == 404) {
+                    showError(result.message);
+                } else {
+                    // unexpected outcome, throw the error
+                    throw response.status;
+                }
+            } catch (error) {
+                // Errors when calling the service; such as network error,
+                // service offline, etc
+                showError(
+                    "There is a problem retrieving enrolled courses, please try again later.<br />" +
+                    error
+                );
+            }
+        });
+    </script>
+</body>
+
+</html>
