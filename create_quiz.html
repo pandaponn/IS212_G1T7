@@ -1,0 +1,646 @@
+<!-- #1ab394 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" shrink-to-fit="no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="styles/style.css">
+    <link href="http://fonts.cdnfonts.com/css/isidora-soft-alt" rel="stylesheet">
+    <title>Quiz Creation</title>
+    <style>
+        body {
+            font-family: 'Isidora Sans Alt', sans-serif;
+            background-image: url("./styles/white.jpg");
+            background-size: cover;
+            background-repeat: repeat;
+        }
+
+        /* .form-group {
+            margin-bottom: 30px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        } */
+
+        .add_qn {
+            background-color: #1ab394;
+            border-color: #1ab394;
+            font-weight: bold;
+            color: white;
+        }
+
+        .fiverr-menu ul {
+            display: block;
+        }
+
+        .fiverr-menu li {
+            display: inline-block;
+            padding-left: 20px;
+        }
+
+        .fiverr-menu a {
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .fiverr-menu a:hover{
+            color: white;
+        }
+
+        .fiverr-menu span {
+            color: #40CA89;
+        }
+        .fiverr-menu {
+            text-align: right;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .qn_box {
+            width: 70%;
+            margin: 20px auto 40px;
+            padding: 20px 0px 40px 20px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .fa-edit {
+            padding: 0;
+            border: none;
+            background: none;
+        }
+
+        .settings_box {
+            width: 70%;
+            margin: 0px auto 0px;
+            background-color: rgba(255, 255, 255);
+            padding: 20px 0px 40px 30px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="header-middle pt-4 pb-3" style="background-color: rgb(211, 210, 210); opacity: 0.5;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-1 logo">
+                    <a href="quiz.html" style="color: black; font-weight: bold;">
+                        <h3>FML.</h3>
+                    </a>
+                </div>
+                <div class="fiverr-menu" style="margin-left: auto;">
+                    <ul>
+                        <li><a class="pro" href="">Home</a></li>
+                        <li><a href="">Profile</a></li>
+
+                        <li><a href="../Main/process_logout.php"><span>Logout</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Body -->
+    <div class="container">
+        <div style="margin-top: 30px;" class="settings_box">
+            <h4 style="font-weight: bold; text-align: center; margin-bottom: 30px;">Quiz Settings</h4>
+            <h5 style="text-align: center;">Quiz Name:
+                <span id="quiz_name" style="font-weight: bold; padding-left: 5px; padding-right: 3px;">Quiz 1</span>
+                <button class="far fa-edit" style="color: #88c4a8;" data-toggle="modal" data-target="#edit_quiz_name"></button>
+            </h5>
+            <h5 style="text-align: center;">Passing Grade: 
+                <span id="display_passing_grade" style="font-weight: bold; padding-left: 5px; padding-right: 3px;">0</span>
+                <button class="far fa-edit" style="color: #88c4a8;" data-toggle="modal" data-target="#edit_passing_grade"></button>
+            </h5>
+            <h5 style="text-align: center;"> Graded:
+                <span id="display_graded" style="font-weight: bold;"></span>
+            </h5>
+
+        </div>
+        <div id="questions" style="padding-top: 30px;">
+            <!-- Insert created questions here -->
+            <!-- Extract via API call & output directly from DB -->
+        </div>
+        <div id="create_question">
+            <!-- Insert creating question here -->
+        </div>
+         <!-- Add Question / Trigger Modal -->
+         <div style="margin-top: 100px; margin-left: auto; margin-right: auto; text-align: center;" id="add_question_button">
+            <button class="btn btn-primary add_qn" data-toggle="modal" data-target="#question_type" style="margin-bottom: 100px;">Add Question</button>
+         </div>
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="question_type" tabindex="-1" role="dialog" aria-labelledby="question_type" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Question Type</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body" style="margin: auto; margin-top: 10px; margin-bottom: 10px">
+                <button class="btn btn-primary add_qn" id="add_mcq">Multiple Choice</button>
+                <button class="btn btn-primary add_qn" id="add_tf">True/False</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Edit Passing Grade -->
+    <div class="modal fade" id="edit_passing_grade" tabindex="-1" role="dialog" aria-labelledby="edit_passing_grade" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Edit Passing Grade</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body" style="margin: auto; margin-top: 10px; margin-bottom: 10px">
+                <p style="font-size:medium;">Learners will have to score at least the passing grade in order to attain a "Pass" for the quiz.</p>
+                <p style="font-style:italic">* Each question is worth 1 mark *</p>
+                <input type="number" id="passing_grade" value="0">
+                <hr>
+                <p>Is this a graded quiz?</p>
+                <form>
+                    <input type="radio" id="graded_Y" name="graded" value="Y">
+                    <label for="graded_Y">Yes</label> &nbsp; &nbsp;
+                    <input type="radio" id="grade_N" name="graded" value="N" checked>
+                    <label for="grade_N">No</label>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="save_passing_grade">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Edit Quiz Name -->
+    <div class="modal fade" id="edit_quiz_name" tabindex="-1" role="dialog" aria-labelledby="edit_quiz_name" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h4 class="modal-title">Edit Quiz Name</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body" style="margin: auto; margin-top: 10px; margin-bottom: 10px">
+                <input type="text" id="new_quiz_name" placeholder=" Quiz 1">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="save_quiz_name">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+</body>
+<script>
+    var question_body = document.getElementById('questions');
+    var create_question_body = document.getElementById('create_question');
+    var add_question_div = document.getElementById('add_question_button');
+    var queryString = window.location.search;
+    var urlParams = new URLSearchParams(queryString);
+    var QuizId = urlParams.get('QuizId');
+    var total_questions = 0;
+
+    $('#save_quiz_name').click(()=>{
+        var new_quiz_name = document.getElementById('new_quiz_name').value;
+        document.getElementById('quiz_name').innerText = new_quiz_name;
+
+        updateQuizName(new_quiz_name);
+    })
+
+    $('#save_passing_grade').click(()=>{
+        // Update passing_grade inside DB
+        var passing_grade = document.getElementById('passing_grade').value;
+        document.getElementById('display_passing_grade').innerText = passing_grade;
+        console.log(passing_grade);
+
+        // Update whether quiz is graded or not inside DB
+        const rbs = document.querySelectorAll('input[name="graded"]');
+        let selectedValue;
+        for (const rb of rbs) {
+            if (rb.checked) {
+                selectedValue = rb.value;
+                break;
+            }
+        }
+        var graded = selectedValue;
+
+        console.log(total_questions);
+        if (passing_grade > total_questions){
+            console.log("Fail");
+        }
+        else {
+            updateQuizGrading(passing_grade, graded);
+        }
+
+    })
+
+    async function updateQuizName(quiz_name){
+        var updateQuizNameURL = 'http://localhost:5001/quiz/updateQuizName';
+        
+        try{
+            var response = await fetch(
+            updateQuizNameURL, {
+                method: 'PUT',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id: QuizId,
+                    quiz_name: quiz_name
+                })
+            })
+            var result = await response.json();
+
+            if(response.status === 200){
+                console.log("200");
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+    }
+
+    async function updateQuizGrading(passing_grade, graded){
+        var updateQuizGradingURL = 'http://localhost:5001/quiz/updateQuizGrading';
+        
+        try{
+            var response = await fetch(
+            updateQuizGradingURL, {
+                method: 'PUT',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id: QuizId,
+                    isGraded: graded,
+                    passing_grade: passing_grade
+                })
+            })
+            var result = await response.json();
+
+            if(response.status === 200){
+                console.log("200");
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+    }
+
+    window.onload = retrieveQuestions();
+    async function retrieveQuestions(){
+        var retrieveQuestionsURL = 'http://localhost:5001/quiz/retrieveAllQuestions';
+
+        try{
+            var response = await fetch(
+            retrieveQuestionsURL, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id: QuizId
+                })
+            })
+            var result = await response.json();
+            var quiz_questions = result.data.questions;
+            total_questions = quiz_questions.length;
+
+            if(response.status === 200){
+                for (let i = 0; i < quiz_questions.length; i++){
+                    if (quiz_questions[i].qn_type == "mcq"){
+                        var db_question = (i+1).toString() + ". " + quiz_questions[i].question;
+                        var options_list = quiz_questions[i].options.split('^');
+                        var db_option_A = options_list[0];
+                        var db_option_B = options_list[1];
+                        var db_option_C = options_list[2];
+                        var db_option_D = options_list[3];
+                        var db_answer = quiz_questions[i].answer;
+
+                        question_body.innerHTML += `<div class="qn_box">
+                                                    <div style="padding-left: 20px;">
+                                                        <h5 style="text-align: left;">${db_question}</h5><br>
+                                                        <p style="font-size: large;">
+                                                            A. ${db_option_A} <br> 
+                                                            B. ${db_option_B} <br> 
+                                                            C. ${db_option_C} <br> 
+                                                            D. ${db_option_D} 
+                                                        </p><br>
+                                                        <p style="font-size: 20px; font-weight: bold; color: rgb(8, 150, 8);">
+                                                            Answer: ${db_answer}
+                                                        </p>
+                                                    </div>
+                                                </div>`
+                    }
+                    else if (quiz_questions[i].qn_type == "tf"){
+                        var db_question = (i+1).toString() + ". " + quiz_questions[i].question;
+                        var db_answer = quiz_questions[i].answer;
+
+                        question_body.innerHTML += `<div class="qn_box">
+                                                    <div style="padding-left: 20px;">
+                                                        <h5 style="text-align: left;">${db_question}</h5><br>
+                                                        <p style="font-size: large;">
+                                                            A. True <br> 
+                                                            B. False <br> 
+                                                        </p><br>
+                                                        <p style="font-size: 20px; font-weight: bold; color: rgb(8, 150, 8);">
+                                                            Answer: ${db_answer}
+                                                        </p>
+                                                    </div>
+                                                </div>`
+                    }
+                }
+            }
+            else if(response.status == 400){
+                console.log("Error occurred while attempting to retrieve quiz questions.");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+
+        var retrieveQuizInfo = 'http://localhost:5001/quiz/retrieveQuizInfo';
+
+        try{
+            var response = await fetch(
+                retrieveQuizInfo, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id : QuizId
+                })
+            })
+            var result = await response.json();
+
+            if(response.status === 200){
+                var course_id = result.data.quiz.course_id;
+                var class_id = result.data.quiz.class_id;
+                var quiz_name = result.data.quiz.quiz_name;
+                var chapter_id = result.data.quiz.chapter_id;
+                var isGraded = result.data.quiz.isGraded;
+                var passing_grade = result.data.quiz.passing_grade;
+
+                document.getElementById('quiz_name').innerText = quiz_name;
+                document.getElementById('new_quiz_name').placeholder = " " + quiz_name;
+                document.getElementById('display_passing_grade').innerText = passing_grade;
+                document.getElementById('passing_grade').value = passing_grade;
+                document.getElementById('display_graded').innerText = isGraded;
+                
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+    }
+
+    $('#add_mcq').click(()=>{
+        $('#question_type').modal('hide');
+        add_question_div.innerHTML = '';
+        create_question_body.innerHTML += mcq_question;
+    })
+
+    $('#add_tf').click(()=>{
+        $('#question_type').modal('hide');
+        add_question_div.innerHTML = '';
+        create_question_body.innerHTML += tf_question;
+    })
+    
+    // Make POST requests here
+    async function mcq_save_qn(){
+        var quiz_id = QuizId;
+        var qn_type = "mcq";
+        var question = document.getElementById('mcq_question').value;
+        var answer = document.getElementById('mcq_answer').value;
+        var many_options = document.getElementsByClassName('many_options');
+        var combine_arr = [];
+        for (i of many_options){
+            if (i.value){
+                combine_arr.push(i.value);
+            }
+        }
+        if (combine_arr.length){
+            var options = combine_arr.join('^');
+        }
+        console.log(options);
+
+        var serviceURL = 'http://localhost:5001/quiz/createQuestion';
+
+        try{
+            var response = await fetch(
+            serviceURL, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id : quiz_id,
+                    qn_type : qn_type,
+                    question : question,
+                    options : options,
+                    answer : answer
+                })
+            })
+            var result = await response.json();
+            console.log(result);
+
+            if(response.status === 200){
+                // window.location.href = "confirm.php?name=" + clinic_name + "&time=" + time + "&date=" + date;
+                console.log("200");
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+        
+        create_question_body.innerHTML = '';
+        add_question_div.innerHTML += add_question_button;
+        location.reload();
+    }
+
+    async function tf_save_qn(){
+        var quiz_id = QuizId;
+        var question = document.getElementById('tf_question').value;
+        var qn_type = "tf";
+        var tf_options = document.getElementsByName('tf_options');
+        for (var i = 0, length = tf_options.length; i < length; i++) {
+            if (tf_options[i].checked) {
+                // do whatever you want with the checked radio
+                var answer = tf_options[i].value
+                break;
+            }
+        }
+
+        var serviceURL = 'http://localhost:5001/quiz/createQuestion';
+
+        try{
+            var response = await fetch(
+            serviceURL, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id : quiz_id,
+                    qn_type : qn_type,
+                    question : question,
+                    options : null,
+                    answer : answer
+                })
+            })
+            var result = await response.json();
+            console.log(result);
+
+            if(response.status === 200){
+                // window.location.href = "confirm.php?name=" + clinic_name + "&time=" + time + "&date=" + date;
+                console.log("200");
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+
+        create_question_body.innerHTML = '';
+        add_question_div.innerHTML += add_question_button;
+        location.reload();
+    }
+
+    var add_question_button = `<button class="btn btn-primary add_qn" data-toggle="modal" data-target="#question_type">Add Question</button>`;
+
+    var mcq_question = `
+            <div id="mcq_qn" class="box">
+                <form class="needs-validation" novalidate><br>
+                    <!-- style="margin-top: 30px;" action="#" method="POST" class="form" enctype="multipart/form-data" -->
+                    <h2>Multiple Choice Question</h2><br><br>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Question</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="mcq_question" class="form-control" required>
+                        </div>
+                        <div class="invalid-feedback">
+                          Question is required.
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Option A</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="optionA" class="form-control many_options" required>
+                        </div><br><br>
+
+                        <label class="col-sm-2 col-form-label">Option B</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="optionB" class="form-control many_options" required>
+                        </div><br><br>
+
+                        <label class="col-sm-2 col-form-label">Option C</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="optionC" class="form-control many_options" required>
+                        </div><br><br>
+
+                        <label class="col-sm-2 col-form-label">Option D</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="optionD" class="form-control many_options" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Answer</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="mcq_answer" class="form-control" required>
+                        </div>
+                        <div class="invalid-feedback">
+                          Correct answer is required.
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-primary" id="mcq_save_question" style="margin-top: 20px; font-weight: bold;" type="button" onclick="mcq_save_qn()">Save</button>
+                    </div>
+                </form>
+            </div>`;
+
+    var tf_question = `<div id="tf_qn" class="box">
+                <form class="needs-validation" novalidate><br>
+                    <!-- style="margin-top: 30px;" action="#" method="POST" class="form" enctype="multipart/form-data" -->
+                    <h2>True/False Question</h2><br><br>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Question</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="tf_question" class="form-control" required>
+                        </div>
+                        <div class="invalid-feedback">
+                          Question is required.
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10" style="margin-top:8px;">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tf_options" id="tf_true" value="True">
+                                <label class="form-check-label" for="tf_true">True</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tf_options" id="tf_false" value="False">
+                                <label class="form-check-label" for="tf_false">False</label>
+                            </div>
+        
+                            <div class="text-center">
+                                <button class="btn btn-primary" id="tf_save_question" style="margin-top: 50px; font-weight: bold;" type="button" onclick="tf_save_qn()">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>`;
+
+</script>
+</html>

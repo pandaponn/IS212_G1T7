@@ -1,0 +1,428 @@
+<!-- #1ab394 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" shrink-to-fit="no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="styles/style.css">
+    <link href="http://fonts.cdnfonts.com/css/isidora-soft-alt" rel="stylesheet">
+    <script type="text/javascript" src="quizlib.1.0.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles/quizlib.min.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="styles/stylesheet.css" media="screen">
+    <title>Quiz Creation</title>
+    <style>
+        body {
+            font-family: 'Isidora Sans Alt', sans-serif;
+            background-image: url("./styles/white.jpg");
+            background-size: cover;
+            background-repeat: repeat;
+        }
+
+        .add_qn {
+            background-color: #1ab394;
+            border-color: #1ab394;
+            font-weight: bold;
+            color: white;
+        }
+
+        .fiverr-menu ul {
+            display: block;
+        }
+
+        .fiverr-menu li {
+            display: inline-block;
+            padding-left: 20px;
+        }
+
+        .fiverr-menu a {
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .fiverr-menu a:hover{
+            color: white;
+        }
+
+        .fiverr-menu span {
+            color: #40CA89;
+        }
+
+        .fiverr-menu {
+            text-align: right;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .qn_box {
+            width: 70%;
+            margin: 20px auto 40px;
+            padding: 20px 0px 40px 20px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        input {
+            margin-right: 8px;
+        }
+
+        #overlay {
+            position: fixed; /* Sit on top of the page content */
+            display: none; /* Hidden by default */
+            width: 100%; /* Full width (cover the whole page) */
+            height: 100%; /* Full height (cover the whole page) */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+            z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+            cursor: pointer; /* Add a pointer on hover */
+        }
+
+        #text{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 50px;
+            color: black;
+            transform: translate(-50%,-50%);
+            -ms-transform: translate(-50%,-50%);
+        }
+
+        .overlay_box {
+            width: 70%;
+            margin: 0px auto 120px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 0 50px 50px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Overlay Disclaimer -->
+    <div id="overlay">
+        <div id="text" class="overlay_box">
+            <h2 id="quiz_name" style="margin-top: 20px; margin-bottom: 30px;">Quiz</h2>
+            <p style="font-size: medium;">This is <span id="graded_or_not"></span> quiz, you will need to answer at least <span id="no_of_qn" style="font-weight: bold;"></span> question(s) correctly to pass.</p>
+            <p style="font-size: medium;">You must complete the quiz within the alloted time or your attempt will be voided.</p>
+            <p style="font-size: medium;">Any attempts to cheat will be severely dealt with.</p>
+            <p style="font-size: medium;">To start the quiz, click on the <span style="font-weight: bold;">"Start Quiz"</span> button below. When finished, click the <span style="font-weight: bold;">"Submit Quiz"</span> button to check your result.</p>
+            <button id="start_quiz" class="btn btn-primary add_qn" type="button" onclick="startQuiz();">Start Quiz</button>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <div class="header-middle pt-4 pb-3" style="background-color: rgb(211, 210, 210); opacity: 0.5;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-1 logo">
+                    <a href="create_quiz.html" style="color: black; font-weight: bold;">
+                        <h3>FML.</h3>
+                    </a>
+                </div>
+                <div class="fiverr-menu" style="margin-left: auto;">
+                    <ul>
+                        <li><a class="pro" href="">Home</a></li>
+                        <li><a href="">Profile</a></li>
+
+                        <li><a href="../Main/process_logout.php"><span>Logout</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Body -->
+    <div class="container">
+        <!-- Quiz Results -->
+        <div id="quiz-result" class="card">
+            You Scored <span id="quiz-percent"></span>% - <span id="quiz-score"></span>/<span id="quiz-max-score"></span><br/>
+        </div>
+
+        <!-- Quiz Body -->
+        <div id="quiz" style="padding-top: 30px; width: 80%; margin: auto;">
+            <!-- Insert quiz questions here -->
+            <!-- Extract via API call & output directly from DB -->
+        </div>
+
+        <!-- Answer Button -->
+        <div style="text-align: center; padding-bottom: 30px;">
+            <button class="btn btn-primary add_qn" type="button" onclick="showResults();">Submit Quiz</button>
+        </div>
+
+        <!-- Results -->
+        <div style="text-align: center; padding-bottom: 100px;">
+            <h2 id="quiz_result"></h2>
+        </div>
+    </div>
+
+
+</body>
+<script>
+    var quiz = document.getElementById('quiz');
+    var isGraded = "";
+    var passing_grade = 0;
+    var answers = [];
+
+    var queryString = window.location.search;
+    var urlParams = new URLSearchParams(queryString);
+    var quiz_id = urlParams.get('QuizId');
+
+    // Create Quiz
+    window.onload = retrieveQuestions();
+    async function retrieveQuestions(){
+        on();
+        var retrieveQuestionsURL = 'http://localhost:5001/quiz/retrieveAllQuestions';
+
+        try{
+            var response = await fetch(
+            retrieveQuestionsURL, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                        quiz_id: quiz_id
+                    })
+            })
+            var result = await response.json();
+            var quiz_questions = result.data.questions;
+            console.log(quiz_questions);
+
+            if(response.status === 200){
+
+                for (let i = 0; i < quiz_questions.length; i++){
+                    if (quiz_questions[i].qn_type == "mcq"){
+                        var db_question = (i+1).toString() + ". " + quiz_questions[i].question;
+                        var question_no = (i+1).toString();
+                        var options_list = quiz_questions[i].options.split('^');
+                        var db_option_A = options_list[0];
+                        var db_option_B = options_list[1];
+                        var db_option_C = options_list[2];
+                        var db_option_D = options_list[3];
+                        var db_answer = quiz_questions[i].answer;
+                        var question_id = quiz_questions[i].question_id;
+                        answers.push(db_answer);
+                        quiz.innerHTML += `<div class="card quizlib-question" style="padding-left: 20px; padding-top: 20px;">
+                                                <div class="quizlib-question-title" style="margin-bottom: 20px; font-size: large;">${db_question}</div>
+                                                <div class="quizlib-question-answers">
+                                                    <ul>
+                                                        <li><label><input type="radio" name="${question_no}" value="${db_option_A}"> ${db_option_A}</label></li>
+                                                        <li><label><input type="radio" name="${question_no}" value="${db_option_B}"> ${db_option_B}</label></li>
+                                                        <li><label><input type="radio" name="${question_no}" value="${db_option_C}"> ${db_option_C}</label></li>
+                                                        <li><label><input type="radio" name="${question_no}" value="${db_option_D}"> ${db_option_D}</label></li>
+                                                    </ul>
+                                                </div>
+                                            </div><br>`;
+                        
+                    }
+                    else if (quiz_questions[i].qn_type == "tf"){
+                        var db_question = (i+1).toString() + ". " + quiz_questions[i].question;
+                        var question_no = (i+1).toString();
+                        var db_answer = quiz_questions[i].answer;
+                        var question_id = quiz_questions[i].question_id;
+                        answers.push(db_answer);
+                        quiz.innerHTML += `<div class="card quizlib-question" style="padding-left: 20px; padding-top: 20px;">
+                                                <div class="quizlib-question-title" style="margin-bottom: 20px; font-size: large;">${db_question}</div>
+                                                <div class="quizlib-question-answers">
+                                                    <ul>
+                                                        <li><label><input type="radio" name="${question_no}" value="True"> True</label></li>
+                                                        <li><label><input type="radio" name="${question_no}" value="False"> False</label></li>
+                                                    </ul>
+                                                </div>
+                                            </div><br>`;
+                    }
+                }
+
+                // Initiate Quiz
+                quiz = new Quiz('quiz', answers);
+
+            }
+            else if(response.status == 400){
+                console.log("Error occurred while attempting to retrieve quiz questions.");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+
+        // Check if quiz is graded & passing grade
+        var retrieveQuizInfo = 'http://localhost:5001/quiz/retrieveQuizInfo';
+
+        try{
+            var response = await fetch(
+                retrieveQuizInfo, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id : quiz_id
+                })
+            })
+            var result = await response.json();
+
+            if(response.status === 200){
+                isGraded = result.data.quiz.isGraded;
+                passing_grade = result.data.quiz.passing_grade;
+                quiz_name = result.data.quiz.quiz_name;
+
+                if(isGraded == "Y"){
+                    document.getElementById('graded_or_not').innerHTML = "a <span style='font-weight: bold;'>graded</span>";
+                }
+                else{
+                    document.getElementById('graded_or_not').innerHTML = "an <span style='font-weight: bold;'>ungraded</span>";
+                }
+                
+                document.getElementById('quiz_name').innerText = quiz_name;
+                document.getElementById('no_of_qn').innerHTML = passing_grade;
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+    }
+
+    async function save_results(pass, score){
+        var updateScoreURL = 'http://localhost:5001/quiz/updateQuizResults';
+        var quizPass = pass;
+        var score = score;
+        console.log(score)
+        try{
+            var response = await fetch(
+            updateScoreURL, {
+                method: 'PUT',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id : quiz_id,
+                    quizPass : quizPass,
+                    score : score
+                })
+            })
+            var result = await response.json();
+
+            if(response.status === 200){
+                console.log("200");
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+    }
+    
+
+    function showResults() {
+        // Check answers and continue if all questions have been answered
+        if (quiz.checkAnswers()) {
+            var quizScorePercent = quiz.result.scorePercentFormatted; // The unformatted percentage is a decimal in range 0 - 1
+            var quizResultElement = document.getElementById('quiz-result');
+            quizResultElement.style.display = 'block';
+            document.getElementById('quiz-score').innerHTML = quiz.result.score.toString();
+            document.getElementById('quiz-max-score').innerHTML = quiz.result.totalQuestions.toString();
+            document.getElementById('quiz-percent').innerHTML = quizScorePercent.toString();
+
+            // Change background colour of results div according to score percent
+            if (quizScorePercent >= 75) quizResultElement.style.backgroundColor = '#4caf50';
+            else if (quizScorePercent >= 50) quizResultElement.style.backgroundColor = '#ffc107';
+            else if (quizScorePercent >= 25) quizResultElement.style.backgroundColor = '#ff9800';
+            else if (quizScorePercent >= 0) quizResultElement.style.backgroundColor = '#f44336';
+            
+            // Highlight questions according to whether they were correctly answered. The callback allows us to highlight/show the correct answer
+            quiz.highlightResults(handleAnswers);
+            
+            // quiz.result.score.toString() --> update db with quiz results
+            var result = quiz.result.score;
+            console.log(result);
+            console.log(isGraded);
+            console.log(passing_grade);
+
+            if(isGraded == "Y"){
+                var pass = "";
+                if(result >= passing_grade){
+                    console.log("You passed!");
+                    document.getElementById('quiz_result').innerHTML = "Congratulations, you passed!";
+                    document.getElementById('quiz_result').style.color = "green";
+                    pass = 1;
+                }
+                else{
+                    console.log("You failed!");
+                    document.getElementById('quiz_result').innerHTML = "You failed, try again!";
+                    document.getElementById('quiz_result').style.color = "red";
+                    pass = 0;
+                }
+                save_results(pass, result);
+
+            }
+            
+        }
+    }
+
+    /** Callback for Quiz.highlightResults. Highlights the correct answers of incorrectly answered questions 
+     * Parameters are: the quiz object, the question element, question number, correctly answered flag
+     */
+    function handleAnswers(quiz, question, no, correct) {
+        if (!correct) {
+            var answers = question.getElementsByTagName('input');
+            for (var i = 0; i < answers.length; i++) {
+                if (answers[i].type === "checkbox" || answers[i].type === "radio"){ 
+                    // If the current input element is part of the correct answer, highlight it
+                    if (quiz.answers[no].indexOf(answers[i].value) > -1) {
+                        answers[i].parentNode.classList.add(Quiz.Classes.CORRECT);
+                    }
+                } else {
+                    // If the input is anything other than a checkbox or radio button, show the correct answer next to the element
+                    var correctAnswer = document.createElement('span');
+                    correctAnswer.classList.add(Quiz.Classes.CORRECT);
+                    correctAnswer.classList.add(Quiz.Classes.TEMP); // quiz.checkAnswers will automatically remove elements with the temp class
+                    correctAnswer.innerHTML = quiz.answers[no];
+                    correctAnswer.style.marginLeft = '10px';
+                    answers[i].parentNode.insertBefore(correctAnswer, answers[i].nextSibling);
+                }
+            }
+        }
+    }
+
+    function on() {
+       document.getElementById("overlay").style.display = "block";
+    }
+
+    function startQuiz() {
+        document.getElementById("overlay").style.display = "none";
+    }
+
+</script>
+</html>
