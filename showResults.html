@@ -98,24 +98,25 @@
                     // success case
                     var quizResults = result.data.quizResults;
                     var quizStats = result.data.stats;
+                    var quizNames = result.data.QuizNameList;
                     console.log(quizResults);
 
                     for (var r in quizResults) {
                         console.log(quizResults[r]);
 
-                        var QuizId = quizResults[r].QuizId;
-                        var QuizName = quizResults[r].QuizName;
+                        var quiz_id = quizResults[r].quiz_id;
+                        var QuizName = quizNames[r];
                         var score = quizResults[r].score;
-                        var avg = quizStats[r][QuizId].avgScore;
-                        var min = quizStats[r][QuizId].minScore;
-                        var max = quizStats[r][QuizId].maxScore;
+                        var avg = quizStats[r][quiz_id].avgScore;
+                        var min = quizStats[r][quiz_id].minScore;
+                        var max = quizStats[r][quiz_id].maxScore;
 
-                        console.log('QuizId is ' + QuizId + ' and QuizName is ' + QuizName);
+                        console.log('QuizId is ' + quiz_id + ' and QuizName is ' + QuizName);
 
                         if (avg == undefined){
                             rows += `
                                 <tr>
-                                    <td> ${QuizId} </td>
+                                    <td> ${quiz_id} </td>
                                     <td> ${QuizName} </td>
                                     <td> ${score} </td>
                                     <td></td>
@@ -125,7 +126,7 @@
                         } else{
                         rows += `
                                 <tr>
-                                    <td> ${QuizId} </td>
+                                    <td> ${quiz_id} </td>
                                     <td> ${QuizName} </td>
                                     <td> ${score} </td>
                                     <td> ${avg} </td>

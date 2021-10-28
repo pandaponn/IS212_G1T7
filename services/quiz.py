@@ -7,7 +7,8 @@ from os import environ
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -295,11 +296,44 @@ class QuizResults(db.Model):
     def json(self):
         return {"learner_id": self.learner_id, "quiz_id": self.quiz_id, "score": self.score, "quizPass": self.quizPass, "isViewable": self.isViewable, "attempts": self.attempts}
 
+class IsChapViewable(db.Model):
+    __tablename__ = 'isChapViewable'
+
+    learner_id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, primary_key=True)
+    chapter_id = db.Column(db.Integer, primary_key=True)
+    subchapter_id = db.Column(db.String(100), primary_key=True)
+    chapter_viewable = db.Column(db.Boolean, nullable=False)
+    chapter_viewed = db.Column(db.Boolean, nullable=False)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
 # update score & quizPass
 @app.route("/quiz/updateQuizResults", methods=['PUT'])
 def update_quiz_results():
     data = request.get_json()
-    quiz = QuizResults.query.filter_by(learner_id=data['learner_id']).filter_by(quiz_id=data['quiz_id']).first()
+    learner_id=data['learner_id']
+    quiz_id=data['quiz_id']
+    quiz = QuizResults.query.filter_by(learner_id=learner_id).filter_by(quiz_id=quiz_id).first()
+
+    quiz_info = Quiz.query.filter_by(quiz_id=quiz_id).first()
+    passingGrade = quiz_info.passing_grade
+    class_id = quiz_info.class_id
+    course_id = quiz_info.course_id
+    next_chapId = quiz_info.chapter_id+1
+
+    mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId)
+    
     if quiz: 
         if data['score'] > quiz.score:
             quiz.score = data['score']
@@ -340,6 +374,25 @@ def update_quiz_results():
         }
     ), 404
 
+def mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId):
+    try:
+        Chap_result = IsChapViewable.query.filter_by(learner_id=learner_id).filter_by(class_id=class_id).filter_by(
+            course_id=course_id).filter_by(chapter_id=next_chapId).all()
+        print(Chap_result)
+        if not Chap_result:
+            return []
+
+        for C in Chap_result:
+            print(C.chapter_viewable)
+            if C.chapter_viewable == False:
+                C.chapter_viewable = True
+                print(C.chapter_viewable)
+            else:
+                return Chap_result
+        db.session.commit()
+        return Chap_result
+    except Exception as e:
+        return []
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
