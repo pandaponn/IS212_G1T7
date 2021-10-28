@@ -106,15 +106,16 @@
                 if (response.status === 200) {
                     // success case
                     var Quizzes = result.data.Quizzes;
+                    var QuizNames = result.data.QuizNameList;
                     console.log(Quizzes);
 
-                    for (var quiz in Quizzes) {
-                        console.log(Quizzes[quiz]);
+                    for (var q in Quizzes) {
+                        console.log(Quizzes[q]);
 
-                        var QuizId = Quizzes[quiz].QuizId;
-                        var QuizName = Quizzes[quiz].QuizName;
-                        var Attempts = Quizzes[quiz].attempts;
-                        var isViewable = Quizzes[quiz].isViewable;
+                        var QuizId = Quizzes[q].quiz_id;
+                        var QuizName = QuizNames[q];
+                        var Attempts = Quizzes[q].attempts;
+                        var isViewable = Quizzes[q].isViewable;
 
                         console.log('QuizId is ' + QuizId + ' and QuizName is ' + QuizName);
 
