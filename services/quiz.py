@@ -323,10 +323,7 @@ class IsChapViewable(db.Model):
 def update_quiz_results():
     data = request.get_json()
     learner_id=data['learner_id']
-    print('learner_id')
-    print(learner_id)
     quiz_id=data['quiz_id']
-    print(quiz_id)
     quiz = QuizResults.query.filter_by(learner_id=learner_id).filter_by(quiz_id=quiz_id).first()
 
     quiz_info = Quiz.query.filter_by(quiz_id=quiz_id).first()
@@ -336,6 +333,7 @@ def update_quiz_results():
     next_chapId = quiz_info.chapter_id+1
 
     mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId)
+    
     if quiz: 
         if data['score'] > quiz.score:
             quiz.score = data['score']

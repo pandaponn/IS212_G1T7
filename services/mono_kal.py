@@ -118,7 +118,7 @@ def view_trainer_classes(TrainerID):
             {
                 "code": 200,
                 "data": {
-                    "Assigned Classes": [assigned_classes.to_dict() for assigned_classes in AssignedClassList]
+                    "AssignedClasses": [assigned_classes.to_dict() for assigned_classes in AssignedClassList]
                 },
                 "message": "All assigned classes with trainer ID {} has successfully returned.".format(TrainerID)
             },
