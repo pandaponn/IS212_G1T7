@@ -299,7 +299,7 @@ class QuizResults(db.Model):
 @app.route("/quiz/updateQuizResults", methods=['PUT'])
 def update_quiz_results():
     data = request.get_json()
-    quiz = QuizResults.query.filter_by(quiz_id=data['quiz_id']).first()
+    quiz = QuizResults.query.filter_by(learner_id=data['learner_id']).filter_by(quiz_id=data['quiz_id']).first()
     if quiz: 
         if data['score'] > quiz.score:
             quiz.score = data['score']
@@ -310,6 +310,7 @@ def update_quiz_results():
                 {
                     "code": 200,
                     "data":  {
+                        'learner_id' : data['learner_id'],
                         'quiz_id' : data['quiz_id'],
                         'score' : data['score'],
                         'quizPass' : data['quizPass']
@@ -323,6 +324,7 @@ def update_quiz_results():
                 {
                     "code": 200,
                     "data":  {
+                        'learner_id': data['learner_id'],
                         'quiz_id' : data['quiz_id'],
                         'score' : data['score'],
                         'quizPass' : data['quizPass']
