@@ -7,8 +7,8 @@ from os import environ
 
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -327,7 +327,6 @@ def update_quiz_results():
     quiz = QuizResults.query.filter_by(learner_id=learner_id).filter_by(quiz_id=quiz_id).first()
 
     quiz_info = Quiz.query.filter_by(quiz_id=quiz_id).first()
-    passingGrade = quiz_info.passing_grade
     class_id = quiz_info.class_id
     course_id = quiz_info.course_id
     next_chapId = quiz_info.chapter_id+1
