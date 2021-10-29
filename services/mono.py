@@ -33,7 +33,6 @@ class CourseMaterials(db.Model):
             result[column] = getattr(self, column)
         return result
 
-
 class IsChapViewable(db.Model):
     __tablename__ = 'isChapViewable'
 
@@ -56,7 +55,6 @@ class IsChapViewable(db.Model):
             result[column] = getattr(self, column)
         return result
 
-# Main Quiz Information
 class Quiz(db.Model):
     __tablename__ = 'quiz'
     quiz_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -89,7 +87,6 @@ class Quiz(db.Model):
             result[column] = getattr(self, column)
         return result
 
-# To store quiz results for learners
 class QuizResults(db.Model):
     __tablename__ = 'quiz_results'
     learner_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -144,7 +141,6 @@ class CourseClass(db.Model):
             result[column] = getattr(self, column)
         return result
 
-# Learner - from trisha
 class Learner(db.Model):
     __tablename__ = 'Learner'
 
@@ -687,74 +683,6 @@ def get_learner_name(learnerList):
         result = Learner.query.filter_by(LearnerID=LearnerID).first()
         nameList.append(result.LearnerName)
     return nameList
-
-
-# TESTING
-# need to check if all pass then update as coursecompleted
-# get from quiz, filter by learner_id, CourseId, ClassId
-# check if all quizzes have passed
-# if all passed, mark course as completed
-# NEED MAKE CHANGES TO THIS
-@app.route("/mono/markCourseCompleted/<string:learner_id>/<string:CourseId>/<string:ClassId>")
-def check_passes(learner_id, CourseId, ClassId):
-    QuizReturn = Quizzes.query.filter_by(learner_id=learner_id).filter_by(
-        CourseId=CourseId).filter_by(ClassId=ClassId).all()
-    print(QuizReturn)
-
-    passQuizzes = []
-    for quiz in QuizReturn:
-        if (quiz.quizPass == "P"):
-            passQuizzes.append(quiz)
-
-    if len(passQuizzes) == len(QuizReturn):
-        mark_course_completed(learner_id, CourseId, ClassId)
-
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "Quiz": [quiz.to_dict() for quiz in QuizReturn]
-                },
-                "message": "Learner with learner_id {} has successfully completed the course.".format(learner_id)
-            },
-
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "Quiz": [quiz.to_dict() for quiz in QuizReturn]
-            },
-            "message": "YOU DID NOT PASS. :("
-        }
-    ), 404
-
-def mark_course_completed(learner_id, CourseId, ClassId):
-    try:
-        learnerCourse = Learner.query.filter_by(LearnerID=learner_id).filter_by(ClassID=ClassId).filter_by(
-            CourseID=CourseId).first()
-        print(learnerCourse)
-
-        if learnerCourse.CourseCompleted == False:
-            learnerCourse.CourseCompleted = True
-            print(learnerCourse.CourseCompleted)
-
-        db.session.commit()
-
-    except Exception as e:
-        return jsonify(
-            {
-                "code": 500,
-                "message": "An error occurred while updating CourseCompleted. " + str(e)
-            }
-        ), 500
-    return jsonify(
-        {
-            "code": 201,
-            "message": "Successfully updated CourseCompleted to True."
-        }
-    ), 201
-
 
 if __name__ == '__main__':
     app.run(port=5100, debug=True)
