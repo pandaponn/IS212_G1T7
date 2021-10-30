@@ -58,6 +58,7 @@
                 <tr>
                     <th>QuizId</th>
                     <th>QuizName</th>
+                    <th>Pass/Fail</th>
                     <th>Score</th>
                     <th>Average Score</th>
                     <th>Min Score</th>
@@ -106,18 +107,24 @@
 
                         var quiz_id = quizResults[r].quiz_id;
                         var QuizName = quizNames[r];
+                        var quizPass = quizResults[r].quizPass;
                         var score = quizResults[r].score;
                         var avg = quizStats[r][quiz_id].avgScore;
                         var min = quizStats[r][quiz_id].minScore;
                         var max = quizStats[r][quiz_id].maxScore;
 
-                        console.log('QuizId is ' + quiz_id + ' and QuizName is ' + QuizName);
+                        if (quizPass == 1){
+                            quizPass = 'Pass'
+                        } else{
+                            quizPass = 'Fail'
+                        }
 
                         if (avg == undefined){
                             rows += `
                                 <tr>
                                     <td> ${quiz_id} </td>
                                     <td> ${QuizName} </td>
+                                    <td> ${quizPass} </td>
                                     <td> ${score} </td>
                                     <td></td>
                                     <td></td>
@@ -128,6 +135,7 @@
                                 <tr>
                                     <td> ${quiz_id} </td>
                                     <td> ${QuizName} </td>
+                                    <td> ${quizPass} </td>
                                     <td> ${score} </td>
                                     <td> ${avg} </td>
                                     <td> ${min} </td>

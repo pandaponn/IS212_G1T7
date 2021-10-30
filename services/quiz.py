@@ -318,12 +318,33 @@ class IsChapViewable(db.Model):
             result[column] = getattr(self, column)
         return result
 
+class Learner(db.Model):
+    __tablename__ = 'Learner'
+
+    LearnerID = db.Column(db.Integer, primary_key=True)
+    LearnerName = db.Column(db.String(100), nullable=False)
+    CourseID = db.Column(db.Integer, primary_key=True)
+    ClassID = db.Column(db.Integer, primary_key=True)
+    CourseCompleted = db.Column(db.Boolean, nullable=True)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
 # update score & quizPass
 @app.route("/quiz/updateQuizResults", methods=['PUT'])
 def update_quiz_results():
     data = request.get_json()
     learner_id=data['learner_id']
     quiz_id=data['quiz_id']
+    isGraded = data['isGraded']
     quiz = QuizResults.query.filter_by(learner_id=learner_id).filter_by(quiz_id=quiz_id).first()
 
     quiz_info = Quiz.query.filter_by(quiz_id=quiz_id).first()
@@ -331,8 +352,13 @@ def update_quiz_results():
     course_id = quiz_info.course_id
     next_chapId = quiz_info.chapter_id+1
 
+    # mark next chap as viewable
     mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId)
     
+    # check if quiz is graded and if pass, update course as completed
+    if(isGraded=='Y' and data['quizPass']==1):
+        mark_course_completed(learner_id, class_id, course_id)
+
     if quiz: 
         if data['score'] > quiz.score:
             quiz.score = data['score']
@@ -392,6 +418,33 @@ def mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId):
         return Chap_result
     except Exception as e:
         return []
+
+ # update course as completed
+def mark_course_completed(learner_id, CourseId, ClassId):
+    try:
+        learnerCourse = Learner.query.filter_by(LearnerID=learner_id).filter_by(ClassID=ClassId).filter_by(
+            CourseID=CourseId).first()
+        print(learnerCourse)
+
+        if learnerCourse.CourseCompleted == False:
+            learnerCourse.CourseCompleted = True
+            print(learnerCourse.CourseCompleted)
+
+        db.session.commit()
+
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while updating CourseCompleted. " + str(e)
+            }
+        ), 500
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successfully updated CourseCompleted to True."
+        }
+    ), 201
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
