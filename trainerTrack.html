@@ -69,8 +69,8 @@
         <table id="resultTable" class="table table-striped" border="1" style="display: none; width: fit-content;">
             <thead class="thead-dark">
                 <tr>
-                    <th>EngineerId</th>
-                    <th>EngineerName</th>
+                    <th>Learner Id</th>
+                    <th>Learner Name</th>
                     <th>QuizId</th>
                     <th>QuizName</th>
                     <th>Score</th>
@@ -198,18 +198,12 @@
         }
 
         function getQuizId() {
-            var CourseId = document.getElementById("courseOptions").value;
-            console.log(CourseId);
-
-            var ClassId = document.getElementById("classOptions").value;
-            console.log(ClassId);
-
             var QuizId = document.getElementById("quizOptions").value;
             console.log(QuizId);
 
-            if (CourseId != 'CourseId' && ClassId != 'ClassId' && QuizId != 'QuizId') {
+            if (QuizId != 'QuizId') {
                 $(async () => {
-                    var getQuizResultsURL = "http://127.0.0.1:5100/mono/ClassQuizResults/" + ClassId + '/' + CourseId + '/' + QuizId;
+                    var getQuizResultsURL = "http://127.0.0.1:5100/mono/ClassQuizResults/" + QuizId;
 
                     try {
                         const response = await fetch(getQuizResultsURL, { method: "GET" });
@@ -224,14 +218,16 @@
                             console.log(quizResults);
                             var engineerNameList = result.data.nameList;
                             console.log(engineerNameList);
+                            var quizName = result.data.quizName;
+                            console.log(quizName)
 
                             for (var r in quizResults) {
                                 // console.log(quizResults[r]);
 
                                 var ID = quizResults[r].learner_id;
                                 var Name = engineerNameList[r]
-                                var qId = quizResults[r].QuizId;
-                                var qName = quizResults[r].QuizName;
+                                var qId = quizResults[r].quiz_id;
+                                var qName = quizName;
                                 var score = quizResults[r].score;
                                 var attempts = quizResults[r].attempts;
                                 

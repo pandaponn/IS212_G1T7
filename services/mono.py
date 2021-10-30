@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_, or_
 from flask_cors import CORS
+import json
+from os import environ
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
@@ -12,6 +15,48 @@ db = SQLAlchemy(app)
 
 CORS(app)
 
+class Learner(db.Model):
+    __tablename__ = 'Learner'
+
+    LearnerID = db.Column(db.Integer, primary_key=True)
+    LearnerName = db.Column(db.String(100), nullable=False)
+    CourseID = db.Column(db.Integer, primary_key=True)
+    ClassID = db.Column(db.Integer, primary_key=True)
+    CourseCompleted = db.Column(db.Boolean, nullable=True)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
+class CourseClass(db.Model):
+    __tablename__ = 'Class'
+
+    ClassId = db.Column(db.Integer, primary_key=True)
+    CourseId = db.Column(db.Integer, primary_key=True)
+    CourseName = db.Column(db.String(100), nullable=False)
+    TrainerId = db.Column(db.Integer, nullable=True)
+    StartDateTime = db.Column(db.DateTime, nullable=False,)
+    EndDateTime = db.Column(db.DateTime, nullable=True,)
+    Capacity = db.Column(db.Integer, nullable=False)
+    SlotsAvailable = db.Column(db.Integer, nullable=False)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
 
 class CourseMaterials(db.Model):
     __tablename__ = 'CourseMaterials'
@@ -33,7 +78,6 @@ class CourseMaterials(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
-
 
 class IsChapViewable(db.Model):
     __tablename__ = 'isChapViewable'
@@ -57,22 +101,27 @@ class IsChapViewable(db.Model):
             result[column] = getattr(self, column)
         return result
 
-
 class Quiz(db.Model):
-    __tablename__ = 'Quiz'
+    __tablename__ = 'quiz'
+    quiz_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    quiz_name = db.Column(db.String(65535), nullable=True)
+    course_id = db.Column(db.Integer, primary_key=False, nullable=False)
+    class_id = db.Column(db.Integer, primary_key=False, nullable=False)
+    chapter_id = db.Column(db.Integer, primary_key=False, nullable=False)
+    isGraded = db.Column(db.String(65535), nullable=False)
+    passing_grade = db.Column(db.String(65535), nullable=False)
 
-    learner_id = db.Column(db.String(100), primary_key=True)
-    QuizId = db.Column(db.String(100), primary_key=True)
-    QuizName = db.Column(db.String(100), nullable=False)
-    CourseId = db.Column(db.String(100), nullable=False)
-    ClassId = db.Column(db.String(100), nullable=False)
-    TrainerId = db.Column(db.String(100), nullable=False)
-    ChapterId = db.Column(db.String(100), nullable=False)
-    isViewable = db.Column(db.Boolean, nullable=False)
-    score = db.Column(db.Integer, nullable=True)
-    quizPass = db.Column(db.String(100), nullable=False)
-    attempts = db.Column(db.Integer, nullable=True)
+    def __init__(self, quiz_name, course_id, class_id, chapter_id, isGraded, passing_grade):
+        self.quiz_name = quiz_name
+        self.course_id = course_id
+        self.class_id = class_id
+        self.chapter_id = chapter_id
+        self.isGraded = isGraded
+        self.passing_grade = passing_grade
 
+    def json(self):
+        return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade}
+    
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -84,19 +133,26 @@ class Quiz(db.Model):
             result[column] = getattr(self, column)
         return result
 
-class CourseClass(db.Model):
-    __tablename__ = 'Class'
+class QuizResults(db.Model):
+    __tablename__ = 'quiz_results'
+    learner_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    quiz_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    score = db.Column(db.Integer, primary_key=False, nullable=False)
+    quizPass = db.Column(db.Integer, primary_key=False, nullable=False)
+    isViewable = db.Column(db.Integer, primary_key=False, nullable=False)
+    attempts = db.Column(db.Integer, primary_key=False, nullable=False)
 
-    ClassId = db.Column(db.Integer, primary_key=True)
-    CourseId = db.Column(db.Integer, primary_key=True)
-    CourseName = db.Column(db.String(100), nullable=False)
-    TrainerId = db.Column(db.Integer, nullable=True)
-    StartDateTime = db.Column(db.DateTime, nullable=False,)
-    EndDateTime = db.Column(db.DateTime, nullable=True,)
-    Materials = db.Column(db.String(100), nullable=False)
-    Capacity = db.Column(db.Integer, nullable=False)
-    SlotsAvailable = db.Column(db.Integer, nullable=False)
+    def __init__(self, learner_id, quiz_id, score, quizPass, isViewable, attempts):
+        self.learner_id = learner_id
+        self.quiz_id = quiz_id
+        self.score = score
+        self.quizPass = quizPass
+        self.isViewable = isViewable
+        self.attempts = attempts
 
+    def json(self):
+        return {"learner_id": self.learner_id, "quiz_id": self.quiz_id, "score": self.score, "quizPass": self.quizPass, "isViewable": self.isViewable, "attempts": self.attempts}
+    
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -108,27 +164,24 @@ class CourseClass(db.Model):
             result[column] = getattr(self, column)
         return result
 
-# Learner - from trisha
-class Learner(db.Model):
-    __tablename__ = 'Learner'
+class Questions(db.Model):
+    __tablename__ = 'questions'
+    question_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    quiz_id = db.Column(db.Integer, nullable=False)
+    qn_type = db.Column(db.String(65535), nullable=False)
+    question = db.Column(db.String(65535), nullable=False)
+    options = db.Column(db.String(65535), nullable=True)
+    answer = db.Column(db.String(65535), nullable=False)
 
-    LearnerID = db.Column(db.Integer, primary_key=True)
-    LearnerName = db.Column(db.String(100), nullable=False)
-    CourseID = db.Column(db.Integer, primary_key=True)
-    ClassID = db.Column(db.Integer, primary_key=True)
-    CourseCompleted = db.Column(db.Boolean, nullable=True)
+    def __init__(self, quiz_id, qn_type, question, options, answer):
+        self.quiz_id = quiz_id
+        self.qn_type = qn_type
+        self.question = question
+        self.options = options
+        self.answer = answer
 
-    def to_dict(self):
-        """
-        'to_dict' converts the object into a dictionary,
-        in which the keys correspond to database columns
-        """
-        columns = self.__mapper__.column_attrs.keys()
-        result = {}
-        for column in columns:
-            result[column] = getattr(self, column)
-        return result
-
+    def json(self):
+        return {"question_id": self.question_id, "quiz_id": self.quiz_id, "qn_type": self.qn_type, "question": self.question, "options": self.options, "answer": self.answer}
 
 db.create_all()
 
@@ -156,6 +209,7 @@ def course_signup(LearnerID, CourseID, ClassID):
 
     # added this function to add in rows to IsChapViewable
     addRowsToViewable(LearnerID, CourseID, ClassID)
+    addRowsToQuizResults(LearnerID, CourseID, ClassID)
 
     return jsonify(
         {
@@ -204,6 +258,39 @@ def addRowsToViewable(LearnerID, CourseID, ClassID):
             {
                 "code": 500,
                 "message": "An error occurred while adding rows to isChapViewable Table. " + str(e)
+            }
+        ), 500
+
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successful added."
+        }
+    ), 201
+
+def addRowsToQuizResults(LearnerID, CourseID, ClassID):
+    QuizzesList = Quiz.query.filter_by(
+        course_id=CourseID).filter_by(class_id=ClassID).all()
+    for quiz in QuizzesList:
+            learner_id = LearnerID
+            quiz_id = quiz.quiz_id
+            score = 0
+            quizPass = 0
+            isViewable = 0
+            attempts = 0
+
+            row = QuizResults(learner_id=learner_id, quiz_id=quiz_id, score=score, quizPass=quizPass,
+                                 isViewable=isViewable, attempts=attempts)
+            db.session.add(row)
+
+    try:
+        db.session.commit()
+
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while adding rows to QuizResults Table. " + str(e)
             }
         ), 500
 
@@ -338,10 +425,6 @@ def mark_chapter(learner_id, class_id, course_id, chapter_id, subchapter_id):
             learner_id, class_id, course_id, chapter_id)
         print(Quiz_viewable)
 
-        # nextChapId = int(chapter_id)+1
-        # print(nextChapId)
-        # nextChap_viewable = mark_chap_as_viewable(learner_id, class_id, course_id, nextChapId)
-
         return {
             "Quiz": [Quiz_viewable.to_dict()],
             "Materials": [subMaterials.to_dict()]
@@ -384,57 +467,44 @@ def find_materials_chapter_id(learner_id, class_id, course_id, chapter_id):
 
 def mark_quiz_as_viewable(learner_id, ClassId, CourseId, ChapterId):
     try:
-        Quiz_result = Quiz.query.filter_by(learner_id=learner_id).filter_by(ClassId=ClassId).filter_by(
-            CourseId=CourseId).filter_by(ChapterId=ChapterId).first()
-        print(Quiz_result)
-        if not Quiz_result:
+        quiz_id =  Quiz.query.filter_by(class_id=ClassId).filter_by(
+            course_id=CourseId).filter_by(chapter_id=ChapterId).first().quiz_id
+        result = QuizResults.query.filter_by(learner_id=learner_id).filter_by(
+            quiz_id=quiz_id).first()
+        print(result)
+        if not result:
             return []
 
-        print(Quiz_result.isViewable)
-        if Quiz_result.isViewable == False:
-            Quiz_result.isViewable = True
-            print(Quiz_result.isViewable)
+        print(result.isViewable)
+        if result.isViewable == False:
+            result.isViewable = True
+            print(result.isViewable)
         else:
-            return Quiz_result
+            return result
         db.session.commit()
-        return Quiz_result
+        return result
     except Exception as e:
         return []
 
-# Move this to quiz, when engineer take the quiz for the first time, mark next chap as viewable
-# Section is considered completed when learners indicate completion of all the learning materials and quiz.
-# def mark_chap_as_viewable(learner_id, class_id, course_id, nextChapId):
-#     try:
-#         Chap_result = CourseMaterials.query.filter_by(learner_id=learner_id).filter_by(class_id=class_id).filter_by(
-#             course_id=course_id).filter_by(chapter_id=nextChapId).all()
-#         print(Chap_result)
-#         if not Chap_result:
-#             return []
-
-#         for C in Chap_result:
-#             print(C.chapter_viewable)
-#             if C.chapter_viewable == False:
-#                 C.chapter_viewable = True
-#                 print(C.chapter_viewable)
-#             else:
-#                 return Chap_result
-#         db.session.commit()
-#         return Chap_result
-#     except Exception as e:
-#         return []
 
 # User Story: Take the quizzes for the classes
 # Get all the quizzes by learner_id, classId and courseId
 @app.route("/mono/allQuizzes/<string:learner_id>/<string:ClassId>/<string:CourseId>")
 def find_by_course_id(learner_id, ClassId, CourseId):
-    QuizList = Quiz.query.filter_by(learner_id=learner_id).filter_by(
-        ClassId=ClassId).filter_by(CourseId=CourseId).all()
+    resultList = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseId).all()
+    QuizNameList = []
+    QuizList = []
+    for result in resultList:
+        QuizNameList.append(result.quiz_name)
+        QuizList.append(QuizResults.query.filter_by(learner_id=learner_id).filter_by(
+            quiz_id=result.quiz_id).first())
     if QuizList:
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "Quizzes": [Quizzes.to_dict() for Quizzes in QuizList]
+                    "Quizzes": [quiz.to_dict() for quiz in QuizList],
+                    "QuizNameList": QuizNameList
                 },
                 "message": "Quizzes with ClassId {} has successfully returned.".format(ClassId)
             },
@@ -455,8 +525,13 @@ def find_by_course_id(learner_id, ClassId, CourseId):
 # return only the quiz that has been attempted
 @app.route("/mono/allResults/<string:learner_id>/<string:ClassId>/<string:CourseId>")
 def get_all_results(learner_id, ClassId, CourseId):
-    ResultList = Quiz.query.filter_by(learner_id=learner_id).filter_by(
-        ClassId=ClassId).filter_by(CourseId=CourseId).all()
+    Quiz_info = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseId).all()
+    QuizNameList = []
+    ResultList = []
+    for quiz in Quiz_info:
+        QuizNameList.append(quiz.quiz_name)
+        ResultList.append(QuizResults.query.filter_by(learner_id=learner_id).filter_by(
+            quiz_id=quiz.quiz_id).first())
     print(ResultList)
 
     for r in range(len(ResultList)):
@@ -466,17 +541,17 @@ def get_all_results(learner_id, ClassId, CourseId):
 
     stats = []
     for r in range(len(ResultList)):
-        print(ResultList[r].QuizId)
-        QuizId = ResultList[r].QuizId
-        stats.append(get_stats(QuizId, CourseId))
+        quiz_id = ResultList[r].quiz_id
+        stats.append(get_stats(quiz_id))
 
     if ResultList:
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "quizResults": [Results.to_dict() for Results in ResultList],
-                    "stats": stats
+                    "quizResults": [Result.to_dict() for Result in ResultList],
+                    "stats": stats,
+                    "QuizNameList": QuizNameList
                 },
                 "message": "Results with ClassId {} has successfully returned.".format(ClassId)
             },
@@ -496,29 +571,27 @@ def get_all_results(learner_id, ClassId, CourseId):
 
 # get all the quiz results by QuizId and CourseId
 # compute the average, min and max of the cohort (taking the same course)
-def get_stats(QuizId, CourseId):
-    allResultList = Quiz.query.filter_by(
-        QuizId=QuizId).filter_by(CourseId=CourseId).all()
-    print(allResultList)
+def get_stats(quiz_id):
+    allResultList = QuizResults.query.filter_by(quiz_id=quiz_id).all()
     scoreList = []
     statList = {}
-    statList[QuizId] = {}
+    statList[quiz_id] = {}
+    
+    if len(allResultList) == 1:
+        return scoreList
+        
     for a in range(len(allResultList)):
-        if allResultList[a].attempts == 0:
-            return statList
-        scoreList.append(allResultList[a].score)
-    print(scoreList)
+        if allResultList[a].attempts != 0:
+            scoreList.append(allResultList[a].score)
 
     avgScore = round(sum(scoreList)/len(scoreList), 2)
-    statList[QuizId]['avgScore'] = avgScore
+    statList[quiz_id]['avgScore'] = avgScore
 
     minScore = min(scoreList)
-    statList[QuizId]['minScore'] = minScore
+    statList[quiz_id]['minScore'] = minScore
 
     maxScore = max(scoreList)
-    statList[QuizId]['maxScore'] = maxScore
-
-    print(statList)
+    statList[quiz_id]['maxScore'] = maxScore
 
     return statList
 
@@ -541,11 +614,8 @@ def get_all_classes(TrainerId):
         if c.CourseId not in uniqueCourseIdList:
             uniqueCourseIdList.append(c.CourseId)
 
-    # quizIdList = get_quizIdBy_courseClass(classIdList, courseIdList)
-
     print(classIdList)
     print(courseIdList)
-    # print(quizIdList)
 
     if ClassList:
         return jsonify(
@@ -553,8 +623,7 @@ def get_all_classes(TrainerId):
                 "code": 200,
                 "data": {
                     "classIdList": classIdList,
-                    "courseIdList": uniqueCourseIdList,
-                    # "quizIdList": quizIdList
+                    "courseIdList": uniqueCourseIdList
                 },
                 "message": "Classes taughts by TrainerId {} has successfully returned.".format(TrainerId)
             },
@@ -570,30 +639,16 @@ def get_all_classes(TrainerId):
         }
     ), 404
 
-# def get_quizIdBy_courseClass(classIdList, courseIdList):
-#     quizIdList = []
-#     for i in range(len(classIdList)):
-#         ClassId = classIdList[i]
-#         CourseId = courseIdList[i]
-#         QuizList = Quiz.query.filter_by(ClassId=ClassId).filter_by(CourseId=CourseId).all()
-#         print(QuizList)
-
-#         for q in QuizList:
-#             if q.QuizId not in quizIdList:
-#                 quizIdList.append(q.QuizId)
-#     return quizIdList
-
-
-@app.route("/mono/trackResults/quizByCourseClass/<string:ClassId>/<string:CourseId>")
-def get_quizIdBy_courseClass(ClassId, CourseId):
+@app.route("/mono/trackResults/quizByCourseClass/<string:class_id>/<string:course_id>")
+def get_quizIdBy_courseClass(class_id, course_id):
     QuizList = Quiz.query.filter_by(
-        ClassId=ClassId).filter_by(CourseId=CourseId).all()
+        class_id=class_id).filter_by(course_id=course_id).all()
     print(QuizList)
 
     quizIdList = []
-    for q in QuizList:
-        if q.QuizId not in quizIdList:
-            quizIdList.append(q.QuizId)
+    for quiz in QuizList:
+        if quiz.quiz_id not in quizIdList:
+            quizIdList.append(quiz.quiz_id)
 
     print(quizIdList)
     if quizIdList:
@@ -607,10 +662,11 @@ def get_quizIdBy_courseClass(ClassId, CourseId):
         )
 
 # Use courseId, classId and quizId to get all the quizResults for that particular quiz, class and course
-@app.route("/mono/ClassQuizResults/<string:ClassId>/<string:CourseId>/<string:QuizId>")
-def get_all_classResults(ClassId, CourseId, QuizId):
-    quizResults = Quiz.query.filter_by(ClassId=ClassId).filter_by(
-        CourseId=CourseId).filter_by(QuizId=QuizId).all()
+@app.route("/mono/ClassQuizResults/<string:quiz_id>")
+def get_all_classResults(quiz_id):
+    quizName = Quiz.query.filter_by(quiz_id=quiz_id).first().quiz_name
+
+    quizResults = QuizResults.query.filter_by(quiz_id=quiz_id).all()
 
     learnerList = []
     for result in quizResults:
@@ -624,9 +680,10 @@ def get_all_classResults(ClassId, CourseId, QuizId):
                 "code": 200,
                 "data": {
                     "quizResults": [result.to_dict() for result in quizResults],
-                    "nameList": nameList
+                    "nameList": nameList,
+                    "quizName": quizName
                 },
-                "message": "Results for QuizId {} has successfully returned.".format(QuizId)
+                "message": "Results for quiz_id {} has successfully returned.".format(quiz_id)
             },
 
         )
@@ -634,9 +691,7 @@ def get_all_classResults(ClassId, CourseId, QuizId):
         {
             "code": 404,
             "data": {
-                "ClassId": ClassId,
-                "CourseId": CourseId,
-                "QuizId": QuizId
+                "quiz_id": quiz_id
             },
             "message": "Classes taught by trainer not found."
         }
@@ -650,72 +705,163 @@ def get_learner_name(learnerList):
         nameList.append(result.LearnerName)
     return nameList
 
-# TESTING - retrieving quizId
-# DONE - able to retrieve successfully
-@app.route("/mono/quiz/<string:QuizId>")
-def get_quiz(QuizId):
-    QuizReturn = Quiz.query.filter_by(QuizId=QuizId).first()
-    print(QuizReturn)
-    if QuizReturn:
+# FROM QUIZ.PY    
+# Retrieve all questions for specific quiz on create_quiz.html
+@app.route("/quiz/retrieveAllQuestions", methods=['POST'])
+def retrieveAllQuestions():
+    data = request.get_json()
+    quiz_id = data['quiz_id']
+    # quiz_id = 1
+
+    qn_list = Questions.query.filter_by(quiz_id=quiz_id)
+    allQuestions = []
+    for qn in qn_list:
+
+        output = {
+            'question_id' : qn.question_id,
+            'quiz_id' : qn.quiz_id,
+            'qn_type' : qn.qn_type,
+            'question' : qn.question,
+            'options' : qn.options,
+            'answer' :  qn.answer
+        }
+
+        allQuestions.append(output)
+        
+    if allQuestions:
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "Quiz": QuizReturn.to_dict()
-                },
-                "message": "Quiz with QuizId {} has successfully returned.".format(QuizId)
-            },
-
+                    "questions": allQuestions
+                }
+            }
         )
+    print(allQuestions)
+
     return jsonify(
         {
             "code": 404,
-            "data": {
-                "QuizId": QuizId,
-            },
+            "message": "Questions not found."
+        }
+    ), 404
+
+# retrieve Quiz Information
+@app.route("/quiz/retrieveQuizInfo", methods=['POST'])
+def retrieveQuizInfo():
+    data = request.get_json()
+    quiz_id = data['quiz_id']
+
+    quiz = Quiz.query.filter_by(quiz_id=quiz_id)
+    for q in quiz:
+        output = {
+            'quiz_name' : q.quiz_name,
+            'course_id' : q.course_id,
+            'class_id' : q.class_id,
+            'chapter_id' : q.chapter_id,
+            'passing_grade' : q.passing_grade,
+            'isGraded' : q.isGraded
+        }
+
+    if output:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "quiz": output
+                }
+            }
+        )
+
+    return jsonify(
+        {
+            "code": 404,
             "message": "Quiz not found."
         }
     ), 404
 
-# TESTING
-# need to check if all pass then update as coursecompleted
-# get from quiz, filter by learner_id, CourseId, ClassId
-# check if all quizzes have passed
-# if all passed, mark course as completed
-@app.route("/mono/markCourseCompleted/<string:learner_id>/<string:CourseId>/<string:ClassId>")
-def check_passes(learner_id, CourseId, ClassId):
-    QuizReturn = Quiz.query.filter_by(learner_id=learner_id).filter_by(
-        CourseId=CourseId).filter_by(ClassId=ClassId).all()
-    print(QuizReturn)
+# update score & quizPass
+@app.route("/quiz/updateQuizResults", methods=['PUT'])
+def update_quiz_results():
+    data = request.get_json()
+    learner_id=data['learner_id']
+    quiz_id=data['quiz_id']
+    isGraded = data['isGraded']
+    quiz = QuizResults.query.filter_by(learner_id=learner_id).filter_by(quiz_id=quiz_id).first()
 
-    passQuizzes = []
-    for quiz in QuizReturn:
-        if (quiz.quizPass == "P"):
-            passQuizzes.append(quiz)
+    quiz_info = Quiz.query.filter_by(quiz_id=quiz_id).first()
+    class_id = quiz_info.class_id
+    course_id = quiz_info.course_id
+    next_chapId = quiz_info.chapter_id+1
 
-    if len(passQuizzes) == len(QuizReturn):
-        mark_course_completed(learner_id, CourseId, ClassId)
+    # mark next chap as viewable
+    mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId)
+    
+    # check if quiz is graded and if pass, update course as completed
+    if(isGraded=='Y' and data['quizPass']==1):
+        mark_course_completed(learner_id, class_id, course_id)
 
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "Quiz": [quiz.to_dict() for quiz in QuizReturn]
-                },
-                "message": "Learner with learner_id {} has successfully completed the course.".format(learner_id)
-            },
-
-        )
+    if quiz: 
+        if data['score'] > quiz.score:
+            quiz.score = data['score']
+            quiz.quizPass = data['quizPass']
+            quiz.attempts = quiz.attempts + 1
+            db.session.commit()
+            return jsonify(
+                {
+                    "code": 200,
+                    "data":  {
+                        'learner_id' : data['learner_id'],
+                        'quiz_id' : data['quiz_id'],
+                        'score' : data['score'],
+                        'quizPass' : data['quizPass']
+                    }
+                }
+            ), 200
+        else:
+            quiz.attempts = quiz.attempts + 1
+            db.session.commit()
+            return jsonify(
+                {
+                    "code": 200,
+                    "data":  {
+                        'learner_id': data['learner_id'],
+                        'quiz_id' : data['quiz_id'],
+                        'score' : data['score'],
+                        'quizPass' : data['quizPass']
+                    },
+                    "message": "Quiz score not updated as previous result is better."
+                }
+            ), 200
     return jsonify(
         {
             "code": 404,
-            "data": {
-                "Quiz": [quiz.to_dict() for quiz in QuizReturn]
-            },
-            "message": "YOU DID NOT PASS. :("
+            
+            "message": "Quiz not found."
         }
     ), 404
 
+def mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId):
+    try:
+        Chap_result = IsChapViewable.query.filter_by(learner_id=learner_id).filter_by(class_id=class_id).filter_by(
+            course_id=course_id).filter_by(chapter_id=next_chapId).all()
+        print(Chap_result)
+        if not Chap_result:
+            return []
+
+        for C in Chap_result:
+            print(C.chapter_viewable)
+            if C.chapter_viewable == False:
+                C.chapter_viewable = True
+                print(C.chapter_viewable)
+            else:
+                return Chap_result
+        db.session.commit()
+        return Chap_result
+    except Exception as e:
+        return []
+
+ # update course as completed
 def mark_course_completed(learner_id, CourseId, ClassId):
     try:
         learnerCourse = Learner.query.filter_by(LearnerID=learner_id).filter_by(ClassID=ClassId).filter_by(
@@ -741,7 +887,6 @@ def mark_course_completed(learner_id, CourseId, ClassId):
             "message": "Successfully updated CourseCompleted to True."
         }
     ), 201
-
 
 if __name__ == '__main__':
     app.run(port=5100, debug=True)

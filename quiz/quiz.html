@@ -311,10 +311,12 @@
         }
     }
 
-    async function save_results(pass, score){
+    async function save_results(pass, score, isGraded){
         var updateScoreURL = 'http://localhost:5001/quiz/updateQuizResults';
         var quizPass = pass;
         var score = score;
+        var isGraded = isGraded;
+        var learner_id = 2; // This is hard-coded, please change once we are able to capture learner_id
         console.log(score)
         try{
             var response = await fetch(
@@ -322,9 +324,11 @@
                 method: 'PUT',
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
+                    learner_id : learner_id,
                     quiz_id : quiz_id,
                     quizPass : quizPass,
-                    score : score
+                    score : score,
+                    isGraded: isGraded
                 })
             })
             var result = await response.json();
@@ -370,23 +374,22 @@
             console.log(isGraded);
             console.log(passing_grade);
 
-            if(isGraded == "Y"){
-                var pass = "";
-                if(result >= passing_grade){
-                    console.log("You passed!");
-                    document.getElementById('quiz_result').innerHTML = "Congratulations, you passed!";
-                    document.getElementById('quiz_result').style.color = "green";
-                    pass = 1;
-                }
-                else{
-                    console.log("You failed!");
-                    document.getElementById('quiz_result').innerHTML = "You failed, try again!";
-                    document.getElementById('quiz_result').style.color = "red";
-                    pass = 0;
-                }
-                save_results(pass, result);
-
+            // if(isGraded == "Y"){
+            var pass = "";
+            if(result >= passing_grade){
+                console.log("You passed!");
+                document.getElementById('quiz_result').innerHTML = "Congratulations, you passed!";
+                document.getElementById('quiz_result').style.color = "green";
+                pass = 1;
             }
+            else{
+                console.log("You failed!");
+                document.getElementById('quiz_result').innerHTML = "You failed, try again!";
+                document.getElementById('quiz_result').style.color = "red";
+                pass = 0;
+            }
+            save_results(pass, result, isGraded);
+            // }
             
         }
     }
