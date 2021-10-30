@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_, or_
 from flask_cors import CORS
+import json
+from os import environ
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
@@ -11,6 +14,49 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
 db = SQLAlchemy(app)
 
 CORS(app)
+
+class Learner(db.Model):
+    __tablename__ = 'Learner'
+
+    LearnerID = db.Column(db.Integer, primary_key=True)
+    LearnerName = db.Column(db.String(100), nullable=False)
+    CourseID = db.Column(db.Integer, primary_key=True)
+    ClassID = db.Column(db.Integer, primary_key=True)
+    CourseCompleted = db.Column(db.Boolean, nullable=True)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
+class CourseClass(db.Model):
+    __tablename__ = 'Class'
+
+    ClassId = db.Column(db.Integer, primary_key=True)
+    CourseId = db.Column(db.Integer, primary_key=True)
+    CourseName = db.Column(db.String(100), nullable=False)
+    TrainerId = db.Column(db.Integer, nullable=True)
+    StartDateTime = db.Column(db.DateTime, nullable=False,)
+    EndDateTime = db.Column(db.DateTime, nullable=True,)
+    Capacity = db.Column(db.Integer, nullable=False)
+    SlotsAvailable = db.Column(db.Integer, nullable=False)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
 
 class CourseMaterials(db.Model):
     __tablename__ = 'CourseMaterials'
@@ -117,50 +163,25 @@ class QuizResults(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
-        
-class CourseClass(db.Model):
-    __tablename__ = 'Class'
 
-    ClassId = db.Column(db.Integer, primary_key=True)
-    CourseId = db.Column(db.Integer, primary_key=True)
-    CourseName = db.Column(db.String(100), nullable=False)
-    TrainerId = db.Column(db.Integer, nullable=True)
-    StartDateTime = db.Column(db.DateTime, nullable=False,)
-    EndDateTime = db.Column(db.DateTime, nullable=True,)
-    Capacity = db.Column(db.Integer, nullable=False)
-    SlotsAvailable = db.Column(db.Integer, nullable=False)
+class Questions(db.Model):
+    __tablename__ = 'questions'
+    question_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    quiz_id = db.Column(db.Integer, nullable=False)
+    qn_type = db.Column(db.String(65535), nullable=False)
+    question = db.Column(db.String(65535), nullable=False)
+    options = db.Column(db.String(65535), nullable=True)
+    answer = db.Column(db.String(65535), nullable=False)
 
-    def to_dict(self):
-        """
-        'to_dict' converts the object into a dictionary,
-        in which the keys correspond to database columns
-        """
-        columns = self.__mapper__.column_attrs.keys()
-        result = {}
-        for column in columns:
-            result[column] = getattr(self, column)
-        return result
+    def __init__(self, quiz_id, qn_type, question, options, answer):
+        self.quiz_id = quiz_id
+        self.qn_type = qn_type
+        self.question = question
+        self.options = options
+        self.answer = answer
 
-class Learner(db.Model):
-    __tablename__ = 'Learner'
-
-    LearnerID = db.Column(db.Integer, primary_key=True)
-    LearnerName = db.Column(db.String(100), nullable=False)
-    CourseID = db.Column(db.Integer, primary_key=True)
-    ClassID = db.Column(db.Integer, primary_key=True)
-    CourseCompleted = db.Column(db.Boolean, nullable=True)
-
-    def to_dict(self):
-        """
-        'to_dict' converts the object into a dictionary,
-        in which the keys correspond to database columns
-        """
-        columns = self.__mapper__.column_attrs.keys()
-        result = {}
-        for column in columns:
-            result[column] = getattr(self, column)
-        return result
-
+    def json(self):
+        return {"question_id": self.question_id, "quiz_id": self.quiz_id, "qn_type": self.qn_type, "question": self.question, "options": self.options, "answer": self.answer}
 
 db.create_all()
 
@@ -683,6 +704,189 @@ def get_learner_name(learnerList):
         result = Learner.query.filter_by(LearnerID=LearnerID).first()
         nameList.append(result.LearnerName)
     return nameList
+
+# FROM QUIZ.PY    
+# Retrieve all questions for specific quiz on create_quiz.html
+@app.route("/quiz/retrieveAllQuestions", methods=['POST'])
+def retrieveAllQuestions():
+    data = request.get_json()
+    quiz_id = data['quiz_id']
+    # quiz_id = 1
+
+    qn_list = Questions.query.filter_by(quiz_id=quiz_id)
+    allQuestions = []
+    for qn in qn_list:
+
+        output = {
+            'question_id' : qn.question_id,
+            'quiz_id' : qn.quiz_id,
+            'qn_type' : qn.qn_type,
+            'question' : qn.question,
+            'options' : qn.options,
+            'answer' :  qn.answer
+        }
+
+        allQuestions.append(output)
+        
+    if allQuestions:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "questions": allQuestions
+                }
+            }
+        )
+    print(allQuestions)
+
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Questions not found."
+        }
+    ), 404
+
+# retrieve Quiz Information
+@app.route("/quiz/retrieveQuizInfo", methods=['POST'])
+def retrieveQuizInfo():
+    data = request.get_json()
+    quiz_id = data['quiz_id']
+
+    quiz = Quiz.query.filter_by(quiz_id=quiz_id)
+    for q in quiz:
+        output = {
+            'quiz_name' : q.quiz_name,
+            'course_id' : q.course_id,
+            'class_id' : q.class_id,
+            'chapter_id' : q.chapter_id,
+            'passing_grade' : q.passing_grade,
+            'isGraded' : q.isGraded
+        }
+
+    if output:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "quiz": output
+                }
+            }
+        )
+
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Quiz not found."
+        }
+    ), 404
+
+# update score & quizPass
+@app.route("/quiz/updateQuizResults", methods=['PUT'])
+def update_quiz_results():
+    data = request.get_json()
+    learner_id=data['learner_id']
+    quiz_id=data['quiz_id']
+    isGraded = data['isGraded']
+    quiz = QuizResults.query.filter_by(learner_id=learner_id).filter_by(quiz_id=quiz_id).first()
+
+    quiz_info = Quiz.query.filter_by(quiz_id=quiz_id).first()
+    class_id = quiz_info.class_id
+    course_id = quiz_info.course_id
+    next_chapId = quiz_info.chapter_id+1
+
+    # mark next chap as viewable
+    mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId)
+    
+    # check if quiz is graded and if pass, update course as completed
+    if(isGraded=='Y' and data['quizPass']==1):
+        mark_course_completed(learner_id, class_id, course_id)
+
+    if quiz: 
+        if data['score'] > quiz.score:
+            quiz.score = data['score']
+            quiz.quizPass = data['quizPass']
+            quiz.attempts = quiz.attempts + 1
+            db.session.commit()
+            return jsonify(
+                {
+                    "code": 200,
+                    "data":  {
+                        'learner_id' : data['learner_id'],
+                        'quiz_id' : data['quiz_id'],
+                        'score' : data['score'],
+                        'quizPass' : data['quizPass']
+                    }
+                }
+            ), 200
+        else:
+            quiz.attempts = quiz.attempts + 1
+            db.session.commit()
+            return jsonify(
+                {
+                    "code": 200,
+                    "data":  {
+                        'learner_id': data['learner_id'],
+                        'quiz_id' : data['quiz_id'],
+                        'score' : data['score'],
+                        'quizPass' : data['quizPass']
+                    },
+                    "message": "Quiz score not updated as previous result is better."
+                }
+            ), 200
+    return jsonify(
+        {
+            "code": 404,
+            
+            "message": "Quiz not found."
+        }
+    ), 404
+
+def mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId):
+    try:
+        Chap_result = IsChapViewable.query.filter_by(learner_id=learner_id).filter_by(class_id=class_id).filter_by(
+            course_id=course_id).filter_by(chapter_id=next_chapId).all()
+        print(Chap_result)
+        if not Chap_result:
+            return []
+
+        for C in Chap_result:
+            print(C.chapter_viewable)
+            if C.chapter_viewable == False:
+                C.chapter_viewable = True
+                print(C.chapter_viewable)
+            else:
+                return Chap_result
+        db.session.commit()
+        return Chap_result
+    except Exception as e:
+        return []
+
+ # update course as completed
+def mark_course_completed(learner_id, CourseId, ClassId):
+    try:
+        learnerCourse = Learner.query.filter_by(LearnerID=learner_id).filter_by(ClassID=ClassId).filter_by(
+            CourseID=CourseId).first()
+        print(learnerCourse)
+
+        if learnerCourse.CourseCompleted == False:
+            learnerCourse.CourseCompleted = True
+            print(learnerCourse.CourseCompleted)
+
+        db.session.commit()
+
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while updating CourseCompleted. " + str(e)
+            }
+        ), 500
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successfully updated CourseCompleted to True."
+        }
+    ), 201
 
 if __name__ == '__main__':
     app.run(port=5100, debug=True)
