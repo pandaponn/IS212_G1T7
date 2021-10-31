@@ -71,19 +71,19 @@ CREATE TABLE IF NOT EXISTS `course` (
   `updatedBy` varchar(100) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updateTime` timestamp NULL DEFAULT NULL,
+  `isFull` tinyint(1) NOT NULL,
   PRIMARY KEY (`courseId`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `course`
 --
 
-INSERT INTO `course` (`courseId`, `courseName`, `preReq`, `classes`, `createdBy`, `updatedBy`, `createdTime`, `updateTime`) VALUES
-(1, 'Python Basics', NULL, 3, 'hr1', NULL, '2021-10-13 06:28:29', NULL),
-(2, 'Python Intermediate', 1, 1, 'hr1', NULL, '2021-10-13 06:28:29', NULL),
-(3, 'Extreme Python', 2, 1, 'hr2', NULL, '2021-10-13 06:29:29', NULL),
-(4, 'Data Management', 1, 1, 'hr2', NULL, '2021-10-13 06:29:29', NULL),
-(5, 'Fire Python', 3, 2, 'hr1', NULL, '2021-10-18 08:18:39', NULL);
+INSERT INTO `course` (`courseId`, `courseName`, `preReq`, `classes`, `createdBy`, `updatedBy`, `createdTime`, `updateTime`, `isFull`) VALUES
+(1, 'Python Basics', NULL, 5, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 0),
+(2, 'Python Intermediate', 1, 5, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 1),
+(3, 'Extreme Python', 2, 3, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0),
+(4, 'Data Management', 1, 5, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -128,6 +128,8 @@ CREATE TABLE IF NOT EXISTS `engineer` (
   `engineerName` varchar(100) NOT NULL,
   `totalClasses` int(100) NOT NULL,
   `courseCompleted` int(100) DEFAULT NULL,
+  `trainer` int(100) NOT NULL,
+  `learner` int(100) NOT NULL,
   PRIMARY KEY (`engineerId`) USING BTREE,
   KEY `engineerId` (`engineerId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
@@ -136,12 +138,12 @@ CREATE TABLE IF NOT EXISTS `engineer` (
 -- Dumping data for table `engineer`
 --
 
-INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`) VALUES
-(1, 'Ling Li', 2, 1),
-(2, 'Trisha', 3, NULL),
-(3, 'Faith', 5, NULL),
-(4, 'Kal', 2, 3),
-(5, 'Dora', 3, 4);
+INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`) VALUES
+(1, 'Ling Li', 2, 1, 0, 1),
+(2, 'Trisha', 3, NULL, 0, 1),
+(3, 'Faith', 5, NULL, 0, 1),
+(4, 'Kal', 2, 3, 1, 0),
+(5, 'Dora', 3, 4, 1, 1);
 
 -- --------------------------------------------------------
 
