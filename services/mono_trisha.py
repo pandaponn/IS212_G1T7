@@ -104,7 +104,6 @@ class CourseClass(db.Model):
     TrainerID = db.Column(db.Integer, nullable=True)
     StartDateTime = db.Column(db.DateTime, nullable=False,)
     EndDateTime = db.Column(db.DateTime, nullable=True,)
-    Materials = db.Column(db.String(100), nullable=False)
     Capacity = db.Column(db.Integer, nullable=False)
     SlotsAvailable = db.Column(db.Integer, nullable=False)
 
@@ -295,52 +294,83 @@ def validate_prereq(CourseID, LearnerID, ClassID):
     print(course)
     print(learner)
     coursePreReq = course.PreReq
-    print('prerequisite: ', coursePreReq)
-
-    for each in learner:
-        learnerPreReq = each.CourseID
-        learnerComplete = each.CourseCompleted
-        print('learner prerequisite: ', learnerPreReq, 'completed: ', learnerComplete)
-
-        if coursePreReq == None:
-            # course has no pre-requisite
-            # return jsonify(
-            #     {
-            #         "code": 200,
-            #         "CourseID": CourseID,
-            #         "message": "Able to sign up"
-            #     }
-            # ), 200
+    print('course prerequisite: ', coursePreReq)
+    if not learner:
+        print('no learner')
+        return jsonify({
+            "code": "404",
+            "message": "no prequisites of learner"
+        }), 404
+    else:
+        if course.PreReq == None:
+            print('no prequisite for this course')
+            # return jsonify({
+            #     "code": "201",
+            #     "message": "course has no prerequisite. able to sign up"
+            # })
             return course_signup(LearnerID, CourseID, ClassID)
+        else:
+        # course has a prequisite
+            for each in learner:
+                print("looping")
+                # print(each.CourseID)
+                if each.CourseID == coursePreReq:
+                    # print("learner has course' pre requisite")
+                    # return jsonify({
+                    #     "code": "200",
+                    #     "message": "learner has pre requisite"
+                    # }), 200
+                    return course_signup(LearnerID, CourseID, ClassID)
+                
+            return jsonify({
+                "code": "500",
+                "message": "learner does not have pre requisite"
+            }), 500
+
+    # for each in learner:
+        # learnerPreReq = each.CourseID
+        # learnerComplete = each.CourseCompleted
+        # print('learner prerequisite: ', learnerPreReq, 'completed: ', learnerComplete)
+
         
         # if there is a pre-requisite, check if the course pre-req == learner course id
-        if learnerPreReq == coursePreReq:
-            print('learnerPreReq: ', learnerPreReq, ', coursePreReq: ', coursePreReq)
-            if learnerComplete == 1:
-                # return jsonify(
-                #     {
-                #         "code": 200,
-                #         "message": "Learner has completed course pre-requisite"
-                #     }
-                # ), 200
-                return course_signup(LearnerID, CourseID, ClassID)
-            else: # learner did not complete course
-                print(learnerComplete)
-                return jsonify(
-                    {
-                        "code": 503,
-                        "message": "Learner did not complete course pre-requisite"
-                    }
-                ), 500
-        else: # learner is not taking pre-requisite
-            print('learnerPreReq: ', learnerPreReq, ', coursePreReq: ', coursePreReq)
-            return jsonify(
-                {
-                    "code": 502,
-                    "message": "Learner is not taking pre-requisite "
-                }
-            ), 500
-        # return course_signup(LearnerID, CourseID,ClassID)
+        # # if learnerPreReq == coursePreReq:
+        #     print('learnerPreReq: ', learnerPreReq, ', coursePreReq: ', coursePreReq)
+        #     if learnerComplete == 1:
+        #         return jsonify(
+        #             {
+        #                 "code": 200,
+        #                 "message": "Learner has completed course pre-requisite"
+        #             }
+        #         ), 200
+                # return course_signup(LearnerID, CourseID, ClassID)
+            # else: # learner did not complete course
+    #             print(learnerComplete)
+    #             return jsonify(
+    #                 {
+    #                     "code": 503,
+    #                     "message": "Learner did not complete course pre-requisite"
+    #                 }
+    #             ), 503
+    #     else: # learner is not taking pre-requisite
+    #         print('learnerPreReq: ', learnerPreReq, ', coursePreReq: ', coursePreReq)
+    #         return jsonify(
+    #             {
+    #                 "code": 502,
+    #                 "message": "Learner is not taking pre-requisite "
+    #             }
+    #         ), 502
+    #     # return course_signup(LearnerID, CourseID,ClassID)
+    # if coursePreReq == None:
+    #         # course has no pre-requisite
+    #         return jsonify(
+    #             {
+    #                 "code": 200,
+    #                 "CourseID": CourseID,
+    #                 "message": "Able to sign up"
+    #             }
+    #         ), 200
+            # return course_signup(LearnerID, CourseID, ClassID)
 
 
 
