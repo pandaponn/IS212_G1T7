@@ -75,6 +75,7 @@
             <th>Course Name</th>
             <th>Pre-requisite Course</th>
             <th>Number of Classes</th>
+            <th>Full?</th>
           </tr>
         </thead>
       </table>
@@ -138,7 +139,7 @@
                   <td> ${CourseName} </td>
                   <td> ${PreReq} </td>
                   <td><a class="nav-link" href="all_classes.html?courseid=${CourseID}"> ${Classes} </a></td>
-                  <td> ${isFull} </td>
+                  <td> ${IsFull} </td>
               </tr>
                   `;
           }
@@ -185,14 +186,16 @@
                     console.log('CourseID: ', CourseID)
                     var CourseName = course.CourseName;
                     var PreReq = course.PreReq;
-                    var Classes = course.Classes
+                    var Classes = course.Classes;
+                    var IsFull = course.IsFull;
+
                     rows += ` 
                             <tr>
                                 <td> ${CourseID} </td>
                                 <td> ${CourseName} </td>
                                 <td> ${PreReq} </td>
                                 <td> <a class="nav-link" href="all_classes.html?courseid=${CourseID}">${Classes} </a></td>
-                                
+                                <td> ${IsFull} </td>
                             </tr>`;
                   }
                     

@@ -203,7 +203,6 @@
             var Trainer = courseclass.TrainerID;
             var StartDateTime = courseclass.StartDateTime;
             var EndDateTime = courseclass.EndDateTime;
-            var Materials = courseclass.Materials;
             var Capacity = courseclass.Capacity;
             var SlotsAvailable = courseclass.SlotsAvailable;
 
@@ -265,21 +264,23 @@
               ClassID: ClassID
             }),
           });
-          // console.log(response.status);
+          console.log(response.status);
           if (response.status == 201) {
             console.log('success')
             // var success_msg = `<h2>Sign Up successful</h2>`;
             // document.getElementById('signupForm').style.visibility = 'hidden'
             document.getElementById('resultModalTitle').innerText = "Sign Up Successful"
-            document.getElementById('resultModalBody').innerText = "You have successfully signed up for CourseID: " + CourseID + ", " + CourseName;
             document.getElementById('resultModalTitle').style.visibility = 'visible';
+            document.getElementById('resultModalBody').innerText = "You have successfully signed up. Please wait for approval by administrator.";
             document.getElementById('dismissModal').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;
             
           } else if (response.status == 404) {
               // console.log('error in signing up')
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
-            document.getElementById('resultModalBody').innerText = "An error has occurred, please try again later.";
+            document.getElementById('resultModalBody').innerText = "You have not completed the required pre-requisite.";
             document.getElementById('resultModalTitle').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;
 
           } else if (response.status == 500) { // no more available slots
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
@@ -291,6 +292,13 @@
           } else if (response.status == 501) { // course enrolled in already
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
             document.getElementById('resultModalBody').innerText = "You are already enrolled. Please try a different course.";
+            document.getElementById('resultModalTitle').style.visibility = 'visible';
+            // document.getElementById('dismissModal').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;
+          }
+          else if (response.status == 502) { // course enrollment is closed
+            document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
+            document.getElementById('resultModalBody').innerText = "Self-enrollment period for this course is closed. Please try a different course.";
             document.getElementById('resultModalTitle').style.visibility = 'visible';
             // document.getElementById('dismissModal').style.visibility = 'visible';
             document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;
