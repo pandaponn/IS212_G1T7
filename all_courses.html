@@ -130,6 +130,7 @@
             var CourseID = course.CourseID;
             var CourseName = course.CourseName;
             var PreReq = course.PreReq;
+            var IsFull = course.IsFull;
 
             rows += `
               <tr class="maincourse">
@@ -137,6 +138,7 @@
                   <td> ${CourseName} </td>
                   <td> ${PreReq} </td>
                   <td><a class="nav-link" href="all_classes.html?courseid=${CourseID}"> ${Classes} </a></td>
+                  <td> ${isFull} </td>
               </tr>
                   `;
           }

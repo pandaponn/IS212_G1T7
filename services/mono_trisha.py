@@ -6,7 +6,7 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
                                         # '@localhost:3306/is212_example'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
@@ -78,6 +78,7 @@ class Course(db.Model):
     UpdatedBy = db.Column(db.String(100), nullable=True)
     CreatedTime = db.Column(db.DateTime, nullable=False, default=datetime.now)
     UpdateTime = db.Column(db.DateTime, nullable=True, default=datetime.now, onupdate=datetime.now)
+    IsFull =  db.Column(db.Boolean, nullable=False)
 
     # __mapper_args__ = {
     #     'polymorphic_identity': 'person'
