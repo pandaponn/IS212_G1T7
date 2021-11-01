@@ -6,7 +6,7 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
                                         # '@localhost:3306/is212_example'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
@@ -24,6 +24,8 @@ class Learner(db.Model):
     LearnerName = db.Column(db.String(100), nullable=False)
     CourseID = db.Column(db.Integer, primary_key=True)
     ClassID = db.Column(db.Integer, primary_key=True)
+    assigned = db.Column(db.Integer, nullable=False)
+    approved = db.Column(db.Integer, nullable=True)
     CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
 
     # __mapper_args__ = {
@@ -45,15 +47,13 @@ class Learner(db.Model):
 class Engineer(db.Model):
     __tablename__ = 'Engineer'
 
-    EngineerID = db.Column(db.Integer, primary_key=True)
-    EngineerName = db.Column(db.String(100), nullable=False)
-    CourseID = db.Column(db.Integer, primary_key=True)
-    ClassID = db.Column(db.Integer, primary_key=True)
-    CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
+    EngineerID = db.Column(db.Integer, primary_key = True)
+    EngineerName = db.Column(db.String(100), nullable = False)
+    TotalClasses = db.Column(db.Integer, nullable = False)
+    CourseCompleted = db.Column(db.Integer, nullable = False)
+    Trainer = db.Column(db.Integer, nullable = False)
+    Learner = db.Column(db.Integer, nullable = False)
 
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'person'
-    # }
 
     def to_dict(self):
         """
@@ -80,9 +80,6 @@ class Course(db.Model):
     UpdateTime = db.Column(db.DateTime, nullable=True, default=datetime.now, onupdate=datetime.now)
     IsFull =  db.Column(db.Boolean, nullable=False)
 
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'person'
-    # }
 
     def to_dict(self):
         """
@@ -122,6 +119,7 @@ class CourseClass(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+
 
 db.create_all()
 
