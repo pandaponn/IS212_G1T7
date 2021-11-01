@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 27, 2021 at 04:49 PM
+-- Generation Time: Nov 01, 2021 at 07:20 AM
 -- Server version: 8.0.18
 -- PHP Version: 7.4.0
 
@@ -46,14 +46,14 @@ CREATE TABLE IF NOT EXISTS `class` (
 --
 
 INSERT INTO `class` (`classId`, `courseId`, `courseName`, `trainerId`, `startDateTime`, `endDateTime`, `capacity`, `slotsAvailable`) VALUES
-(1, 1, 'Python Basics', 1, '2021-10-13 09:00:00.000000', '2021-10-31 21:00:00.000000', 40, 39),
-(2, 1, 'Python Basics', 1, '2021-10-13 11:00:00.000000', '2021-11-05 18:00:00.000000', 13, 13),
-(3, 1, 'Python Basics', 2, '2021-10-11 10:00:00.000000', '2021-10-29 19:00:00.000000', 14, 14),
-(4, 2, 'Python Intermediate', 3, '2021-10-01 09:00:00.000000', '2021-11-27 16:00:00.000000', 30, 26),
-(5, 3, 'Extreme Python', 2, '2021-10-19 00:00:00.000000', '2021-10-26 00:00:00.000000', 2, 0),
-(6, 4, 'Data Management', 1, '2021-10-20 08:00:00.000000', '2021-10-30 17:00:00.000000', 10, 8),
-(7, 5, 'Fire Python', 2, '2021-10-25 08:00:00.000000', '2021-12-01 16:00:00.000000', 10, 10),
-(8, 5, 'Fire Python', 1, '2021-11-01 08:00:00.000000', '2021-12-31 23:59:00.000000', 10, 10);
+(1, 1, 'Python Basics', 1, '2021-10-13 09:00:00.000000', '2021-10-27 21:00:00.000000', 40, 39),
+(2, 1, 'Python Basics', 1, '2021-10-11 11:00:00.000000', '2021-10-25 18:00:00.000000', 13, 8),
+(3, 1, 'Python Basics', 2, '2021-10-12 10:00:00.000000', '2021-10-26 19:00:00.000000', 14, 13),
+(4, 2, 'Python Intermediate', 3, '2021-10-15 09:00:00.000000', '2021-10-29 16:00:00.000000', 30, 25),
+(5, 3, 'Extreme Python', 2, '2021-10-19 00:00:00.000000', '2021-10-26 00:00:00.000000', 2, 1),
+(6, 4, 'Data Management', 1, '2021-11-20 08:00:00.000000', '2021-11-30 17:00:00.000000', 10, 8),
+(7, 5, 'Fire Python', 2, '2021-11-25 08:00:00.000000', '2021-12-15 23:59:00.000000', 10, 10),
+(8, 5, 'Fire Python', 1, '2021-11-26 08:00:00.000000', '2021-12-16 23:59:00.000000', 10, 10);
 
 -- --------------------------------------------------------
 
@@ -67,23 +67,27 @@ CREATE TABLE IF NOT EXISTS `course` (
   `courseName` varchar(100) NOT NULL,
   `preReq` int(100) DEFAULT NULL,
   `classes` int(100) NOT NULL,
+  `startEnroll` datetime NOT NULL,
+  `endEnroll` datetime NOT NULL,
+  `open` tinyint(4) NOT NULL,
   `createdBy` varchar(100) NOT NULL,
   `updatedBy` varchar(100) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updateTime` timestamp NULL DEFAULT NULL,
   `isFull` tinyint(1) NOT NULL,
   PRIMARY KEY (`courseId`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `course`
 --
 
-INSERT INTO `course` (`courseId`, `courseName`, `preReq`, `classes`, `createdBy`, `updatedBy`, `createdTime`, `updateTime`, `isFull`) VALUES
-(1, 'Python Basics', NULL, 5, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 0),
-(2, 'Python Intermediate', 1, 5, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 1),
-(3, 'Extreme Python', 2, 3, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0),
-(4, 'Data Management', 1, 5, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0);
+INSERT INTO `course` (`courseId`, `courseName`, `preReq`, `classes`, `startEnroll`, `endEnroll`, `open`, `createdBy`, `updatedBy`, `createdTime`, `updateTime`, `isFull`) VALUES
+(1, 'Python Basics', NULL, 3, '2021-10-01 00:00:00', '2021-10-08 00:00:00', 0, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 0),
+(2, 'Python Intermediate', 1, 1, '2021-10-06 00:00:00', '2021-10-12 00:00:00', 0, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 1),
+(3, 'Extreme Python', 2, 1, '2021-10-13 00:00:00', '2021-10-17 00:00:00', 0, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0),
+(4, 'Data Management', 1, 1, '2021-10-28 00:00:00', '2021-11-17 00:00:00', 1, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0),
+(5, 'Fire Python', 3, 2, '2021-11-01 00:00:00', '2021-11-20 00:00:00', 1, 'hr1', NULL, '2021-10-13 14:29:29', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -161,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `ischapviewable` (
   `chapter_viewable` tinyint(1) NOT NULL,
   `chapter_viewed` tinyint(1) NOT NULL,
   PRIMARY KEY (`learner_id`,`course_id`,`class_id`,`chapter_id`,`subchapter_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `ischapviewable`
@@ -193,19 +197,22 @@ CREATE TABLE IF NOT EXISTS `learner` (
   `LearnerName` varchar(100) NOT NULL,
   `CourseID` int(11) NOT NULL,
   `ClassID` int(11) NOT NULL,
-  `CourseCompleted` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`LearnerID`,`CourseID`,`ClassID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `assigned` tinyint(4) NOT NULL,
+  `approved` tinyint(4) DEFAULT NULL,
+  `courseCompleted` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`LearnerID`,`ClassID`,`CourseID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `learner`
 --
 
-INSERT INTO `learner` (`LearnerID`, `LearnerName`, `CourseID`, `ClassID`, `CourseCompleted`) VALUES
-(1, 'Ling Li', 1, 1, 1),
-(2, 'Trisha', 1, 2, 0),
-(3, 'Faith', 1, 1, 0),
-(4, 'LiLi', 1, 1, 0);
+INSERT INTO `learner` (`LearnerID`, `LearnerName`, `CourseID`, `ClassID`, `assigned`, `approved`, `courseCompleted`) VALUES
+(1, 'Ling Li', 1, 1, 1, NULL, 1),
+(1, 'Ling Li', 2, 4, 0, 1, 1),
+(1, 'Ling Li', 4, 6, 0, 1, 0),
+(2, 'Trisha', 1, 1, 1, NULL, 1),
+(2, 'Trisha', 2, 4, 0, 1, 0);
 
 -- --------------------------------------------------------
 
