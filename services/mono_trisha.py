@@ -6,7 +6,7 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
                                         # '@localhost:3306/is212_example'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
@@ -24,6 +24,8 @@ class Learner(db.Model):
     LearnerName = db.Column(db.String(100), nullable=False)
     CourseID = db.Column(db.Integer, primary_key=True)
     ClassID = db.Column(db.Integer, primary_key=True)
+    Assigned = db.Column(db.Integer, nullable=False)
+    Approved = db.Column(db.Integer, nullable=True)
     CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
 
     # __mapper_args__ = {
@@ -45,15 +47,13 @@ class Learner(db.Model):
 class Engineer(db.Model):
     __tablename__ = 'Engineer'
 
-    EngineerID = db.Column(db.Integer, primary_key=True)
-    EngineerName = db.Column(db.String(100), nullable=False)
-    CourseID = db.Column(db.Integer, primary_key=True)
-    ClassID = db.Column(db.Integer, primary_key=True)
-    CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
+    EngineerID = db.Column(db.Integer, primary_key = True)
+    EngineerName = db.Column(db.String(100), nullable = False)
+    TotalClasses = db.Column(db.Integer, nullable = False)
+    CourseCompleted = db.Column(db.Integer, nullable = False)
+    Trainer = db.Column(db.Integer, nullable = False)
+    Learner = db.Column(db.Integer, nullable = False)
 
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'person'
-    # }
 
     def to_dict(self):
         """
@@ -74,15 +74,15 @@ class Course(db.Model):
     CourseName = db.Column(db.String(100), nullable=False)
     PreReq = db.Column(db.Integer, nullable=True)
     Classes = db.Column(db.Integer, nullable=False)
+    StartEnroll = db.Column(db.DateTime, nullable=False)
+    EndEnroll = db.Column(db.DateTime, nullable=False)
+    Open = db.Column(db.Integer, nullable=False)
     CreatedBy = db.Column(db.String(100), nullable=False)
     UpdatedBy = db.Column(db.String(100), nullable=True)
     CreatedTime = db.Column(db.DateTime, nullable=False, default=datetime.now)
     UpdateTime = db.Column(db.DateTime, nullable=True, default=datetime.now, onupdate=datetime.now)
     IsFull =  db.Column(db.Boolean, nullable=False)
 
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'person'
-    # }
 
     def to_dict(self):
         """
@@ -105,7 +105,6 @@ class CourseClass(db.Model):
     TrainerID = db.Column(db.Integer, nullable=True)
     StartDateTime = db.Column(db.DateTime, nullable=False,)
     EndDateTime = db.Column(db.DateTime, nullable=True,)
-    Materials = db.Column(db.String(100), nullable=False)
     Capacity = db.Column(db.Integer, nullable=False)
     SlotsAvailable = db.Column(db.Integer, nullable=False)
 
@@ -123,6 +122,7 @@ class CourseClass(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+
 
 db.create_all()
 
@@ -290,58 +290,51 @@ def get_courseclass_details(ClassID):
 # check if course has NOT been taken before --> OK (duplicate entry will give error)
 @app.route("/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>", methods=['POST'])
 def validate_prereq(CourseID, LearnerID, ClassID):
-    learner = Learner.query.filter_by(LearnerID=LearnerID).all()
+    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(CourseCompleted=1).all()
     course = Course.query.filter_by(CourseID=CourseID).first()
     # print(course.CourseID)
     print(course)
     print(learner)
     coursePreReq = course.PreReq
-    print('prerequisite: ', coursePreReq)
-
-    for each in learner:
-        learnerPreReq = each.CourseID
-        learnerComplete = each.CourseCompleted
-        print('learner prerequisite: ', learnerPreReq, 'completed: ', learnerComplete)
-
-        if coursePreReq == None:
-            # course has no pre-requisite
-            # return jsonify(
-            #     {
-            #         "code": 200,
-            #         "CourseID": CourseID,
-            #         "message": "Able to sign up"
-            #     }
-            # ), 200
-            return course_signup(LearnerID, CourseID, ClassID)
-        
-        # if there is a pre-requisite, check if the course pre-req == learner course id
-        if learnerPreReq == coursePreReq:
-            print('learnerPreReq: ', learnerPreReq, ', coursePreReq: ', coursePreReq)
-            if learnerComplete == 1:
-                # return jsonify(
-                #     {
-                #         "code": 200,
-                #         "message": "Learner has completed course pre-requisite"
-                #     }
-                # ), 200
+    isCourseEnrollOpen = course.Open
+    print('course prerequisite: ', coursePreReq)
+    if not learner:
+        print('no learner')
+        return jsonify({
+            "code": "404",
+            "message": "no prequisites of learner"
+        }), 404
+    else:
+        if course.PreReq == None:
+            print('no prequisite for this course')
+            # return jsonify({
+            #     "code": "201",
+            #     "message": "course has no prerequisite. able to sign up"
+            # })
+            if isCourseEnrollOpen == 1:
                 return course_signup(LearnerID, CourseID, ClassID)
-            else: # learner did not complete course
-                print(learnerComplete)
-                return jsonify(
-                    {
-                        "code": 503,
-                        "message": "Learner did not complete course pre-requisite"
-                    }
-                ), 500
-        else: # learner is not taking pre-requisite
-            print('learnerPreReq: ', learnerPreReq, ', coursePreReq: ', coursePreReq)
-            return jsonify(
-                {
-                    "code": 502,
-                    "message": "Learner is not taking pre-requisite "
-                }
-            ), 500
-        # return course_signup(LearnerID, CourseID,ClassID)
+            else:
+                return jsonify({
+                    "code": "502",
+                    "message": "enrollment for course is closed"
+                }),502
+        else:
+        # course has a prequisite
+            for each in learner:
+                print("looping")
+                if each.CourseID == coursePreReq:
+                    # print("learner has course' pre requisite")
+                    # return jsonify({
+                    #     "code": "200",
+                    #     "message": "learner has pre requisite"
+                    # }), 200
+                    if isCourseEnrollOpen==1:
+                        return course_signup(LearnerID, CourseID, ClassID)
+                    else:
+                        return jsonify({
+                            "code": "502",
+                            "message": "enrollment for course is closed"
+                        }),502
 
 
 
@@ -351,9 +344,11 @@ def course_signup(LearnerID, CourseID, ClassID):
     LearnerName = 'Trisha'
     CourseID = CourseID
     ClassID = ClassID
+    Assigned = 0
+    Approved = 0
     CourseCompleted = 0
     learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, 
-                        CourseCompleted=CourseCompleted)
+                        Assigned=Assigned, Approved=Approved, CourseCompleted=CourseCompleted)
     
     courseclass = CourseClass.query.filter_by(ClassID=ClassID).first() 
     print(courseclass)
@@ -378,9 +373,11 @@ def course_signup(LearnerID, CourseID, ClassID):
             ), 500
     else: # slots available --> allow sign up
         try:
-            data = SlotsAvailable -1
+            # data = SlotsAvailable -1
             # print(data)
-            courseclass.SlotsAvailable = data
+            # courseclass.SlotsAvailable = data
+
+            # slots available will reduce only if enrollment is approved?
 
             db.session.add(learner)
             db.session.commit()
@@ -388,7 +385,7 @@ def course_signup(LearnerID, CourseID, ClassID):
             return jsonify(
                 {
                     "code": 501,
-                    "message": "An error occurred while signing up. " + str(e)
+                    "message": "An error occurred while signing up. " + str(e) # duplicate
                 }
             ), 501
 
