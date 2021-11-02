@@ -334,17 +334,52 @@ def addRowsToQuizResults(LearnerID, CourseID, ClassID):
     ), 201
 
 # User Story: Withdraw from self-enrolled class
-# check current is it in the enrollment period
-# need delete from Learner, IsChapViewable, QuizResults
-@app.route("/mono/withdraw/<string:learner_id>/<string:class_id>/<string:course_id>")
+# Show a list of classes that are still in enrollment period
+# get all enrolled classes -> filter_by leaner_id and assigned = 0
+# return the classes that are still in the enrollment period
+@app.route("/mono/withdrawableClasses/<string:learner_id>")
+def get_withdrawableClasses(learner_id):
+    CurrentDate = datetime.now()
+    print(CurrentDate)
+
+    # only can withdraw from self-enrolled class, provided if its still in enrollment period
+    ClassList = Learner.query.filter_by(LearnerID=learner_id).filter_by(assigned=0).all()
+
+    withdrawable_list= []
+
+    for i in range(len(ClassList)):
+        courseInfo =  Course.query.filter_by(CourseID=ClassList[i].CourseID).first()
+        StartEnroll = courseInfo.StartEnroll
+        EndEnroll = courseInfo.EndEnroll
+        
+        if (CurrentDate >= StartEnroll and CurrentDate <= EndEnroll):
+            result = CourseClass.query.filter_by(CourseId=ClassList[i].CourseID).filter_by(ClassId=ClassList[i].ClassID).first()
+            withdrawable_list.append(result)
+
+    if len(withdrawable_list):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "withdrawable_list": [course.to_dict() for course in withdrawable_list]
+                },
+                "message": "Withdrawable classes for learner_id {} has successfully returned.".format(learner_id)
+            },
+
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "learner_id": learner_id
+            },
+            "message": "No withdrawable classes found."
+        }
+    ), 404
+
+# Delete from Learner, IsChapViewable, QuizResults
+@app.route("/mono/withdraw/<string:learner_id>/<string:class_id>/<string:course_id>", methods=['POST'])
 def withdraw_class(learner_id,class_id,course_id):
-    # CurrentDate = datetime.datetime.now()
-    # print(CurrentDate)
-
-    # courseInfo =  Course.query.filter_by(CourseID=course_id).first()
-    # StartEnroll = courseInfo.StartEnroll
-    # EndEnroll = courseInfo.EndEnroll
-
     # delete row from learner
     Learner.query.filter_by(LearnerID=learner_id).filter_by(ClassID=class_id).filter_by(CourseID=course_id).delete()
     
