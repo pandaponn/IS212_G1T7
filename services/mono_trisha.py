@@ -336,8 +336,6 @@ def validate_prereq(CourseID, LearnerID, ClassID):
                             "message": "enrollment for course is closed"
                         }),502
 
-
-
 def course_signup(LearnerID, CourseID, ClassID):
     LearnerID = LearnerID
     # LearnerName = request.json.get('LearnerName')
@@ -395,6 +393,74 @@ def course_signup(LearnerID, CourseID, ClassID):
                 "message": "Successful sign up for course."
             }
         ), 201
+
+# gets courses created by an admin
+@app.route("/admin_courses/<string:CreatedBy>")
+def get_courses_by_admin(CreatedBy):
+    admin = CreatedBy
+    print(admin)
+    courseList = Course.query.filter_by(CreatedBy=CreatedBy).all()
+    if len(courseList):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "Courses created by admin": [course.to_dict() for course in courseList]
+                },
+                "message": "Courses created by admin {} successfully returned.".format(admin)
+            },
+              
+        )
+        # return classList
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Can't find courses created by admin {}.".format(admin)
+        }
+    ), 404
+
+# set self-enrollment period 
+@app.route("/set_enrollment_period/<int:CourseID>", methods=["PUT"])
+def set_enrollment_period(CourseID):
+    course = Course.query.filter_by(CourseID=CourseID).first()
+    if not course:
+        return jsonify({
+            "code": 404,
+            "message": "Course not found"
+        }), 404
+
+# approve/reject self-enrollment
+@app.route("/vet_self_enroll/<int:LearnerID>/<int:CourseID>/<int:ClassID>", methods=["PUT"])
+def vet_self_enroll(LearnerID, CourseID, ClassID):
+    # assigned = 0, approved = null (pending)
+    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(Assigned=0).filter_by(Approved=None).first()
+    if not learner:
+        return jsonify({
+            "code": "404",
+            "message": "You have not self-enrolled in any class."
+        }), 404
+    else:
+        print(learner)
+        courseToApprove = learner.CourseID
+        data = request.get_json()
+        print(data)
+
+        if data["Approved"] == "approved":
+            learner.Approved = 1
+        if data["Approved"] == "rejected":
+            learner.Approved = 0
+
+        db.session.commit()
+
+        return jsonify({
+            "code": "200",
+            "data": {
+                "learner pending course": learner.to_dict(),
+            },
+            "message": "Your enrollment has been " + data['Approved']
+        }), 200
+            
+                
 
 
 if __name__ == '__main__':
