@@ -419,7 +419,7 @@ def get_courses_by_admin(CreatedBy):
         }
     ), 404
 
-# set self-enrollment period 
+# set self-enrollment period of a course
 @app.route("/set_enrollment_period/<int:CourseID>", methods=["PUT"])
 def set_enrollment_period(CourseID):
     course = Course.query.filter_by(CourseID=CourseID).first()
@@ -428,6 +428,27 @@ def set_enrollment_period(CourseID):
             "code": 404,
             "message": "Course not found"
         }), 404
+    else:
+        start = course.StartEnroll
+        end = course.EndEnroll
+        print(start, end)
+        data = request.get_json()
+        print(data)
+        if "Start Date" in data:
+            course.StartEnroll = data["Start Date"]
+        if "End Date" in data:
+            course.EndEnroll = data["End Date"]
+        
+        db.session.commit()
+        
+        return jsonify({
+            "code": 200,
+            "data": {
+                "course start of enrollment": course.StartEnroll,
+                "course end of enrollment": course.EndEnroll
+            },
+            "message": "enrollment period successfully set"
+        }), 200
 
 # approve/reject self-enrollment
 @app.route("/vet_self_enroll/<int:LearnerID>/<int:CourseID>/<int:ClassID>", methods=["PUT"])
