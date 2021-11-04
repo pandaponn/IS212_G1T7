@@ -222,7 +222,7 @@ INSERT INTO `learner` (`LearnerID`, `LearnerName`, `CourseID`, `ClassID`, `assig
 
 DROP TABLE IF EXISTS `questions`;
 CREATE TABLE IF NOT EXISTS `questions` (
-  `question_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL AUTO_INCREMENT,
   `quiz_id` int(11) NOT NULL,
   `qn_type` varchar(100) NOT NULL,
   `question` mediumtext NOT NULL,
