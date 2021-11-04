@@ -84,7 +84,7 @@
             margin-right: 8px;
         }
 
-        #overlay {
+        .overlay {
             position: fixed; /* Sit on top of the page content */
             display: none; /* Hidden by default */
             width: 100%; /* Full width (cover the whole page) */
@@ -118,18 +118,75 @@
             text-align: center;
         }
 
+        #clockdiv{
+            font-family: sans-serif;
+            color: #fff;
+            font-weight: 100;
+            text-align: center;
+            font-size: 20px;
+            margin-top: 30px;
+        }
+
+        #clockdiv > div{
+            padding: 10px;
+            border-radius: 3px;
+            background: #414141;
+            display: inline-block;
+        }
+
+        #clockdiv div > span{
+            padding: 15px;
+            border-radius: 3px;
+            background: black;
+            display: inline-block;
+        }
+
+        .smalltext{
+            padding-top: 5px;
+            font-size: 15px;
+        }
+
     </style>
 </head>
 <body>
     <!-- Overlay Disclaimer -->
-    <div id="overlay">
+    <div id="overlay" class="overlay">
         <div id="text" class="overlay_box">
             <h2 id="quiz_name" style="margin-top: 20px; margin-bottom: 30px;">Quiz</h2>
-            <p style="font-size: medium;">This is <span id="graded_or_not"></span> quiz, you will need to answer at least <span id="no_of_qn" style="font-weight: bold;"></span> question(s) correctly to pass.</p>
-            <p style="font-size: medium;">You must complete the quiz within the alloted time or your attempt will be voided.</p>
+            <p style="font-size: medium;">This is <span id="graded_or_not"></span> quiz, you will need to answer at least <span id="no_of_qn" style="font-weight: bold;"></span> <span style="font-weight: bold;">question(s)</span> correctly to pass.</p>
+            <p style="font-size: medium;">You must complete the quiz within the alloted time of <span id="quiz_duration" style="font-weight: bold;"></span> <span style="font-weight: bold;">minute(s)</span> or your attempt will be voided.</p>
             <p style="font-size: medium;">Any attempts to cheat will be severely dealt with.</p>
             <p style="font-size: medium;">To start the quiz, click on the <span style="font-weight: bold;">"Start Quiz"</span> button below. When finished, click the <span style="font-weight: bold;">"Submit Quiz"</span> button to check your result.</p>
-            <button id="start_quiz" class="btn btn-primary add_qn" type="button" onclick="startQuiz();">Start Quiz</button>
+            <button id="start_quiz" class="btn btn-primary add_qn" type="button" onclick="startQuiz()">Start Quiz</button>
+        </div>
+    </div>
+    
+    <!-- Time Limit Exceeded Overlay -->
+    <div id="time_overlay" class="overlay">
+        <div id="text" class="overlay_box">
+            <p style="font-size: large; margin-top: 30px; font-weight: bold;">You have exceeded the time limit for this quiz!</p>
+            <p style="font-size: medium;">As a result, your result has been voided.</p>
+            <p style="font-size: medium;">You may click on the <span style="font-weight: bold;">"Restart Quiz"</span> button below to reattempt the quiz.</p>
+            <button id="restart_quiz" class="btn btn-primary add_qn" type="button" onclick="restartQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <!-- Failed Quiz Overlay -->
+    <div id="failed_overlay" class="overlay">
+        <div id="text" class="overlay_box">
+            <h4 style="font-size: large; margin-top: 30px; font-weight: bold;">You have <span style="color: red; text-decoration:underline;">failed</span> to meet the passing requirement for this quiz!</h4>
+            <p style="font-size: medium; margin-top: 30px;">You may click on the <span style="font-weight: bold;">"Restart Quiz"</span> button below to reattempt the quiz.</p>
+            <button id="restart_quiz" class="btn btn-primary add_qn" type="button" onclick="restartQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <!-- Pass Quiz Overlay -->
+    <div id="pass_overlay" class="overlay">
+        <div id="text" class="overlay_box">
+            <h4 style="font-size: large; margin-top: 30px; font-weight: bold;">Congratulations! You have successfully met the passing requirement for this quiz!</h4>
+            <p style="font-size: medium; margin-top: 30px;">You may click on the <span style="font-weight: bold;">"Return"</span> button below to return to the previous menu. or <span style="font-weight: bold;">"Restart Quiz"</span> to attempt a higher score.</p>
+            <button id="return" class="btn btn-primary add_qn" type="button" onclick="returnBack()">Return</button>
+            <button id="restart_quiz" class="btn btn-primary add_qn" type="button" onclick="restartQuiz()">Restart Quiz</button>
         </div>
     </div>
 
@@ -161,6 +218,18 @@
             You Scored <span id="quiz-percent"></span>% - <span id="quiz-score"></span>/<span id="quiz-max-score"></span><br/>
         </div>
 
+        <!-- Countdown Clock -->
+        <div id="clockdiv">
+            <div>
+                <span class="minutes"></span>
+                <div class="smalltext">Minutes</div>
+            </div>
+            <div>
+                <span class="seconds"></span>
+                <div class="smalltext">Seconds</div>
+            </div>
+        </div>
+
         <!-- Quiz Body -->
         <div id="quiz" style="padding-top: 30px; width: 80%; margin: auto;">
             <!-- Insert quiz questions here -->
@@ -169,7 +238,7 @@
 
         <!-- Answer Button -->
         <div style="text-align: center; padding-bottom: 30px;">
-            <button class="btn btn-primary add_qn" type="button" onclick="showResults();">Submit Quiz</button>
+            <button class="btn btn-primary add_qn" type="button" onclick="showResults();" id="submit_quiz">Submit Quiz</button>
         </div>
 
         <!-- Results -->
@@ -185,10 +254,13 @@
     var isGraded = "";
     var passing_grade = 0;
     var answers = [];
+    var timeInMinutes = 0;
 
     var queryString = window.location.search;
     var urlParams = new URLSearchParams(queryString);
     var quiz_id = urlParams.get('QuizId');
+
+    var quiz_completed = 0;
 
     // Create Quiz
     window.onload = retrieveQuestions();
@@ -287,6 +359,7 @@
                 isGraded = result.data.quiz.isGraded;
                 passing_grade = result.data.quiz.passing_grade;
                 quiz_name = result.data.quiz.quiz_name;
+                timeInMinutes = result.data.quiz.duration;
 
                 if(isGraded == "Y"){
                     document.getElementById('graded_or_not').innerHTML = "a <span style='font-weight: bold;'>graded</span>";
@@ -295,6 +368,7 @@
                     document.getElementById('graded_or_not').innerHTML = "an <span style='font-weight: bold;'>ungraded</span>";
                 }
                 
+                document.getElementById('quiz_duration').innerText = timeInMinutes;
                 document.getElementById('quiz_name').innerText = quiz_name;
                 document.getElementById('no_of_qn').innerHTML = passing_grade;
             }
@@ -373,18 +447,20 @@
             console.log(isGraded);
             console.log(passing_grade);
 
+            document.getElementById('clockdiv').style.display = 'none';
+            document.getElementById('submit_quiz').disabled = true;
+            quiz_completed = 1;
+
             // if(isGraded == "Y"){
             var pass = "";
             if(result >= passing_grade){
                 console.log("You passed!");
-                document.getElementById('quiz_result').innerHTML = "Congratulations, you passed!";
-                document.getElementById('quiz_result').style.color = "green";
+                document.getElementById('pass_overlay').style.display = "block";
                 pass = 1;
             }
             else{
                 console.log("You failed!");
-                document.getElementById('quiz_result').innerHTML = "You failed, try again!";
-                document.getElementById('quiz_result').style.color = "red";
+                document.getElementById('failed_overlay').style.display = "block";
                 pass = 0;
             }
             save_results(pass, result, isGraded);
@@ -420,10 +496,63 @@
 
     function on() {
        document.getElementById("overlay").style.display = "block";
+       document.getElementById("time_overlay").style.display = "none";
+       document.getElementById("failed_overlay").style.display = "none";
+       document.getElementById("pass_overlay").style.display = "none";
     }
 
-    function startQuiz() {
+    function getTimeRemaining(endtime) {
+        const total = Date.parse(endtime) - Date.parse(new Date());
+        const seconds = Math.floor((total / 1000) % 60);
+        const minutes = Math.floor((total / 1000 / 60) % 60);
+        
+        return {
+            total,
+            minutes,
+            seconds
+        };
+    }
+
+    function initializeClock(id, endtime) {
+        const clock = document.getElementById(id);
+        const minutesSpan = clock.querySelector('.minutes');
+        const secondsSpan = clock.querySelector('.seconds');
+
+        function updateClock() {
+            const t = getTimeRemaining(endtime);
+
+            minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+            secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+
+            if (t.total <= 0) {
+                // Quiz Time Exceeded!
+                clearInterval(timeinterval);
+                document.getElementById('submit_quiz').disabled = true;
+                if (quiz_completed == 0){
+                    document.getElementById("time_overlay").style.display = "block";
+                }
+            }
+        }
+
+        updateClock();
+        const timeinterval = setInterval(updateClock, 1000);
+    }
+
+    function startQuiz(){
+        // const timeInMinutes = 0.09;
+        const currentTime = Date.parse(new Date());
+        const deadline = new Date(currentTime + timeInMinutes*60*1000);
+        initializeClock('clockdiv', deadline);
         document.getElementById("overlay").style.display = "none";
+    }
+
+    function restartQuiz(){
+        window.location.reload();
+    }
+
+    function returnBack(){
+        // change this to return to main menu later on
+        window.location.reload();
     }
 
 </script>

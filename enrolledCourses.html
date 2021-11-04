@@ -38,20 +38,31 @@
             text-decoration: none;
             color: black;
         }
+        body,
+        nav {
+            background-image: url(src/background.jpg);
+            background-size: cover;
+            /* <------ */
+            background-repeat: no-repeat;
+            background-position: center center;
+            /* optional, center the image */
+        }
     </style>
 </head>
 
 <body>
-    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
-                href="learner_home.html">Learner Page</a></h5>
-        <nav class="my-2 my-md-0 mr-md-3">
-            <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
-            <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
-            <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
-        </nav>
-        <a class="btn btn-outline-primary" href="#">Log Out</a>
-    </div>
+    <nav>
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                    href="learner_home.html">Learner Page</a></h5>
+            <div class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+                <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+                <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+            </div>
+            <a class="btn btn-outline-primary" href="#">Log Out</a>
+        </div>
+    </nav>
 
     <div id="main-container" class="container">
         <h1 class="display-4">My Enrolled Courses</h1>

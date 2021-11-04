@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>View Classes</title>
+  <title>View Available Engineers</title>
 
   <link rel="stylesheet" href="" />
   <!--[if lt IE 9]>
@@ -37,7 +37,8 @@
       pointer-events: none;
     }
 
-    body, nav {
+    body,
+    nav {
       background-image: url(src/background.jpg);
       background-size: cover;
       /* <------ */
@@ -56,10 +57,6 @@
     }
 
     table {
-      text-align: center;
-    }
-
-    h1 {
       text-align: center;
     }
   </style>
@@ -87,20 +84,16 @@
 
   <div id="main-container" class="container">
     <div>
-      <h1 class="display-4"><b>Classes</b></h1>
+      <h1 class="display-4">Available Engineers</h1>
       <!-- <button class="btn btn-success" onclick=getFilteredCourses(1) id="filtercourse">Filter</button> -->
       <!-- <button class="btn btn-secondary" onclick="window.location.reload()">Reset Filters</button> -->
     </div>
     <table id="courseclassTable" class="table table-bordered" border="1">
       <thead class="thead-dark">
         <tr>
-          <th>Class ID</th>
-          <th>Course ID</th>
-          <th>Trainer ID</th>
-          <th>Start Date/Time</th>
-          <th>End Date/Time</th>
-          <th>Capacity</th>
-          <th>Slots Available</th>
+          <th>Learner ID</th>
+          <th>Learner Name</th>
+          </th>
         </tr>
       </thead>
     </table>
@@ -139,9 +132,9 @@
     $(async () => {
       const queryString = window.location.search;
       const params = new URLSearchParams(queryString);
-      console.log(params.get('courseid'));
-      var course_id = params.get('courseid');
-      var getClassesURL = "http://127.0.0.1:5100/class_details/" + course_id;
+      console.log(params.get('engineerid'));
+      var engineer_id = params.get('engineerid');
+      var getClassesURL = "http://127.0.0.1:5100/view_learner_details/" + engineer_id;
 
       try {
         const response = await fetch(getClassesURL, { method: "GET" });
@@ -149,33 +142,19 @@
         const result = await response.json();
         if (response.status === 200) {
           // success case
-          var courseclasses = result.data.courseclasses;
+          var AvailableLearners = result.data.AvailableLearners;
 
           // for loop to setup all table rows with obtained course information
           var rows = "<tbody>";
-          for (var courseclass of courseclasses) {
-            var ClassID = courseclass.ClassID;
-            var CourseID = courseclass.CourseID;
-            var Trainer = courseclass.TrainerID;
-            var StartDateTime = courseclass.StartDateTime;
-            var EndDateTime = courseclass.EndDateTime;
-            var Capacity = courseclass.Capacity;
-            var SlotsAvailable = courseclass.SlotsAvailable;
+          for (var AvailableLearner of AvailableLearners) {
+            var LearnerID = AvailableLearner.LearnerID;
+            var LearnerName = AvailableLearner.LearnerName;
 
             rows += `
-                          <tr class="maincourse">
-                            <td>${ClassID}</td>
-                            <td>${CourseID}</td>
-                            <td>${Trainer}</td>
-                            <td>${StartDateTime}</td>
-                            <td>${EndDateTime}</td>
-                            <td>${Capacity}</td>
-                            <td>
-                              <a class="nav-link" href="available_engineers.html?courseid=${CourseID}">
-                                ${SlotsAvailable}
-                              </a>
-                            </td>
-                          </tr>
+                                  <tr class="maincourse">
+                                    <td>${LearnerID}</td>
+                                    <td>${LearnerName}</td>
+                                  </tr>
                                       `;
           }
           rows += "</tbody>";
