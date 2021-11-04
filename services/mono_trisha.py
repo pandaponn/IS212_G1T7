@@ -439,6 +439,8 @@ def set_enrollment_period(CourseID):
         if "End Date" in data:
             course.EndEnroll = data["End Date"]
         
+        course.Open = 1
+        
         db.session.commit()
         
         return jsonify({
