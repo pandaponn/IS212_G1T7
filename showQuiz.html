@@ -150,14 +150,14 @@
                             rows += `
                                 <tr>
                                     <td> ${QuizId} </td>
-                                    <td> <a href="quiz/quiz.html?QuizId=${QuizId}">${QuizName} </a></td>
+                                    <td> <a href="quiz/quiz.html?ClassId=${ClassId}&CourseId=${CourseId}&QuizId=${QuizId}">${QuizName} </a></td>
                                     <td> ${Attempts} </td>
                                 </tr>`;
                         } else {
                             rows += `
                                 <tr>
                                     <td> ${QuizId} </td>
-                                    <td> <a href="quiz/quiz.html?QuizId=${QuizId}" class="not-active">${QuizName} </a>
+                                    <td> <a href="quiz/quiz.html?ClassId=${ClassId}&CourseId=${CourseId}&QuizId=${QuizId}" class="not-active">${QuizName} </a>
                                         <i class='fa fa-lock'></i>
                                     </td>
                                     <td> </td>
