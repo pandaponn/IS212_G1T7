@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `coursematerials` (
   `chapter_name` varchar(100) NOT NULL,
   `content` varchar(100) NOT NULL,
   PRIMARY KEY (`course_id`,`class_id`,`chapter_id`,`subchapter_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `coursematerials`
@@ -222,14 +222,14 @@ INSERT INTO `learner` (`LearnerID`, `LearnerName`, `CourseID`, `ClassID`, `assig
 
 DROP TABLE IF EXISTS `questions`;
 CREATE TABLE IF NOT EXISTS `questions` (
-  `question_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL AUTO_INCREMENT,
   `quiz_id` int(11) NOT NULL,
   `qn_type` varchar(100) NOT NULL,
   `question` mediumtext NOT NULL,
   `options` mediumtext,
   `answer` mediumtext NOT NULL,
   PRIMARY KEY (`question_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `questions`
@@ -256,16 +256,18 @@ CREATE TABLE IF NOT EXISTS `quiz` (
   `chapter_id` int(11) NOT NULL,
   `isGraded` varchar(100) NOT NULL,
   `passing_grade` int(11) NOT NULL,
+  `duration` int(11) NOT NULL,
   PRIMARY KEY (`quiz_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `quiz`
 --
 
-INSERT INTO `quiz` (`quiz_id`, `quiz_name`, `course_id`, `class_id`, `chapter_id`, `isGraded`, `passing_grade`) VALUES
-(1, 'Quiz 1', 1, 1, 1, 'Y', 3),
-(2, 'Quiz 2', 1, 1, 2, 'N', 5);
+INSERT INTO `quiz` (`quiz_id`, `quiz_name`, `course_id`, `class_id`, `chapter_id`, `isGraded`, `passing_grade`, `duration`) VALUES
+(1, 'Quiz 1', 1, 1, 1, 'Y', 3, 10),
+(2, 'Quiz 2', 1, 1, 2, 'N', 5, 5),
+(3, 'Quiz 3', 1, 1, 2, 'Y', 5, 10);
 
 -- --------------------------------------------------------
 
@@ -282,7 +284,7 @@ CREATE TABLE IF NOT EXISTS `quiz_results` (
   `quizPass` int(11) NOT NULL,
   `attempts` int(11) NOT NULL,
   PRIMARY KEY (`learner_id`,`quiz_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `quiz_results`
