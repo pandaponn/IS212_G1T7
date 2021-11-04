@@ -45,36 +45,32 @@
       .disabled {
         pointer-events: none;
       }
+      body,
+      nav {
+          background-image: url(src/background.jpg);
+          background-size: cover;
+          /* <------ */
+          background-repeat: no-repeat;
+          background-position: center center;
+          /* optional, center the image */
+      }
     </style>
   </head>
 
   <body>
     <!-- Start of Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="all_courses.html">View Courses</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"
-              >Search Courses<span class="sr-only">(current)</span></a
-            >
-          </li>
-        </ul>
+    <nav>
+      <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+          <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                  href="learner_home.html">Learner Page</a></h5>
+          <div class="my-2 my-md-0 mr-md-3">
+              <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+              <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+              <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+          </div>
+          <a class="btn btn-outline-primary" href="#">Log Out</a>
       </div>
-    </nav>
+  </nav>
     <!-- End of Navigation Bar -->
     <script>
       const queryString = window.location.search;
@@ -203,7 +199,6 @@
             var Trainer = courseclass.TrainerID;
             var StartDateTime = courseclass.StartDateTime;
             var EndDateTime = courseclass.EndDateTime;
-            var Materials = courseclass.Materials;
             var Capacity = courseclass.Capacity;
             var SlotsAvailable = courseclass.SlotsAvailable;
 
@@ -265,21 +260,23 @@
               ClassID: ClassID
             }),
           });
-          // console.log(response.status);
+          console.log(response.status);
           if (response.status == 201) {
             console.log('success')
             // var success_msg = `<h2>Sign Up successful</h2>`;
             // document.getElementById('signupForm').style.visibility = 'hidden'
             document.getElementById('resultModalTitle').innerText = "Sign Up Successful"
-            document.getElementById('resultModalBody').innerText = "You have successfully signed up for CourseID: " + CourseID + ", " + CourseName;
             document.getElementById('resultModalTitle').style.visibility = 'visible';
+            document.getElementById('resultModalBody').innerText = "You have successfully signed up. Please wait for approval by administrator.";
             document.getElementById('dismissModal').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;
             
           } else if (response.status == 404) {
               // console.log('error in signing up')
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
-            document.getElementById('resultModalBody').innerText = "An error has occurred, please try again later.";
+            document.getElementById('resultModalBody').innerText = "You have not completed the required pre-requisite.";
             document.getElementById('resultModalTitle').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;
 
           } else if (response.status == 500) { // no more available slots
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
@@ -291,6 +288,13 @@
           } else if (response.status == 501) { // course enrolled in already
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
             document.getElementById('resultModalBody').innerText = "You are already enrolled. Please try a different course.";
+            document.getElementById('resultModalTitle').style.visibility = 'visible';
+            // document.getElementById('dismissModal').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;
+          }
+          else if (response.status == 502) { // course enrollment is closed
+            document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
+            document.getElementById('resultModalBody').innerText = "Self-enrollment period for this course is closed. Please try a different course.";
             document.getElementById('resultModalTitle').style.visibility = 'visible';
             // document.getElementById('dismissModal').style.visibility = 'visible';
             document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;

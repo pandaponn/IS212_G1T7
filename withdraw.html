@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width">
 
-    <title> My Courses </title>
+    <title> Withdraw </title>
 
     <link rel="stylesheet" href="">
     <!-- Bootstrap libraries -->
@@ -63,14 +63,33 @@
             <a class="btn btn-outline-primary" href="#">Log Out</a>
         </div>
     </nav>
-
     <div id="main-container" class="container">
-        <h1 class="display-4">My Enrolled Courses</h1>
+        <h1 class="display-4">Withdraw from class</h1>
         <div id="courseCards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
         </div>
     </div>
     <div class="container" id="displayError"></div>
+
+    <!-- Modal to confirmation message-->
+    <div class="modal fade" id="withdrawModel" tabindex="-1" role="dialog" aria-labelledby="withdrawModelTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawModelTitle">Withdrawn Successfully</h5>
+
+                </div>
+                <div class="modal-body">
+                    <p id="withdrawModelBody"></p>
+                </div>
+                <div class="modal-footer">
+                    <a id="dismissWithdrawModel" class="btn btn-success" href="withdraw.html">Okay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Modal-->
 
     <script>
         // Helper function to display error message
@@ -83,26 +102,27 @@
         // anonymous async function
         // - using await requires the function that calls it to be async
         $(async () => {
-            var getCoursesURL = "http://127.0.0.1:5100/mono/enrolledCourses/1";
+            var getClassesURL = "http://127.0.0.1:5100/mono/withdrawableClasses/1";
 
             try {
-                const response = await fetch(getCoursesURL, { method: "GET" });
+                const response = await fetch(getClassesURL, { method: "GET" });
                 const result = await response.json();
 
                 var rows = "";
                 if (response.status === 200) {
                     // success case
-                    var CourseDetails = result.data.CourseDetails;
-                    console.log(CourseDetails);
+                    var withdrawable_list = result.data.withdrawable_list;
+                    console.log(withdrawable_list);
 
-                    for (var course in CourseDetails) {
-                        console.log(CourseDetails[course]);
+                    for (var withdraw in withdrawable_list) {
+                        console.log(withdrawable_list[withdraw]);
 
-                        var CourseName = CourseDetails[course].CourseName;
-                        var ClassId = CourseDetails[course].ClassId;
-                        var CourseId = CourseDetails[course].CourseId;
-                        var StartDateTime = CourseDetails[course].StartDateTime;
-                        var EndDateTime = CourseDetails[course].EndDateTime;
+                        var CourseName = withdrawable_list[withdraw].CourseName;
+                        var ClassId = withdrawable_list[withdraw].ClassId;
+                        var CourseId = withdrawable_list[withdraw].CourseId;
+                        var StartDateTime = withdrawable_list[withdraw].StartDateTime;
+                        var EndDateTime = withdrawable_list[withdraw].EndDateTime;
+                        var learner_id = 1;
 
                         rows += `
                         <div class="col">
@@ -120,7 +140,7 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-sm btn-outline-secondary" 
-                                                onclick="window.location.href='showMaterials.html?ClassId=${ClassId}&CourseId=${CourseId}'">View</button>
+                                                onclick="withdraw(${learner_id}, ${ClassId}, ${CourseId})">Withdraw</button>
                                         </div>
                                     </div>
                                 </div>
@@ -140,11 +160,65 @@
                 // Errors when calling the service; such as network error,
                 // service offline, etc
                 showError(
-                    "There is a problem retrieving enrolled courses, please try again later.<br />" +
+                    "There is a problem retrieving withdrawable classes, please try again later.<br />" +
                     error
                 );
             }
         });
+
+        function withdraw(learner_id, ClassId, CourseId) {
+            console.log(learner_id, ClassId, CourseId)
+
+            // show loading before the information is returned
+            var loading_str = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Withdrawing from class...`;
+            document.getElementById('withdrawModelTitle').style.visibility = 'hidden';
+            document.getElementById('withdrawModelBody').innerHTML = loading_str;
+            document.getElementById('dismissWithdrawModel').style.visibility = 'hidden';
+            $('#withdrawModel').modal('show');
+
+            $(async () => {
+                // Change URL to your own
+                var withdrawURL = "http://127.0.0.1:5100/mono/withdraw/" + String(learner_id) + "/" + String(ClassId) + "/" + String(CourseId)
+                console.log(withdrawURL)
+                try {
+                    const response =
+                        await fetch(
+                            withdrawURL, {
+                            method: 'POST',
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                learner_id: learner_id,
+                                ClassId: ClassId,
+                                CourseId: CourseId
+                            })
+                        });
+                    console.log(response.status);
+                    if (response.ok) {
+                        document.getElementById('withdrawModelTitle').style.visibility = 'visible';
+                        document.getElementById('withdrawModelBody').innerText = "You have successfully withdraw for class " + ClassId;
+                        document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                    } else if (response.status == 404) {
+                        // idk if need this but i just leave it here first
+                        document.getElementById('withdrawModelBody').innerText = result.message;
+                        document.getElementById('dismissWithdrawModel').className = "btn btn-danger";
+                        document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                    } else {
+                        // unexpected outcome, throw the error
+                        document.getElementById('withdrawModelBody').innerText = response.status;
+                        document.getElementById('dismissWithdrawModel').className = "btn btn-danger";
+                        document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                    }
+                } catch (error) {
+                    // Errors when calling the service; such as network error, 
+                    // service offline, etc
+                    document.getElementById('withdrawModelBody').innerText = error;
+                    document.getElementById('dismissWithdrawModel').href = "withdraw.html";
+                    document.getElementById('dismissWithdrawModel').className = "btn btn-danger";
+                    document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                } // error 
+
+            })
+        };
     </script>
 </body>
 
