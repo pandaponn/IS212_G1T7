@@ -193,10 +193,10 @@
             // success case
             var courseclass = result.data.courseclass;
 
-            var ClassID = courseclass.ClassID;
-            var CourseID = courseclass.CourseID;
+            var ClassID = courseclass.ClassId;
+            var CourseID = courseclass.CourseId;
             var CourseName = courseclass.CourseName;
-            var Trainer = courseclass.TrainerID;
+            var Trainer = courseclass.TrainerId;
             var StartDateTime = courseclass.StartDateTime;
             var EndDateTime = courseclass.EndDateTime;
             var Capacity = courseclass.Capacity;
@@ -207,8 +207,8 @@
             document.getElementById("courseNameDiv").innerHTML = `<text> ${CourseName} </text>`;
             document.getElementById("startDTDiv").innerHTML = `<text>${StartDateTime}</text>`;
             document.getElementById("endDTDiv").innerHTML = `<text>${EndDateTime}</text>`;
-            document.getElementById("learnerIdDiv").innerHTML = `<input type="text" class="form-control" id="learnerId" name="learnerId" value='2' disabled required>`;
-            document.getElementById("learnerNameDiv").innerHTML = `<input type="text" class="form-control" id="learnerName" name="learnerName" value='Trisha' disabled required>`;
+            document.getElementById("learnerIdDiv").innerHTML = `<input type="text" class="form-control" id="learnerId" name="learnerId" value='1' disabled required>`;
+            document.getElementById("learnerNameDiv").innerHTML = `<input type="text" class="form-control" id="learnerName" name="learnerName" value='Ling Li' disabled required>`;
           } else if (response.status == 404) {
             showError(result.message);
           } else {
@@ -254,10 +254,10 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              LearnerID : LearnerID,
+              LearnerId : LearnerID,
               LearnerName: LearnerName,
-              CourseID: CourseID,
-              ClassID: ClassID
+              CourseId: CourseID,
+              ClassId: ClassID
             }),
           });
           console.log(response.status);

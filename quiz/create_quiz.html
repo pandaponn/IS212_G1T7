@@ -307,7 +307,7 @@
     })
 
     async function updateQuizDuration(quiz_duration){
-        var updateQuizNameDuration = 'http://localhost:5001/quiz/updateQuizDuration';
+        var updateQuizNameDuration = 'http://localhost:5100/quiz/updateQuizDuration';
         
         try{
             var response = await fetch(
@@ -337,7 +337,7 @@
     }
 
     async function updateQuizName(quiz_name){
-        var updateQuizNameURL = 'http://localhost:5001/quiz/updateQuizName';
+        var updateQuizNameURL = 'http://localhost:5100/quiz/updateQuizName';
         
         try{
             var response = await fetch(
@@ -367,7 +367,7 @@
     }
 
     async function updateQuizGrading(passing_grade, graded){
-        var updateQuizGradingURL = 'http://localhost:5001/quiz/updateQuizGrading';
+        var updateQuizGradingURL = 'http://localhost:5100/quiz/updateQuizGrading';
         
         try{
             var response = await fetch(
@@ -399,7 +399,7 @@
 
     window.onload = retrieveQuestions();
     async function retrieveQuestions(){
-        var retrieveQuestionsURL = 'http://localhost:5001/quiz/retrieveAllQuestions';
+        var retrieveQuestionsURL = 'http://localhost:5100/quiz/retrieveAllQuestions';
 
         try{
             var response = await fetch(
@@ -470,7 +470,7 @@
             console.log(error);
         }
 
-        var retrieveQuizInfo = 'http://localhost:5001/quiz/retrieveQuizInfo';
+        var retrieveQuizInfo = 'http://localhost:5100/quiz/retrieveQuizInfo';
 
         try{
             var response = await fetch(
@@ -543,7 +543,7 @@
         }
         console.log(options);
 
-        var serviceURL = 'http://localhost:5001/quiz/createQuestion';
+        var serviceURL = 'http://localhost:5100/quiz/createQuestion';
 
         try{
             var response = await fetch(
@@ -594,7 +594,7 @@
             }
         }
 
-        var serviceURL = 'http://localhost:5001/quiz/createQuestion';
+        var serviceURL = 'http://localhost:5100/quiz/createQuestion';
 
         try{
             var response = await fetch(
@@ -721,7 +721,7 @@
 
 
     async function createQuizInfo(){
-        var createQuizURL = 'http://localhost:5001/quiz/createQuizInfo';
+        var createQuizURL = 'http://localhost:5100/quiz/createQuizInfo';
         var quiz_name = 'Quiz';
         var course_id = 1;
         var class_id = 1;
