@@ -16,15 +16,18 @@ CORS(app)
 class Course(db.Model):
     __tablename__ = 'Course'
 
-    CourseID = db.Column(db.String(100), primary_key=True)
+    CourseID = db.Column(db.Integer, primary_key=True)
     CourseName = db.Column(db.String(100), nullable=False)
-    PreReq = db.Column(db.Integer, nullable=False)
+    PreReq = db.Column(db.Integer, nullable=True)
     Classes = db.Column(db.Integer, nullable=False)
+    StartEnroll = db.Column(db.DateTime, nullable=False)
+    EndEnroll = db.Column(db.DateTime, nullable=False)
+    Open = db.Column(db.Integer, nullable=False)
     CreatedBy = db.Column(db.String(100), nullable=False)
-    UpdatedBy = db.Column(db.String(100), nullable=False)
-    CreatedTime = db.Column(db.String(100), nullable=False)
-    UpdateTime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    IsFull = db.Column(db.Boolean, nullable=False)
+    UpdatedBy = db.Column(db.String(100), nullable=True)
+    CreatedTime = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    UpdateTime = db.Column(db.DateTime, nullable=True, default=datetime.now, onupdate=datetime.now)
+    IsFull =  db.Column(db.Boolean, nullable=False)
 
     def to_dict(self):
         """
@@ -40,10 +43,10 @@ class Course(db.Model):
 class CourseClass(db.Model):
     __tablename__ = 'Class'
 
-    ClassID = db.Column(db.Integer, primary_key=True)
-    CourseID = db.Column(db.Integer, primary_key=True)
+    ClassId = db.Column(db.Integer, primary_key=True)
+    CourseId = db.Column(db.Integer, primary_key=True)
     CourseName = db.Column(db.String(100), nullable=False)
-    TrainerID = db.Column(db.Integer, nullable=True)
+    TrainerId = db.Column(db.Integer, nullable=True)
     StartDateTime = db.Column(db.DateTime, nullable=False,)
     EndDateTime = db.Column(db.DateTime, nullable=True,)
     Capacity = db.Column(db.Integer, nullable=False)
@@ -63,7 +66,7 @@ class CourseClass(db.Model):
 class Trainer(db.Model):
     __tablename__ = 'Trainer'
 
-    TrainerID = db.Column(db.Integer, primary_key = True)
+    TrainerId = db.Column(db.Integer, primary_key = True)
     EngineerID = db.Column(db.Integer, primary_key = True)
     TrainerName = db.Column(db.String(100), nullable = False)
     CourseAssigned = db.Column(db.Integer, nullable = False)
@@ -110,8 +113,8 @@ class Learner(db.Model):
     LearnerName = db.Column(db.String(100), nullable=False)
     CourseID = db.Column(db.Integer, primary_key=True)
     ClassID = db.Column(db.Integer, primary_key=True)
-    Assigned = db.Column(db.Integer, nullable=False)
-    Approved = db.Column(db.Integer, nullable=True)
+    assigned = db.Column(db.Integer, nullable=False)
+    approved = db.Column(db.Integer, nullable=True)
     CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
 
     # __mapper_args__ = {
@@ -268,7 +271,7 @@ def view_assigned_courses(IsFull):
 # get class details of a specific course
 @app.route("/class_details/<string:CourseID>")
 def get_class_details(CourseID):
-    classList = CourseClass.query.filter_by(CourseID=CourseID).all()
+    classList = CourseClass.query.filter_by(CourseId=CourseID).all()
     if len(classList):
         classlist = [courseclass.to_dict() for courseclass in classList]
         classlist = sorted(classlist, key=lambda k:k["StartDateTime"], reverse=True)
@@ -325,8 +328,8 @@ def assign_engineer(LearnerID, CourseID, ClassID):
     LearnerName = request.json.get('LearnerName')
     CourseID = CourseID
     ClassID = ClassID
-    Assigned = 1
-    Approved = 1
+    assigned = 1
+    approved = 1
     CourseCompleted = 0
     learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, Assigned=Assigned, Approved=Approved,
                       CourseCompleted=CourseCompleted)
@@ -476,10 +479,10 @@ def view_available_engineers(isLearner, CourseID):
     ), 404
 
 # User Story: View Assigned Courses by Trainer
-@app.route("/classdetails/<int:TrainerID>")
+@app.route("/classdetails/<int:TrainerId>")
 def view_trainer_classes(TrainerID):
     AssignedClassList = CourseClass.query.filter_by(
-        TrainerID=TrainerID).all()
+        TrainerId=TrainerID).all()
     if AssignedClassList:
         return jsonify(
             {
