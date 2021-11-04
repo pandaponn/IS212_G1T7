@@ -184,6 +184,10 @@ def create_quiz_info():
             "code": 201,
             "data": {
                 'quiz_id' : app.quiz_id,
+                'quiz_name' : app.quiz_name,
+                'course_id' : app.course_id,
+                'class_id' : app.class_id,
+                'chapter_id' : app.chapter_id,
                 'isGraded' : app.isGraded,
                 'passing_grade' : app.passing_grade
             }

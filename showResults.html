@@ -30,44 +30,60 @@
 </head>
 
 <body>
-    <!-- Start of Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" id="navContent" href="showMaterials.html">Content</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="navQuiz" href="showQuiz.html">Quizzes</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" id="navResult" href="showResults.html">Results<span class="sr-only">(current)</span></a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <!-- End of Navigation Bar -->
-    <div id="main-container" class="container">
-        <h1 class="display-4">My Result</h1>
-        <table id="resultTable" class="table table-striped" border="1">
-            <thead class="thead-dark">
-                <tr>
-                    <th>QuizId</th>
-                    <th>QuizName</th>
-                    <th>Pass/Fail</th>
-                    <th>Score</th>
-                    <th>Average Score</th>
-                    <th>Min Score</th>
-                    <th>Max Score</th>
-                </tr>
-            </thead>
-        </table>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="learner_home.html">Learner Page</a></h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+            <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+            <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+        </nav>
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
-    <div class="container" id="displayError"></div>
+
+    <main role="main">
+        <div class="jumbotron text-center" style="margin: 0%;">
+            <h1 id="courseName" class="jumbotron-heading"></h1>
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" id="navContent" href="showMaterials.html">Content</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="navQuiz" href="showQuiz.html">Quizzes</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" id="navResult" href="showResults.html">Results<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div id="main-container" class="container">
+            <h4 class="display-4">My Result</h4>
+            <table id="resultTable" class="table table-striped" border="1">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>QuizId</th>
+                        <th>QuizName</th>
+                        <th>Pass/Fail</th>
+                        <th>Score</th>
+                        <th>Average Score</th>
+                        <th>Min Score</th>
+                        <th>Max Score</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="container" id="displayError"></div>
+    </main>
 
     <script>
         // Helper function to display error message
@@ -87,8 +103,8 @@
             var CourseId = urlParams.get('CourseId')
             console.log(ClassId);
             console.log(CourseId);
-            
-            var getResultsURL = "http://127.0.0.1:5100/mono/allResults/1/"+ClassId+"/"+CourseId;
+
+            var getResultsURL = "http://127.0.0.1:5100/mono/allResults/1/" + ClassId + "/" + CourseId;
 
             try {
                 const response = await fetch(getResultsURL, { method: "GET" });
@@ -100,7 +116,7 @@
                     var quizResults = result.data.quizResults;
                     var quizStats = result.data.stats;
                     var quizNames = result.data.QuizNameList;
-                    console.log(quizResults);
+                    var CourseName = result.data.CourseName;
 
                     for (var r in quizResults) {
                         console.log(quizResults[r]);
@@ -113,13 +129,13 @@
                         var min = quizStats[r][quiz_id].minScore;
                         var max = quizStats[r][quiz_id].maxScore;
 
-                        if (quizPass == 1){
+                        if (quizPass == 1) {
                             quizPass = 'Pass'
-                        } else{
+                        } else {
                             quizPass = 'Fail'
                         }
 
-                        if (avg == undefined){
+                        if (avg == undefined) {
                             rows += `
                                 <tr>
                                     <td> ${quiz_id} </td>
@@ -130,8 +146,8 @@
                                     <td></td>
                                     <td></td>
                                 </tr>`;
-                        } else{
-                        rows += `
+                        } else {
+                            rows += `
                                 <tr>
                                     <td> ${quiz_id} </td>
                                     <td> ${QuizName} </td>
@@ -148,9 +164,10 @@
                     // add all the rows to the table
                     $("#resultTable").append(rows);
 
-                    document.getElementById("navContent").href = "showMaterials.html?ClassId="+ClassId+"&CourseId="+CourseId;
-                    document.getElementById("navQuiz").href = "showQuiz.html?ClassId="+ClassId+"&CourseId="+CourseId;
-                    document.getElementById("navResult").href = "showResults.html?ClassId="+ClassId+"&CourseId="+CourseId;
+                    document.getElementById("courseName").innerHTML = "Course: "+CourseName;
+                    document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+                    document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+                    document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
                 } else if (response.status == 404) {
                     showError(result.message);
                 } else {

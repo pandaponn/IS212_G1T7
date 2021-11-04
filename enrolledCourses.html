@@ -42,10 +42,21 @@
 </head>
 
 <body>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="learner_home.html">Learner Page</a></h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+            <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+            <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+        </nav>
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
+    </div>
+
     <div id="main-container" class="container">
         <h1 class="display-4">My Enrolled Courses</h1>
         <div id="courseCards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            
+
         </div>
     </div>
     <div class="container" id="displayError"></div>

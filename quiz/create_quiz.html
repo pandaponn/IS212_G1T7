@@ -641,5 +641,48 @@
                 </form>
             </div>`;
 
+
+    async function createQuizInfo(){
+        var createQuizURL = 'http://localhost:5001/quiz/createQuizInfo';
+        var quiz_name = 'Quiz';
+        var course_id = 1;
+        var class_id = 1;
+        var chapter_id = 1;
+        var isGrade = 'Y';
+        var passing_grade = 1;
+        
+        try{
+            var response = await fetch(
+            serviceURL, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_name : quiz_name,
+                    course_id : course_id,
+                    class_id : class_id,
+                    chapter_id : chapter_id,
+                    isGraded : isGraded,
+                    passing_grade : passing_grade
+                })
+            })
+            var result = await response.json();
+            console.log(result);
+
+            if(response.status === 200){
+                window.location.href = "create_quiz.html?QuizId=" + result.data.quiz_id;
+                console.log("200");
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+    }
+
 </script>
 </html>

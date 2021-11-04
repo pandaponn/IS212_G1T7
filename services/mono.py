@@ -5,6 +5,8 @@ from flask_cors import CORS
 import json
 from os import environ
 
+from datetime import datetime
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -22,7 +24,36 @@ class Learner(db.Model):
     LearnerName = db.Column(db.String(100), nullable=False)
     CourseID = db.Column(db.Integer, primary_key=True)
     ClassID = db.Column(db.Integer, primary_key=True)
+    assigned = db.Column(db.Boolean, nullable=False)
+    approved = db.Column(db.Boolean, nullable=True)
     CourseCompleted = db.Column(db.Boolean, nullable=True)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
+class Course(db.Model):
+    __tablename__ = 'Course'
+
+    CourseID = db.Column(db.Integer, primary_key=True)
+    CourseName = db.Column(db.String(100), nullable=False)
+    PreReq = db.Column(db.Integer, nullable=True)
+    Classes = db.Column(db.Integer, nullable=False)
+    StartEnroll = db.Column(db.DateTime, nullable=False)
+    EndEnroll = db.Column(db.DateTime, nullable=False)
+    Open = db.Column(db.Integer, nullable=False)
+    CreatedBy = db.Column(db.String(100), nullable=False)
+    UpdatedBy = db.Column(db.String(100), nullable=True)
+    CreatedTime = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    UpdateTime = db.Column(db.DateTime, nullable=True, default=datetime.now, onupdate=datetime.now)
+    IsFull =  db.Column(db.Boolean, nullable=False)
 
     def to_dict(self):
         """
@@ -208,6 +239,7 @@ def course_signup(LearnerID, CourseID, ClassID):
         ), 500
 
     # added this function to add in rows to IsChapViewable
+    # remove this and put in 1) assign learners to class 2) hr approve learner's enrollment
     addRowsToViewable(LearnerID, CourseID, ClassID)
     addRowsToQuizResults(LearnerID, CourseID, ClassID)
 
@@ -301,12 +333,89 @@ def addRowsToQuizResults(LearnerID, CourseID, ClassID):
         }
     ), 201
 
+# User Story: Withdraw from self-enrolled class
+# Show a list of classes that are still in enrollment period
+# get all enrolled classes -> filter_by leaner_id and assigned = 0
+# return the classes that are still in the enrollment period
+@app.route("/mono/withdrawableClasses/<string:learner_id>")
+def get_withdrawableClasses(learner_id):
+    CurrentDate = datetime.now()
+    print(CurrentDate)
+
+    # only can withdraw from self-enrolled class, provided if its still in enrollment period
+    ClassList = Learner.query.filter_by(LearnerID=learner_id).filter_by(assigned=0).all()
+
+    withdrawable_list= []
+
+    for i in range(len(ClassList)):
+        courseInfo =  Course.query.filter_by(CourseID=ClassList[i].CourseID).first()
+        StartEnroll = courseInfo.StartEnroll
+        EndEnroll = courseInfo.EndEnroll
+        
+        if (CurrentDate >= StartEnroll and CurrentDate <= EndEnroll):
+            result = CourseClass.query.filter_by(CourseId=ClassList[i].CourseID).filter_by(ClassId=ClassList[i].ClassID).first()
+            withdrawable_list.append(result)
+
+    if len(withdrawable_list):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "withdrawable_list": [course.to_dict() for course in withdrawable_list]
+                },
+                "message": "Withdrawable classes for learner_id {} has successfully returned.".format(learner_id)
+            },
+
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "learner_id": learner_id
+            },
+            "message": "No withdrawable classes found."
+        }
+    ), 404
+
+# Delete from Learner, IsChapViewable, QuizResults
+@app.route("/mono/withdraw/<string:learner_id>/<string:class_id>/<string:course_id>", methods=['POST'])
+def withdraw_class(learner_id,class_id,course_id):
+    # delete row from learner
+    Learner.query.filter_by(LearnerID=learner_id).filter_by(ClassID=class_id).filter_by(CourseID=course_id).delete()
+    
+    # delete rows from IsChapViewable
+    IsChapViewable.query.filter_by(learner_id=learner_id).filter_by(class_id=class_id).filter_by(course_id=course_id).delete()
+    
+    # delete rows from QuizResults
+    QuizzesList = Quiz.query.filter_by(class_id=class_id).filter_by(course_id=course_id).all()
+    for quiz in QuizzesList:
+            quiz_id = quiz.quiz_id
+            QuizResults.query.filter_by(learner_id=learner_id).filter_by(quiz_id=quiz_id).delete()
+    try:
+        db.session.commit()
+
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while withdrawing. " + str(e)
+            }
+        ), 500
+
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successful withdrawn from the class."
+        }
+    ), 201
+
 # User Story: View all enrolled courses
 # Get all enrolled courses by LearnerID from Learner
 # Get the start and end DATETIME by CourseId and ClassId from CourseClass
+# + User Story: Learner is only allowed to view course materials when enrollment is approved -> filter_by(approved=1)
 @app.route("/mono/enrolledCourses/<string:LearnerID>")
 def get_enrolled_courses(LearnerID):
-    EnrolledList = Learner.query.filter_by(LearnerID=LearnerID).all()
+    EnrolledList = Learner.query.filter_by(LearnerID=LearnerID).filter_by(approved=1).all()
 
     CourseDetails = []
 
@@ -314,12 +423,15 @@ def get_enrolled_courses(LearnerID):
         result = CourseClass.query.filter_by(CourseId=enroll.CourseID).filter_by(ClassId=enroll.ClassID).first()
         CourseDetails.append(result)
 
+    CourseDetails = [course.to_dict() for course in CourseDetails]
+    CourseDetails = sorted(CourseDetails, key = lambda k:k["StartDateTime"])
+
     if len(CourseDetails):
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "CourseDetails": [course.to_dict() for course in CourseDetails]
+                    "CourseDetails": CourseDetails
                 },
                 "message": "Enrolled courses for LearnerID {} has successfully returned.".format(LearnerID)
             },
@@ -342,6 +454,8 @@ def find_by_course_class(learner_id, class_id, course_id):
     ViewableList = IsChapViewable.query.filter_by(learner_id=learner_id).filter_by(
         class_id=class_id).filter_by(course_id=course_id).all()
 
+    CourseName = Course.query.filter_by(CourseID=course_id).first().CourseName
+
     UniqueChapIds = []
     ChapterViewable = {}
 
@@ -357,7 +471,8 @@ def find_by_course_class(learner_id, class_id, course_id):
                 "code": 200,
                 "data": {
                     "UniqueChapIds": UniqueChapIds,
-                    "ChapterViewable": ChapterViewable
+                    "ChapterViewable": ChapterViewable,
+                    "CourseName": CourseName
                 },
                 "message": "Course Materials with ClassId {} has successfully returned.".format(class_id)
             },
@@ -492,6 +607,8 @@ def mark_quiz_as_viewable(learner_id, ClassId, CourseId, ChapterId):
 @app.route("/mono/allQuizzes/<string:learner_id>/<string:ClassId>/<string:CourseId>")
 def find_by_course_id(learner_id, ClassId, CourseId):
     resultList = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseId).all()
+    CourseName = Course.query.filter_by(CourseID=CourseId).first().CourseName
+
     QuizNameList = []
     QuizList = []
     for result in resultList:
@@ -504,7 +621,8 @@ def find_by_course_id(learner_id, ClassId, CourseId):
                 "code": 200,
                 "data": {
                     "Quizzes": [quiz.to_dict() for quiz in QuizList],
-                    "QuizNameList": QuizNameList
+                    "QuizNameList": QuizNameList,
+                    "CourseName": CourseName
                 },
                 "message": "Quizzes with ClassId {} has successfully returned.".format(ClassId)
             },
@@ -526,6 +644,8 @@ def find_by_course_id(learner_id, ClassId, CourseId):
 @app.route("/mono/allResults/<string:learner_id>/<string:ClassId>/<string:CourseId>")
 def get_all_results(learner_id, ClassId, CourseId):
     Quiz_info = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseId).all()
+    CourseName = Course.query.filter_by(CourseID=CourseId).first().CourseName
+
     QuizNameList = []
     ResultList = []
     for quiz in Quiz_info:
@@ -551,7 +671,8 @@ def get_all_results(learner_id, ClassId, CourseId):
                 "data": {
                     "quizResults": [Result.to_dict() for Result in ResultList],
                     "stats": stats,
-                    "QuizNameList": QuizNameList
+                    "QuizNameList": QuizNameList,
+                    "CourseName": CourseName
                 },
                 "message": "Results with ClassId {} has successfully returned.".format(ClassId)
             },

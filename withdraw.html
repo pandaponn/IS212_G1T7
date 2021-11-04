@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title> Withdraw </title>
+
+    <link rel="stylesheet" href="">
+    <!-- Bootstrap libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        .not-active {
+            pointer-events: none;
+            cursor: default;
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="learner_home.html">Learner Page</a></h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+            <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+            <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+        </nav>
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
+    </div>
+    <div id="main-container" class="container">
+        <h1 class="display-4">Withdraw from class</h1>
+        <div id="courseCards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+        </div>
+    </div>
+    <div class="container" id="displayError"></div>
+
+    <!-- Modal to confirmation message-->
+    <div class="modal fade" id="withdrawModel" tabindex="-1" role="dialog" aria-labelledby="withdrawModelTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawModelTitle">Withdrawn Successfully</h5>
+
+                </div>
+                <div class="modal-body">
+                    <p id="withdrawModelBody"></p>
+                </div>
+                <div class="modal-footer">
+                    <a id="dismissWithdrawModel" class="btn btn-success" href="withdraw.html">Okay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Modal-->
+
+    <script>
+        // Helper function to display error message
+        function showError(message) {
+            $('#courseCards').hide();
+            // Display an error under the main container
+            $("#displayError").append("<label>" + message + "</label>");
+        }
+
+        // anonymous async function
+        // - using await requires the function that calls it to be async
+        $(async () => {
+            var getClassesURL = "http://127.0.0.1:5100/mono/withdrawableClasses/1";
+
+            try {
+                const response = await fetch(getClassesURL, { method: "GET" });
+                const result = await response.json();
+
+                var rows = "";
+                if (response.status === 200) {
+                    // success case
+                    var withdrawable_list = result.data.withdrawable_list;
+                    console.log(withdrawable_list);
+
+                    for (var withdraw in withdrawable_list) {
+                        console.log(withdrawable_list[withdraw]);
+
+                        var CourseName = withdrawable_list[withdraw].CourseName;
+                        var ClassId = withdrawable_list[withdraw].ClassId;
+                        var CourseId = withdrawable_list[withdraw].CourseId;
+                        var StartDateTime = withdrawable_list[withdraw].StartDateTime;
+                        var EndDateTime = withdrawable_list[withdraw].EndDateTime;
+                        var learner_id = 1;
+
+                        rows += `
+                        <div class="col">
+                            <div class="card shadow-sm">
+                                <div class="card-header">
+                                    <h4> ${CourseName} </h4>
+                                    <span> CourseId ${CourseId}, ClassId ${ClassId} </span>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        Start Date & Time: ${StartDateTime} <br>
+                                        End Date & Time: ${EndDateTime}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                onclick="withdraw(${learner_id}, ${ClassId}, ${CourseId})">Withdraw</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+
+                    // add all the rows to the table
+                    $("#courseCards").append(rows);
+                } else if (response.status == 404) {
+                    showError(result.message);
+                } else {
+                    // unexpected outcome, throw the error
+                    throw response.status;
+                }
+            } catch (error) {
+                // Errors when calling the service; such as network error,
+                // service offline, etc
+                showError(
+                    "There is a problem retrieving withdrawable classes, please try again later.<br />" +
+                    error
+                );
+            }
+        });
+
+        function withdraw(learner_id, ClassId, CourseId) {
+            console.log(learner_id, ClassId, CourseId)
+
+            // show loading before the information is returned
+            var loading_str = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Withdrawing from class...`;
+            document.getElementById('withdrawModelTitle').style.visibility = 'hidden';
+            document.getElementById('withdrawModelBody').innerHTML = loading_str;
+            document.getElementById('dismissWithdrawModel').style.visibility = 'hidden';
+            $('#withdrawModel').modal('show');
+
+            $(async () => {
+                // Change URL to your own
+                var withdrawURL = "http://127.0.0.1:5100/mono/withdraw/" + String(learner_id) + "/" + String(ClassId) + "/" + String(CourseId)
+                console.log(withdrawURL)
+                try {
+                    const response =
+                        await fetch(
+                            withdrawURL, {
+                            method: 'POST',
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                learner_id: learner_id,
+                                ClassId: ClassId,
+                                CourseId: CourseId
+                            })
+                        });
+                    console.log(response.status);
+                    if (response.ok) {
+                        document.getElementById('withdrawModelTitle').style.visibility = 'visible';
+                        document.getElementById('withdrawModelBody').innerText = "You have successfully withdraw for class " + ClassId;
+                        document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                    } else if (response.status == 404) {
+                        // idk if need this but i just leave it here first
+                        document.getElementById('withdrawModelBody').innerText = result.message;
+                        document.getElementById('dismissWithdrawModel').className = "btn btn-danger";
+                        document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                    } else {
+                        // unexpected outcome, throw the error
+                        document.getElementById('withdrawModelBody').innerText = response.status;
+                        document.getElementById('dismissWithdrawModel').className = "btn btn-danger";
+                        document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                    }
+                } catch (error) {
+                    // Errors when calling the service; such as network error, 
+                    // service offline, etc
+                    document.getElementById('withdrawModelBody').innerText = error;
+                    document.getElementById('dismissWithdrawModel').href = "withdraw.html";
+                    document.getElementById('dismissWithdrawModel').className = "btn btn-danger";
+                    document.getElementById('dismissWithdrawModel').style.visibility = 'visible';
+                } // error 
+
+            })
+        };
+    </script>
+</body>
+
+</html>
