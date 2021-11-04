@@ -259,6 +259,8 @@
     var queryString = window.location.search;
     var urlParams = new URLSearchParams(queryString);
     var quiz_id = urlParams.get('QuizId');
+    var course_id = urlParams.get('CourseId');
+    var class_id = urlParams.get('ClassId');
 
     var quiz_completed = 0;
 
@@ -552,7 +554,7 @@
 
     function returnBack(){
         // change this to return to main menu later on
-        window.location.reload();
+        window.location.href = '../showQuiz.html?ClassId=' + class_id + "&CourseId=" + course_id;
     }
 
 </script>
