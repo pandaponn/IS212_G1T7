@@ -327,8 +327,40 @@ class QuizResults(db.Model):
         self.isViewable = isViewable
         self.attempts = attempts
 
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
     def json(self):
         return {"learner_id": self.learner_id, "quiz_id": self.quiz_id, "score": self.score, "quizPass": self.quizPass, "isViewable": self.isViewable, "attempts": self.attempts}
+
+class Engineer(db.Model):
+    __tablename__ = 'Engineer'
+
+    EngineerID = db.Column(db.Integer, primary_key = True)
+    EngineerName = db.Column(db.String(100), nullable = False)
+    TotalClasses = db.Column(db.Integer, nullable = False)
+    CourseCompleted = db.Column(db.Integer, nullable = False)
+    Trainer = db.Column(db.Integer, nullable = False)
+    Learner = db.Column(db.Integer, nullable = False)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
 
 class IsChapViewable(db.Model):
     __tablename__ = 'isChapViewable'
@@ -1146,9 +1178,9 @@ def find_by_pre_req(CourseID, LearnerID):
     ), 404
 
 # get class details of a specific course
-@app.route("/classdetails/<string:CourseID>")
-def get_class_details(CourseID):
-    classList = CourseClass.query.filter_by(CourseID=CourseID).all()
+@app.route("/classdetails/<string:CourseId>")
+def get_class_details(CourseId):
+    classList = CourseClass.query.filter_by(CourseId=CourseId).all()
     if len(classList):
         return jsonify(
             {
@@ -1156,7 +1188,7 @@ def get_class_details(CourseID):
                 "data": {
                     "courseclasses": [courseclass.to_dict() for courseclass in classList]
                 },
-                "message": "Classes for course with courseid: {} successfully returned.".format(CourseID)
+                "message": "Classes for course with courseid: {} successfully returned.".format(CourseId)
             },
               
         )
@@ -1172,9 +1204,9 @@ def get_class_details(CourseID):
     ), 404
 
 # get details of a specific class
-@app.route("/courseclassdetails/<string:ClassID>")
-def get_courseclass_details(ClassID):
-    courseclass = CourseClass.query.filter_by(ClassID=ClassID).first()
+@app.route("/courseclassdetails/<string:ClassId>")
+def get_courseclass_details(ClassId):
+    courseclass = CourseClass.query.filter_by(ClassId=ClassId).first()
     if courseclass:
         return jsonify(
             {
@@ -1182,7 +1214,7 @@ def get_courseclass_details(ClassID):
                 "data": {
                     "courseclass": courseclass.to_dict()
                 },
-                "message": "Class with id: {} successfully returned.".format(ClassID)
+                "message": "Class with id: {} successfully returned.".format(ClassId)
             },
               
         )
@@ -1191,9 +1223,9 @@ def get_courseclass_details(ClassID):
         {
             "code": 404,
             "data": {
-                "ClassID": ClassID
+                "ClassId": ClassId
             },
-            "message": "Class with id: {} not found.".format(ClassID)
+            "message": "Class with id: {} not found.".format(ClassId)
         }
     ), 404
 
@@ -1470,8 +1502,8 @@ def view_available_engineers(Learner):
     ), 404
 
 # User Story: View Assigned Courses by Trainer
-@app.route("/classdetails/<int:TrainerId>")
-def view_trainer_classes(TrainerId):
+@app.route("/class_details/<int:TrainerId>")
+def view_trainer_classes_kal(TrainerId):
     AssignedClassList = CourseClass.query.filter_by(
         TrainerId=TrainerId).all()
     if AssignedClassList:
@@ -1488,7 +1520,7 @@ def view_trainer_classes(TrainerId):
         {
             "code": 404,
             "data": {
-                "trainerID": TrainerId
+                "trainerId": TrainerId
             },
             "message": "Trainer not found."
         }

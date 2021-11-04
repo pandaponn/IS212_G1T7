@@ -149,14 +149,13 @@
         const result = await response.json();
         if (response.status === 200) {
           // success case
-          var courseclasses = result.data.courseclasses;
-
+          var courseclasses = result.data.AssignedClasses;
           // for loop to setup all table rows with obtained course information
           var rows = "<tbody>";
           for (var courseclass of courseclasses) {
-            var ClassID = courseclass.ClassID;
-            var CourseID = courseclass.CourseID;
-            var Trainer = courseclass.TrainerID;
+            var ClassID = courseclass.ClassId;
+            var CourseID = courseclass.CourseId;
+            var Trainer = courseclass.TrainerId;
             var StartDateTime = courseclass.StartDateTime;
             var EndDateTime = courseclass.EndDateTime;
             var Capacity = courseclass.Capacity;
