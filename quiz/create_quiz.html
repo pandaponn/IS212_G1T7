@@ -94,6 +94,40 @@
             text-align: left;
         }
 
+        .overlay {
+            position: fixed; /* Sit on top of the page content */
+            display: none; /* Hidden by default */
+            width: 100%; /* Full width (cover the whole page) */
+            height: 100%; /* Full height (cover the whole page) */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+            z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+            cursor: pointer; /* Add a pointer on hover */
+        }
+
+        #text{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 50px;
+            color: black;
+            transform: translate(-50%,-50%);
+            -ms-transform: translate(-50%,-50%);
+        }
+
+        .overlay_box {
+            width: 70%;
+            margin: 0px auto 120px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 0 50px 50px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
@@ -124,7 +158,6 @@
             <h4 style="font-weight: bold; text-align: center; margin-bottom: 30px;">Quiz Settings</h4>
             <h5 style="text-align: center;">Quiz Name:
                 <span id="quiz_name" style="font-weight: bold; padding-left: 5px; padding-right: 3px;">Quiz 1</span>
-                <button class="far fa-edit" style="color: #88c4a8;" data-toggle="modal" data-target="#edit_quiz_name"></button>
             </h5>
             <h5 style="text-align: center;">Passing Grade: 
                 <span id="display_passing_grade" style="font-weight: bold; padding-left: 5px; padding-right: 3px;">0</span>
@@ -132,6 +165,9 @@
             </h5>
             <h5 style="text-align: center;"> Graded:
                 <span id="display_graded" style="font-weight: bold;"></span>
+            </h5>
+            <h5 style="text-align: center;"> Duration:
+                <span id="quiz_duration" style="font-weight: bold;"></span>
             </h5>
 
         </div>
@@ -167,7 +203,7 @@
         </div>
     </div>
 
-    <!-- Edit Passing Grade -->
+    <!-- Edit Quiz Settings -->
     <div class="modal fade" id="edit_passing_grade" tabindex="-1" role="dialog" aria-labelledby="edit_passing_grade" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -177,7 +213,10 @@
                 <span aria-hidden="true">&times;</span>
             </button>
             </div>
-            <div class="modal-body" style="margin: auto; margin-top: 10px; margin-bottom: 10px">
+            <div class="modal-body" style="margin: auto; margin-top: 10px; margin-bottom: 5px">
+                <p style="font-size:medium;">What would you like to title this quiz?</p>
+                <input type="text" id="new_quiz_name" placeholder=" Quiz 1">
+                <hr>
                 <p style="font-size:medium;">Learners will have to score at least the passing grade in order to attain a "Pass" for the quiz.</p>
                 <p style="font-style:italic">* Each question is worth 1 mark *</p>
                 <input type="number" id="passing_grade" value="0">
@@ -189,6 +228,10 @@
                     <input type="radio" id="grade_N" name="graded" value="N" checked>
                     <label for="grade_N">No</label>
                 </form>
+                <hr>
+                <p style="font-size:medium;">How long would you like this quiz to be? (in minutes)</p>
+                <p style="font-style:italic">* Quiz will automatically end once time is up and learner's response will be voided *</p>
+                <input type="number" id="new_duration" value="0">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" id="save_passing_grade">Save changes</button>
@@ -197,23 +240,18 @@
         </div>
     </div>
 
-    <!-- Edit Quiz Name -->
-    <div class="modal fade" id="edit_quiz_name" tabindex="-1" role="dialog" aria-labelledby="edit_quiz_name" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h4 class="modal-title">Edit Quiz Name</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            </div>
-            <div class="modal-body" style="margin: auto; margin-top: 10px; margin-bottom: 10px">
-                <input type="text" id="new_quiz_name" placeholder=" Quiz 1">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="save_quiz_name">Save changes</button>
-            </div>
+    <!-- Failed Update Quiz Settings Overlay -->
+    <div id="failed_overlay" class="overlay">
+        <div id="text" class="overlay_box">
+            <h4 style="font-size: large; margin-top: 30px; font-weight: bold;"><span style="color: red;">Failed</span> to update quiz settings!</h4>
+            <p style="font-size: medium; margin-top: 30px;">You have added a passing grade larger than the amount of questions you have.</p>
         </div>
+    </div>
+
+    <!-- Successfully Update Quiz Settings Overlay -->
+    <div id="success_overlay" class="overlay">
+        <div id="text" class="overlay_box">
+            <h4 style="font-size: large; margin-top: 30px; font-weight: bold;"><span style="color: green;">Successfully</span> updated quiz settings!</h4>
         </div>
     </div>
 
@@ -227,18 +265,15 @@
     var QuizId = urlParams.get('QuizId');
     var total_questions = 0;
 
-    $('#save_quiz_name').click(()=>{
-        var new_quiz_name = document.getElementById('new_quiz_name').value;
-        document.getElementById('quiz_name').innerText = new_quiz_name;
-
-        updateQuizName(new_quiz_name);
-    })
-
     $('#save_passing_grade').click(()=>{
+        // Update duration inside DB
+        var new_duration = document.getElementById('new_duration').value;
+
+        // Update quiz_name inside DB
+        var new_quiz_name = document.getElementById('new_quiz_name').value;
+        
         // Update passing_grade inside DB
         var passing_grade = document.getElementById('passing_grade').value;
-        document.getElementById('display_passing_grade').innerText = passing_grade;
-        console.log(passing_grade);
 
         // Update whether quiz is graded or not inside DB
         const rbs = document.querySelectorAll('input[name="graded"]');
@@ -253,13 +288,53 @@
 
         console.log(total_questions);
         if (passing_grade > total_questions){
-            console.log("Fail");
+            document.getElementById('failed_overlay').style.display='block';
+            setTimeout(function(){document.getElementById('failed_overlay').style.display='none'}, 3000);
         }
         else {
+            document.getElementById('quiz_duration').innerText = new_duration;
+            document.getElementById('quiz_name').innerText = new_quiz_name;
+            document.getElementById('display_passing_grade').innerText = passing_grade;
+
             updateQuizGrading(passing_grade, graded);
+            updateQuizName(new_quiz_name);
+            updateQuizDuration(new_duration);
+
+            document.getElementById('success_overlay').style.display='block';
+            setTimeout(function(){document.getElementById('success_overlay').style.display='none'}, 3000);
         }
 
     })
+
+    async function updateQuizDuration(quiz_duration){
+        var updateQuizNameDuration = 'http://localhost:5001/quiz/updateQuizDuration';
+        
+        try{
+            var response = await fetch(
+            updateQuizNameDuration, {
+                method: 'PUT',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    quiz_id: QuizId,
+                    quiz_duration: quiz_duration
+                })
+            })
+            var result = await response.json();
+
+            if(response.status === 200){
+                console.log("200");
+            }
+            else if(response.status == 400){
+                console.log("400");
+            }
+            else{
+                throw response.status;
+            }
+        }
+        catch (error){
+            console.log(error);
+        }
+    }
 
     async function updateQuizName(quiz_name){
         var updateQuizNameURL = 'http://localhost:5001/quiz/updateQuizName';
@@ -415,12 +490,15 @@
                 var chapter_id = result.data.quiz.chapter_id;
                 var isGraded = result.data.quiz.isGraded;
                 var passing_grade = result.data.quiz.passing_grade;
+                var duration = result.data.quiz.duration;
 
                 document.getElementById('quiz_name').innerText = quiz_name;
-                document.getElementById('new_quiz_name').placeholder = " " + quiz_name;
+                document.getElementById('new_quiz_name').value = " " + quiz_name;
                 document.getElementById('display_passing_grade').innerText = passing_grade;
                 document.getElementById('passing_grade').value = passing_grade;
                 document.getElementById('display_graded').innerText = isGraded;
+                document.getElementById('new_duration').value = duration;
+                document.getElementById('quiz_duration').innerText = duration;
                 
             }
             else if(response.status == 400){
@@ -650,6 +728,7 @@
         var chapter_id = 1;
         var isGrade = 'Y';
         var passing_grade = 1;
+        var duration = 10;
         
         try{
             var response = await fetch(
@@ -662,7 +741,8 @@
                     class_id : class_id,
                     chapter_id : chapter_id,
                     isGraded : isGraded,
-                    passing_grade : passing_grade
+                    passing_grade : passing_grade,
+                    duration : duration
                 })
             })
             var result = await response.json();
