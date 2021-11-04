@@ -119,40 +119,54 @@
 </head>
 
 <body>
-    <!-- Start of Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <!-- <a class="navbar-brand" href="index_tutor.html"><img src="img/tutor_logo.png" alt="" ></a> -->
-        <!-- <a class="navbar-brand" href="#">Engineer Take Course</a> -->
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" id="navContent" href="showMaterials.html">Content<span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="navQuiz" href="showQuiz.html">Quizzes</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="navResult" href="showResults.html">Results</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <!-- End of Navigation Bar -->
-    <div>
-        <h1>Content List</h1>
-        <div class="sidenav" id="chapters">
-        </div>
-        <div id="main-container" class="main container">
-            <div id="materials">
-
-            </div>
-        </div>
-        <div class="main container" id="displayError"></div>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="learner_home.html">Learner Page</a></h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+            <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+            <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+        </nav>
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
+
+    <main role="main">
+        <div class="jumbotron text-center" style="margin: 0%;">
+            <h1 id="courseName" class="jumbotron-heading"></h1>
+        </div>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" id="navContent" href="showMaterials.html">Content<span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="navQuiz" href="showQuiz.html">Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="navResult" href="showResults.html">Results</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div>
+            <div class="sidenav" id="chapters">
+            </div>
+            <div id="main-container" class="main container">
+                <div id="materials">
+
+                </div>
+            </div>
+            <div class="main container" id="displayError"></div>
+        </div>
+    </main>
 
     <script>
         // Helper function to display error message
@@ -183,7 +197,7 @@
                     // success case
                     var Viewable = result.data.ChapterViewable;
                     var Chapters = result.data.UniqueChapIds;
-                    console.log(Chapters);
+                    var CourseName = result.data.CourseName;
 
                     for (var chap in Chapters) {
                         if (Viewable[Chapters[chap]] == true) {
@@ -196,9 +210,10 @@
                     // add all the rows to the table
                     $("#chapters").append(rows);
 
-                    document.getElementById("navContent").href = "showMaterials.html?ClassId="+ClassId+"&CourseId="+CourseId;
-                    document.getElementById("navQuiz").href = "showQuiz.html?ClassId="+ClassId+"&CourseId="+CourseId;
-                    document.getElementById("navResult").href = "showResults.html?ClassId="+ClassId+"&CourseId="+CourseId;
+                    document.getElementById("courseName").innerHTML = "Course: "+CourseName;
+                    document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+                    document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+                    document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
                 } else if (response.status == 404) {
                     showError(result.message);
                 } else {
@@ -215,11 +230,11 @@
             }
         });
 
-        function displaySubChaps(classId,courseId,chapterId) {
+        function displaySubChaps(classId, courseId, chapterId) {
             $('#materials').empty();
             $(async () => {
                 console.log(classId)
-                var getMaterialsURL = "http://127.0.0.1:5100/mono/chapterMaterial/1/" + classId+"/"+courseId+"/"+chapterId;
+                var getMaterialsURL = "http://127.0.0.1:5100/mono/chapterMaterial/1/" + classId + "/" + courseId + "/" + chapterId;
                 console.log(getMaterialsURL)
                 try {
                     const response = await fetch(getMaterialsURL, { method: "GET" });
@@ -246,7 +261,7 @@
 
                             rows += `
                                 <button class="accordion">${SubChapterId}. ${ChapterName}</button>
-                                <div class="panel" style="display: none;">
+                                <div class="panel" style="display: none; overflow: auto; width: auto;">
                                     <p><a href="http://127.0.0.1:5100/mono/markChapterMaterial/${LearnerId}/${ClassId}/${CourseId}//${ChapterId}/${SubChapterId}">
                                         ${Content}</a></p>
                                 </div>`;
