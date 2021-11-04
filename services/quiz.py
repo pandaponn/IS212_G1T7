@@ -151,17 +151,19 @@ class Quiz(db.Model):
     chapter_id = db.Column(db.Integer, primary_key=False, nullable=False)
     isGraded = db.Column(db.String(65535), nullable=False)
     passing_grade = db.Column(db.String(65535), nullable=False)
+    duration = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, quiz_name, course_id, class_id, chapter_id, isGraded, passing_grade):
+    def __init__(self, quiz_name, course_id, class_id, chapter_id, isGraded, passing_grade, duration):
         self.quiz_name = quiz_name
         self.course_id = course_id
         self.class_id = class_id
         self.chapter_id = chapter_id
         self.isGraded = isGraded
         self.passing_grade = passing_grade
+        self.duration = duration
 
     def json(self):
-        return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade}
+        return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade, "duration": self.duration}
 
 # create Quiz Entry inside quiz table (quiz_id=auto_increment, isGraded="N", passing_grade=0)
 @app.route("/quiz/createQuizInfo", methods=['POST'])
@@ -184,8 +186,13 @@ def create_quiz_info():
             "code": 201,
             "data": {
                 'quiz_id' : app.quiz_id,
+                'quiz_name' : app.quiz_name,
+                'course_id' : app.course_id,
+                'class_id' : app.class_id,
+                'chapter_id' : app.chapter_id,
                 'isGraded' : app.isGraded,
-                'passing_grade' : app.passing_grade
+                'passing_grade' : app.passing_grade,
+                'duration': app.duration
             }
         }
     ), 201
@@ -231,7 +238,8 @@ def retrieveQuizInfo():
             'class_id' : q.class_id,
             'chapter_id' : q.chapter_id,
             'passing_grade' : q.passing_grade,
-            'isGraded' : q.isGraded
+            'isGraded' : q.isGraded,
+            'duration' : q.duration
         }
 
     if output:
@@ -265,6 +273,31 @@ def update_quiz_name():
                 "data":  {
                     'quiz_id' : data['quiz_id'],
                     'quiz_name' : data['quiz_name']
+                }
+            }
+        ), 200
+    return jsonify(
+        {
+            "code": 404,
+            
+            "message": "Quiz not found."
+        }
+    ), 404
+
+# update Quiz Duration
+@app.route("/quiz/updateQuizDuration", methods=['PUT'])
+def update_quiz_duration():
+    data = request.get_json()
+    quiz = Quiz.query.filter_by(quiz_id=data['quiz_id']).first()
+    if quiz: 
+        quiz.duration = data['quiz_duration']
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "data":  {
+                    'quiz_id' : data['quiz_id'],
+                    'duration' : data['quiz_duration']
                 }
             }
         ), 200
