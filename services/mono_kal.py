@@ -331,7 +331,7 @@ def assign_engineer(LearnerID, CourseID, ClassID):
     assigned = 1
     approved = 1
     CourseCompleted = 0
-    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, Assigned=Assigned, Approved=Approved,
+    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, Assigned=assigned, Approved=approved,
                       CourseCompleted=CourseCompleted)
 
     try:
