@@ -454,6 +454,8 @@ def find_by_course_class(learner_id, class_id, course_id):
     ViewableList = IsChapViewable.query.filter_by(learner_id=learner_id).filter_by(
         class_id=class_id).filter_by(course_id=course_id).all()
 
+    CourseName = Course.query.filter_by(CourseID=course_id).first().CourseName
+
     UniqueChapIds = []
     ChapterViewable = {}
 
@@ -469,7 +471,8 @@ def find_by_course_class(learner_id, class_id, course_id):
                 "code": 200,
                 "data": {
                     "UniqueChapIds": UniqueChapIds,
-                    "ChapterViewable": ChapterViewable
+                    "ChapterViewable": ChapterViewable,
+                    "CourseName": CourseName
                 },
                 "message": "Course Materials with ClassId {} has successfully returned.".format(class_id)
             },
@@ -604,6 +607,8 @@ def mark_quiz_as_viewable(learner_id, ClassId, CourseId, ChapterId):
 @app.route("/mono/allQuizzes/<string:learner_id>/<string:ClassId>/<string:CourseId>")
 def find_by_course_id(learner_id, ClassId, CourseId):
     resultList = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseId).all()
+    CourseName = Course.query.filter_by(CourseID=CourseId).first().CourseName
+
     QuizNameList = []
     QuizList = []
     for result in resultList:
@@ -616,7 +621,8 @@ def find_by_course_id(learner_id, ClassId, CourseId):
                 "code": 200,
                 "data": {
                     "Quizzes": [quiz.to_dict() for quiz in QuizList],
-                    "QuizNameList": QuizNameList
+                    "QuizNameList": QuizNameList,
+                    "CourseName": CourseName
                 },
                 "message": "Quizzes with ClassId {} has successfully returned.".format(ClassId)
             },
@@ -638,6 +644,8 @@ def find_by_course_id(learner_id, ClassId, CourseId):
 @app.route("/mono/allResults/<string:learner_id>/<string:ClassId>/<string:CourseId>")
 def get_all_results(learner_id, ClassId, CourseId):
     Quiz_info = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseId).all()
+    CourseName = Course.query.filter_by(CourseID=CourseId).first().CourseName
+
     QuizNameList = []
     ResultList = []
     for quiz in Quiz_info:
@@ -663,7 +671,8 @@ def get_all_results(learner_id, ClassId, CourseId):
                 "data": {
                     "quizResults": [Result.to_dict() for Result in ResultList],
                     "stats": stats,
-                    "QuizNameList": QuizNameList
+                    "QuizNameList": QuizNameList,
+                    "CourseName": CourseName
                 },
                 "message": "Results with ClassId {} has successfully returned.".format(ClassId)
             },
