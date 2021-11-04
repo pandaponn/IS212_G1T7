@@ -75,7 +75,8 @@ CREATE TABLE IF NOT EXISTS `course` (
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updateTime` timestamp NULL DEFAULT NULL,
   `isFull` tinyint(1) NOT NULL,
-  PRIMARY KEY (`courseId`)
+  PRIMARY KEY (`courseId`),
+  KEY `createdBy` (`createdBy`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
@@ -134,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `engineer` (
   `courseCompleted` int(100) DEFAULT NULL,
   `trainer` int(100) NOT NULL,
   `learner` int(100) NOT NULL,
+  `learnerId` int(11) DEFAULT NULL,
   PRIMARY KEY (`engineerId`) USING BTREE,
   KEY `engineerId` (`engineerId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
@@ -142,12 +144,12 @@ CREATE TABLE IF NOT EXISTS `engineer` (
 -- Dumping data for table `engineer`
 --
 
-INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`) VALUES
-(1, 'Ling Li', 2, 1, 0, 1),
-(2, 'Trisha', 3, NULL, 0, 1),
-(3, 'Faith', 5, NULL, 0, 1),
-(4, 'Kal', 2, 3, 1, 0),
-(5, 'Dora', 3, 4, 1, 1);
+INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`, `learnerId`) VALUES
+(1, 'Ling Li', 2, 1, 0, 1, 1),
+(2, 'Trisha', 3, NULL, 0, 1, 2),
+(3, 'Faith', 5, NULL, 0, 1, 3),
+(4, 'Kal', 2, 3, 1, 0, NULL),
+(5, 'Dora', 3, 4, 1, 1, 4);
 
 -- --------------------------------------------------------
 
@@ -194,25 +196,27 @@ INSERT INTO `ischapviewable` (`learner_id`, `course_id`, `class_id`, `chapter_id
 DROP TABLE IF EXISTS `learner`;
 CREATE TABLE IF NOT EXISTS `learner` (
   `LearnerID` int(11) NOT NULL,
+  `engineerId` int(100) NOT NULL,
   `LearnerName` varchar(100) NOT NULL,
   `CourseID` int(11) NOT NULL,
   `ClassID` int(11) NOT NULL,
   `assigned` tinyint(4) NOT NULL,
   `approved` tinyint(4) DEFAULT NULL,
   `courseCompleted` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`LearnerID`,`ClassID`,`CourseID`) USING BTREE
+  PRIMARY KEY (`LearnerID`,`ClassID`,`CourseID`) USING BTREE,
+  KEY `engineerId` (`engineerId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `learner`
 --
 
-INSERT INTO `learner` (`LearnerID`, `LearnerName`, `CourseID`, `ClassID`, `assigned`, `approved`, `courseCompleted`) VALUES
-(1, 'Ling Li', 1, 1, 1, NULL, 1),
-(1, 'Ling Li', 2, 4, 0, 1, 1),
-(1, 'Ling Li', 4, 6, 0, 1, 0),
-(2, 'Trisha', 1, 1, 1, NULL, 1),
-(2, 'Trisha', 2, 4, 0, 1, 0);
+INSERT INTO `learner` (`LearnerID`, `engineerId`, `LearnerName`, `CourseID`, `ClassID`, `assigned`, `approved`, `courseCompleted`) VALUES
+(1, 1, 'Ling Li', 1, 1, 1, NULL, 1),
+(1, 1, 'Ling Li', 2, 4, 0, 1, 1),
+(1, 1, 'Ling Li', 4, 6, 0, 1, 0),
+(2, 2, 'Trisha', 1, 1, 1, NULL, 1),
+(2, 2, 'Trisha', 2, 4, 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -317,6 +321,23 @@ CREATE TABLE IF NOT EXISTS `trainer` (
 INSERT INTO `trainer` (`trainerId`, `engineerId`, `trainerName`, `courseAssigned`, `classAssigned`) VALUES
 (1, 4, 'Kal', 0, 0),
 (2, 5, 'Dora', 0, 0);
+
+DROP TABLE IF EXISTS `administrator`;
+CREATE TABLE IF NOT EXISTS `administrator` (
+  `adminID` int(100) NOT NULL AUTO_INCREMENT,
+  `adminName` varchar(100) NOT NULL,
+  PRIMARY KEY (`adminID`) USING BTREE,
+  KEY `adminID` (`adminID`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `administrator`
+--
+
+INSERT INTO `administrator` (`adminID`, `adminName`) VALUES
+(1, 'Kai Ying'),
+(2, 'Ling'),
+(3, 'Li');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
