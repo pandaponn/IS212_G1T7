@@ -348,7 +348,7 @@ class Engineer(db.Model):
     TotalClasses = db.Column(db.Integer, nullable = False)
     CourseCompleted = db.Column(db.Integer, nullable = False)
     Trainer = db.Column(db.Integer, nullable = False)
-    Learner = db.Column(db.Integer, nullable = False)
+    LearnerId = db.Column(db.Integer, nullable = False)
 
     def to_dict(self):
         """
@@ -1448,7 +1448,291 @@ def vet_self_enroll(LearnerId):
                 "message": "Enrollment cannot be approved or rejected."
             }), 500
 
+# kaldora
+# User Story: Assign Engineers to sections
+# Get all the courses that are assigned to a trainer by assignedEngineer
+class Trainer(db.Model):
+    __tablename__ = 'Trainer'
 
+    TrainerId = db.Column(db.Integer, primary_key = True)
+    EngineerID = db.Column(db.Integer, primary_key = True)
+    TrainerName = db.Column(db.String(100), nullable = False)
+    CourseAssigned = db.Column(db.Integer, nullable = False)
+    ClassAssigned = db.Column(db.Integer, nullable = False)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
+
+@app.route("/view_all_courses/<int:IsFull>")
+def view_assigned_courses(IsFull):
+    AssignedCourseList = Course.query.filter_by(
+        IsFull=IsFull).all()
+
+    courselist = [assigned_courses.to_dict() for assigned_courses in AssignedCourseList]
+    courselist = sorted(courselist, key=lambda k:k["CourseID"], reverse=True)
+    if AssignedCourseList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "AssignedCourses": courselist
+                },
+                "message": "All Assigned Courses have successfully returned."
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "classAssigned": IsFull
+            },
+            "message": "Assigned courses not found."
+        }
+    ), 404
+
+# get class details of a specific course
+@app.route("/class_details/<string:CourseID>")
+def get_class_details_kal(CourseID):
+    classList = CourseClass.query.filter_by(CourseId=CourseID).all()
+    if len(classList):
+        classlist = [courseclass.to_dict() for courseclass in classList]
+        classlist = sorted(classlist, key=lambda k:k["StartDateTime"], reverse=True)
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "courseclasses": classlist
+                },
+                "message": "Classes for course with courseid: {} successfully returned.".format(CourseID)
+            },
+              
+        )
+        # return classList
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "CourseID": CourseID
+            },
+            "message": "Classes for courses with courseid: {} not found.".format(CourseID)
+        }
+    ), 404
+
+# Get details for specific learner through Engineer ID
+@app.route("/view_learner_details/<int:EngineerID>")
+def view_specific_learner(EngineerID):
+    LearnerList = Learner.query.filter_by(EngineerID=EngineerID).all()
+    if LearnerList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "AvailableLearners": [available_learner.to_dict() for available_learner in LearnerList]
+                },
+                "message": "Learner have successfully returned."
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "AvailableLearners": EngineerID
+            },
+            "message": "Learner not found."
+        }
+    ), 404
+
+
+# Assigning and updating db
+@app.route("/assign_engineer/<string:LearnerID>/<string:CourseID>/<string:ClassID>", methods=['POST'])
+def assign_engineer(LearnerID, CourseID, ClassID):
+    LearnerID = LearnerID
+    LearnerName = request.json.get('LearnerName')
+    CourseID = CourseID
+    ClassID = ClassID
+    assigned = 1
+    approved = 1
+    CourseCompleted = 0
+    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, Assigned=Assigned, Approved=Approved,
+                      CourseCompleted=CourseCompleted)
+
+    try:
+        db.session.add(learner)
+
+        classInfo = CourseClass.query.filter_by(
+            CourseID=CourseID).filter_by(ClassID=ClassID).first()
+        classInfo.SlotsAvailable -= 1
+
+        db.session.commit()
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while assigning engineer. " + str(e)
+            }
+        ), 500
+
+    # added this function to add in rows to IsChapViewable
+    addRowsToViewable(LearnerID, CourseID, ClassID)
+    addRowsToQuizResults(LearnerID, CourseID, ClassID)
+
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successfully assigned engineer to course."
+        }
+    ), 201
+
+# Get all the chaps available for the course and class
+# Loop through and db.session.add()
+# After the loop, db.session.commit()
+def addRowsToViewable(LearnerID, CourseID, ClassID):
+    MaterialsList = CourseMaterials.query.filter_by(
+        course_id=CourseID).filter_by(class_id=ClassID).all()
+    for material in MaterialsList:
+        if (material.chapter_id == 1):
+            learner_id = LearnerID
+            course_id = material.course_id
+            class_id = material.class_id
+            chapter_id = material.chapter_id
+            subchapter_id = material.subchapter_id
+            chapter_viewable = 1
+            chapter_viewed = 0
+
+            row = IsChapViewable(learner_id=learner_id, course_id=course_id, class_id=class_id, chapter_id=chapter_id,
+                                 subchapter_id=subchapter_id, chapter_viewable=chapter_viewable, chapter_viewed=chapter_viewed)
+            db.session.add(row)
+        else:
+            learner_id = LearnerID
+            course_id = material.course_id
+            class_id = material.class_id
+            chapter_id = material.chapter_id
+            subchapter_id = material.subchapter_id
+            chapter_viewable = 0
+            chapter_viewed = 0
+
+            row = IsChapViewable(learner_id=learner_id, course_id=course_id, class_id=class_id, chapter_id=chapter_id,
+                                 subchapter_id=subchapter_id, chapter_viewable=chapter_viewable, chapter_viewed=chapter_viewed)
+            db.session.add(row)
+
+    try:
+        db.session.commit()
+
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while adding rows to isChapViewable Table. " + str(e)
+            }
+        ), 500
+
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successful added."
+        }
+    ), 201
+
+def addRowsToQuizResults(LearnerID, CourseID, ClassID):
+    QuizzesList = Quiz.query.filter_by(
+        course_id=CourseID).filter_by(class_id=ClassID).all()
+    for quiz in QuizzesList:
+            learner_id = LearnerID
+            quiz_id = quiz.quiz_id
+            score = 0
+            quizPass = 0
+            isViewable = 0
+            attempts = 0
+
+            row = QuizResults(learner_id=learner_id, quiz_id=quiz_id, score=score, quizPass=quizPass,
+                                 isViewable=isViewable, attempts=attempts)
+            db.session.add(row)
+
+    try:
+        db.session.commit()
+
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while adding rows to QuizResults Table. " + str(e)
+            }
+        ), 500
+
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successful added."
+        }
+    ), 201
+
+# View all available engineers
+@app.route("/view_all_engineers/<int:isLearner>/<int:CourseID>")
+def view_available_engineers(isLearner, CourseID):
+    EngineerList = Engineer.query.filter_by(LearnerId=isLearner).all()
+    print(EngineerList)
+
+    AvailableList = []
+    for i in range(len(EngineerList)):
+        print(EngineerList[i].LearnerId)
+        result = Learner.query.filter_by(LearnerID=EngineerList[i].LearnerId).filter_by(CourseID=CourseID).first()
+        if result:
+            continue
+        else:
+            AvailableList.append(EngineerList[i])
+    if EngineerList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in AvailableList]
+                },
+                "message": "All Assigned Courses have successfully returned."
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "AvailableEngineers": Learner
+            },
+            "message": "Engineers not found."
+        }
+    ), 404
+
+# User Story: View Assigned Courses by Trainer
+@app.route("/classdetails/<int:TrainerId>")
+def view_trainer_classes(TrainerId):
+    AssignedClassList = CourseClass.query.filter_by(
+        TrainerId=TrainerId).all()
+    if AssignedClassList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "AssignedClasses": [assigned_classes.to_dict() for assigned_classes in AssignedClassList]
+                },
+                "message": "All assigned classes with trainer ID {} has successfully returned.".format(TrainerId)
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "trainerId": TrainerId
+            },
+            "message": "Trainer not found."
+        }
+    ), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5100, debug=True)

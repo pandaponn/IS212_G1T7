@@ -51,9 +51,6 @@
                 <a class="nav-link" href="all_courses.html">View Courses</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="trainerTrack.html">Track Class Results<span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
                 <a class="nav-link" href="#">Search Courses<span class="sr-only">(current)</span></a>
                 </li>
             </ul>
@@ -122,7 +119,7 @@
               if (response.status === 200) {
                 // success case
                 var AssignedClasses = result.data.AssignedClasses;
-                console.log(AssignedClasses)
+    
                 // for loop to setup all table rows with obtained course information
                 var rows = "<tbody>";
                 for (var AssignedClass of AssignedClasses) {

@@ -149,7 +149,8 @@
         const result = await response.json();
         if (response.status === 200) {
           // success case
-          var courseclasses = result.data.AssignedClasses;
+          var courseclasses = result.data.courseclasses;
+
           // for loop to setup all table rows with obtained course information
           var rows = "<tbody>";
           for (var courseclass of courseclasses) {
