@@ -468,7 +468,7 @@ def mark_chap_as_viewable(learner_id, class_id, course_id, next_chapId):
  # update course as completed
 def mark_course_completed(learner_id, CourseId, ClassId):
     try:
-        learnerCourse = Learner.query.filter_by(LearnerID=learner_id).filter_by(ClassID=ClassId).filter_by(
+        learnerCourse = Learner.query.filter_by(LearnerId=learner_id).filter_by(ClassId=ClassId).filter_by(
             CourseID=CourseId).first()
         print(learnerCourse)
 
@@ -1398,12 +1398,12 @@ def set_enrollment_period(CourseID):
         }), 200
 
 # approve/reject self-enrollment
-@app.route("/vet_self_enroll/<int:LearnerID>", methods=["PUT"])
-def vet_self_enroll(LearnerID):
+@app.route("/vet_self_enroll/<int:LearnerId>", methods=["PUT"])
+def vet_self_enroll(LearnerId):
     # assigned = 0, approved = null (pending)
     Current = datetime.now()
     print(Current)
-    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(Assigned=0).filter_by(Approved=None).first()
+    learner = Learner.query.filter_by(LearnerId=LearnerId).filter_by(Assigned=0).filter_by(Approved=None).first()
     if not learner:
         return jsonify({
             "code": "404",
@@ -1448,82 +1448,6 @@ def vet_self_enroll(LearnerID):
                 "message": "Enrollment cannot be approved or rejected."
             }), 500
 
-# kal
-# User Story: Assign Engineers to sections
-# Get all the courses that are assigned to a trainer by assignedEngineer
-@app.route("/view_all_courses/<int:IsFull>")
-def view_assigned_courses(IsFull):
-    AssignedCourseList = Course.query.filter_by(
-        IsFull=IsFull).all()
-    if AssignedCourseList:
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "AssignedCourses": [assigned_courses.to_dict() for assigned_courses in AssignedCourseList]
-                },
-                "message": "All Assigned Courses have successfully returned."
-            },
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "classAssigned": IsFull
-            },
-            "message": "Assigned courses not found."
-        }
-    ), 404
-
-
-# View all available engineers
-@app.route("/view_all_engineers/<int:Learner>")
-def view_available_engineers(Learner):
-    EngineerList = Engineer.query.filter_by(Learner=Learner).all()
-    if EngineerList:
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in EngineerList]
-                },
-                "message": "All Assigned Courses have successfully returned."
-            },
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "AvailableEngineers": Learner
-            },
-            "message": "Engineers not found."
-        }
-    ), 404
-
-# User Story: View Assigned Courses by Trainer
-@app.route("/class_details/<int:TrainerId>")
-def view_trainer_classes_kal(TrainerId):
-    AssignedClassList = CourseClass.query.filter_by(
-        TrainerId=TrainerId).all()
-    if AssignedClassList:
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "AssignedClasses": [assigned_classes.to_dict() for assigned_classes in AssignedClassList]
-                },
-                "message": "All assigned classes with trainer ID {} has successfully returned.".format(TrainerId)
-            },
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "trainerId": TrainerId
-            },
-            "message": "Trainer not found."
-        }
-    ), 404
 
 
 if __name__ == '__main__':
