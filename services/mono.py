@@ -141,17 +141,19 @@ class Quiz(db.Model):
     chapter_id = db.Column(db.Integer, primary_key=False, nullable=False)
     isGraded = db.Column(db.String(65535), nullable=False)
     passing_grade = db.Column(db.String(65535), nullable=False)
+    duration = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, quiz_name, course_id, class_id, chapter_id, isGraded, passing_grade):
+    def __init__(self, quiz_name, course_id, class_id, chapter_id, isGraded, passing_grade, duration):
         self.quiz_name = quiz_name
         self.course_id = course_id
         self.class_id = class_id
         self.chapter_id = chapter_id
         self.isGraded = isGraded
         self.passing_grade = passing_grade
+        self.duration = duration
 
     def json(self):
-        return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade}
+        return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade, "duration": self.duration}
     
     def to_dict(self):
         """
@@ -603,11 +605,11 @@ def mark_quiz_as_viewable(learner_id, ClassId, CourseId, ChapterId):
 
 
 # User Story: Take the quizzes for the classes
-# Get all the quizzes by learner_id, classId and courseId
-@app.route("/mono/allQuizzes/<string:learner_id>/<string:ClassId>/<string:CourseId>")
-def find_by_course_id(learner_id, ClassId, CourseId):
-    resultList = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseId).all()
-    CourseName = Course.query.filter_by(CourseID=CourseId).first().CourseName
+# Get all the quizzes by learner_id, classId and CourseID
+@app.route("/mono/allQuizzes/<string:learner_id>/<string:ClassId>/<string:CourseID>")
+def find_by_course_id(learner_id, ClassId, CourseID):
+    resultList = Quiz.query.filter_by(class_id=ClassId).filter_by(course_id=CourseID).all()
+    CourseName = Course.query.filter_by(CourseID=CourseID).first().CourseName
 
     QuizNameList = []
     QuizList = []
@@ -633,7 +635,7 @@ def find_by_course_id(learner_id, ClassId, CourseId):
             "code": 404,
             "data": {
                 "ClassId": ClassId,
-                "CourseId": CourseId
+                "CourseId": CourseID
             },
             "message": "Quiz not found."
         }
@@ -647,17 +649,16 @@ def get_all_results(learner_id, ClassId, CourseId):
     CourseName = Course.query.filter_by(CourseID=CourseId).first().CourseName
 
     QuizNameList = []
-    ResultList = []
+    quizResultsList = []
     for quiz in Quiz_info:
         QuizNameList.append(quiz.quiz_name)
-        ResultList.append(QuizResults.query.filter_by(learner_id=learner_id).filter_by(
+        quizResultsList.append(QuizResults.query.filter_by(learner_id=learner_id).filter_by(
             quiz_id=quiz.quiz_id).first())
-    print(ResultList)
 
-    for r in range(len(ResultList)):
-        print(ResultList[r].attempts)
-        if ResultList[r].attempts == 0:
-            ResultList.pop(r)
+    ResultList = []
+    for r in range(len(quizResultsList)):
+        if quizResultsList[r].attempts != 0:
+            ResultList.append(quizResultsList[r])
 
     stats = []
     for r in range(len(ResultList)):
@@ -826,7 +827,7 @@ def get_learner_name(learnerList):
         nameList.append(result.LearnerName)
     return nameList
 
-# FROM QUIZ.PY    
+# FROM QUIZ.PY
 # Retrieve all questions for specific quiz on create_quiz.html
 @app.route("/quiz/retrieveAllQuestions", methods=['POST'])
 def retrieveAllQuestions():
@@ -866,6 +867,41 @@ def retrieveAllQuestions():
             "message": "Questions not found."
         }
     ), 404
+    
+# Retrieve all questions for specific quiz on create_quiz.html
+@app.route("/quiz/retrieveQuestion", methods=['POST'])
+def retrieveQuestion():
+    data = request.get_json()
+    question_id = data['question_id']
+
+    qn_list = Questions.query.filter_by(question_id=question_id)
+    for qn in qn_list:
+
+        output = {
+            'question_id' : qn.question_id,
+            'quiz_id' : qn.quiz_id,
+            'qn_type' : qn.qn_type,
+            'question' : qn.question,
+            'options' : qn.options,
+            'answer' :  qn.answer
+        }
+
+    if output:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "questions": output
+                }
+            }
+        )
+
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Questions not found."
+        }
+    ), 404
 
 # retrieve Quiz Information
 @app.route("/quiz/retrieveQuizInfo", methods=['POST'])
@@ -881,7 +917,8 @@ def retrieveQuizInfo():
             'class_id' : q.class_id,
             'chapter_id' : q.chapter_id,
             'passing_grade' : q.passing_grade,
-            'isGraded' : q.isGraded
+            'isGraded' : q.isGraded,
+            'duration' : q.duration
         }
 
     if output:
