@@ -503,6 +503,29 @@ def view_trainer_classes(TrainerID):
         }
     ), 404
 
+# Get Class List
+@app.route("/view_class_list/<int:approved>/<int:CourseID>/<int:ClassID>")
+def view_class_list(approved, CourseID, ClassID):
+    ClassList = Learner.query.filter_by(approved=approved).filter_by(CourseID=CourseID).filter_by(ClassID=ClassID).all()
+    if ClassList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "ClassList": [class_list.to_dict() for class_list in ClassList]
+                },
+                "message": "Learner have successfully returned."
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "courseID": CourseID
+            },
+            "message": "Learner not found."
+        }
+    ), 404
 
 if __name__ == '__main__':
     app.run(port=5100, debug=True)

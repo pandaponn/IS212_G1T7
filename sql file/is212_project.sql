@@ -212,8 +212,8 @@ CREATE TABLE IF NOT EXISTS `learner` (
 --
 
 INSERT INTO `learner` (`LearnerID`, `engineerId`, `LearnerName`, `CourseID`, `ClassID`, `assigned`, `approved`, `courseCompleted`) VALUES
-(1, 1, 'Ling Li', 1, 1, 1, NULL, 1),
-(1, 1, 'Ling Li', 2, 4, 0, 1, 1),
+(1, 1, 'Ling Li', 1, 1, 1, 1, 1),
+(1, 1, 'Ling Li', 2, 4, 0, NULL, 1),
 (1, 1, 'Ling Li', 4, 6, 0, 1, 0),
 (2, 2, 'Trisha', 1, 1, 1, NULL, 1),
 (2, 2, 'Trisha', 2, 4, 0, 1, 0);

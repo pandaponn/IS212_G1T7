@@ -37,7 +37,8 @@
       pointer-events: none;
     }
 
-    body, nav {
+    body,
+    nav {
       background-image: url(src/background.jpg);
       background-size: cover;
       /* <------ */
@@ -164,7 +165,11 @@
 
             rows += `
                           <tr class="maincourse">
-                            <td>${ClassID}</td>
+                            <td>
+                              <a class="nav-link" href="class_list.html?courseid=${CourseID}&classid=${ClassID}">
+                              ${ClassID}
+                              </a>
+                            </td>
                             <td>${CourseID}</td>
                             <td>${Trainer}</td>
                             <td>${StartDateTime}</td>

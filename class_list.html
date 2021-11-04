@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>View Available Engineers</title>
+  <title>Class List</title>
 
   <link rel="stylesheet" href="" />
   <!--[if lt IE 9]>
@@ -59,6 +59,10 @@
     table {
       text-align: center;
     }
+
+    h1 {
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -84,7 +88,7 @@
 
   <div id="main-container" class="container">
     <div>
-      <h1 class="display-4">Available Engineers</h1>
+      <h1 class="display-4">Class List</h1>
       <!-- <button class="btn btn-success" onclick=getFilteredCourses(1) id="filtercourse">Filter</button> -->
       <!-- <button class="btn btn-secondary" onclick="window.location.reload()">Reset Filters</button> -->
     </div>
@@ -93,6 +97,8 @@
         <tr>
           <th>Learner ID</th>
           <th>Learner Name</th>
+          <th>Course ID</th>
+          <th>Class ID</th>
           </th>
         </tr>
       </thead>
@@ -132,9 +138,11 @@
     $(async () => {
       const queryString = window.location.search;
       const params = new URLSearchParams(queryString);
-      console.log(params.get('engineerid'));
-      var engineer_id = params.get('engineerid');
-      var getClassesURL = "http://127.0.0.1:5100/view_learner_details/" + engineer_id;
+      console.log(params.get('courseid'));
+      console.log(params.get('classid'));
+      var course_id = params.get('courseid');
+      var class_id = params.get('classid');
+      var getClassesURL = "http://127.0.0.1:5100/view_class_list/1/" + course_id + "/" + class_id;
 
       try {
         const response = await fetch(getClassesURL, { method: "GET" });
@@ -142,18 +150,22 @@
         const result = await response.json();
         if (response.status === 200) {
           // success case
-          var AvailableLearners = result.data.AvailableLearners;
+          var ClassList = result.data.ClassList;
 
           // for loop to setup all table rows with obtained course information
           var rows = "<tbody>";
-          for (var AvailableLearner of AvailableLearners) {
-            var LearnerID = AvailableLearner.LearnerID;
-            var LearnerName = AvailableLearner.LearnerName;
+          for (var Details of ClassList) {
+            var LearnerID = Details.LearnerID;
+            var LearnerName = Details.LearnerName;
+            var CourseID = Details.CourseID;
+            var ClassID = Details.ClassID;
 
             rows += `
                                   <tr class="maincourse">
                                     <td>${LearnerID}</td>
                                     <td>${LearnerName}</td>
+                                    <td>${CourseID}</td>
+                                    <td>${ClassID}</td>
                                   </tr>
                                       `;
           }
