@@ -171,7 +171,6 @@ class IsChapViewable(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
-
 class Quiz(db.Model):
     __tablename__ = 'quiz'
     quiz_id = db.Column(db.Integer, primary_key=True, nullable=False)
