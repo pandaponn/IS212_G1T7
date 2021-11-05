@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `class` (
 
 INSERT INTO `class` (`classId`, `courseId`, `courseName`, `trainerId`, `startDateTime`, `endDateTime`, `capacity`, `slotsAvailable`) VALUES
 (1, 1, 'Python Basics', 1, '2021-10-13 09:00:00.000000', '2021-10-27 21:00:00.000000', 40, 39),
-(2, 1, 'Python Basics', 1, '2021-10-11 11:00:00.000000', '2021-10-25 18:00:00.000000', 13, 8),
+(2, 1, 'Python Basics', 1, '2021-10-11 11:00:00.000000', '2021-10-25 18:00:00.000000', 13, 0),
 (3, 1, 'Python Basics', 2, '2021-10-12 10:00:00.000000', '2021-10-26 19:00:00.000000', 14, 13),
 (4, 2, 'Python Intermediate', 3, '2021-10-15 09:00:00.000000', '2021-10-29 16:00:00.000000', 30, 25),
 (5, 3, 'Extreme Python', 2, '2021-10-19 00:00:00.000000', '2021-10-26 00:00:00.000000', 2, 1),

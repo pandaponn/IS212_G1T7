@@ -281,7 +281,8 @@ def get_courseclass_details(ClassID):
 # check if course has NOT been taken before --> OK (duplicate entry will give error)
 @app.route("/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>", methods=['POST'])
 def validate_prereq(CourseID, LearnerID, ClassID):
-    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(CourseCompleted=1).all()
+    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(
+        CourseCompleted=1).all()
     course = Course.query.filter_by(CourseID=CourseID).first()
     # print(course.CourseID)
     print(course)
@@ -297,35 +298,44 @@ def validate_prereq(CourseID, LearnerID, ClassID):
         }), 404
     else:
         if course.PreReq == None:
-            print('no prequisite for this course')
-            # return jsonify({
-            #     "code": "201",
-            #     "message": "course has no prerequisite. able to sign up"
-            # })
+            # print('no prequisite for this course')
+ 
             if isCourseEnrollOpen == 1:
-                return course_signup(LearnerID, CourseID, ClassID)
-            else:
+                course_signup(LearnerID, CourseID, ClassID)
                 return jsonify({
-                    "code": "502",
-                    "message": "enrollment for course is closed"
-                }),502
+                    "code": "200",
+                    "message": "course has no prerequisite. able to sign up"
+                }), 200
+            
+            return jsonify({
+                "code": "502",
+                "message": "enrollment for course is closed"
+            }), 502
         else:
         # course has a prequisite
+                # print("learner has pre requisite")
+                # print("looping")
             for each in learner:
-                print("looping")
                 if each.CourseID == coursePreReq:
                     # print("learner has course' pre requisite")
-                    # return jsonify({
-                    #     "code": "200",
-                    #     "message": "learner has pre requisite"
-                    # }), 200
-                    if isCourseEnrollOpen==1:
-                        return course_signup(LearnerID, CourseID, ClassID)
+                    if isCourseEnrollOpen == 1:
+                        course_signup(LearnerID, CourseID, ClassID)
+                        return jsonify({
+                            "code": "200",
+                            "message": "Processing sign up"
+                        })
                     else:
                         return jsonify({
                             "code": "502",
                             "message": "enrollment for course is closed"
                         }),502
+                        
+                return jsonify({
+                    "code": "404",
+                    "message": "learner does not have pre requisite"
+                }), 404
+
+                
 
 def course_signup(LearnerID, CourseID, ClassID):
     LearnerID = LearnerID
