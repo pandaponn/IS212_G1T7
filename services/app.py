@@ -91,12 +91,12 @@ def retrieveAllQuestions():
     if allQuestions:
         return jsonify(
             {
-                "code": 200,
+                "code": 201,
                 "data": {
                     "questions": allQuestions
                 }
             }
-        )
+        ), 201
     print(allQuestions)
 
     return jsonify(
@@ -106,7 +106,7 @@ def retrieveAllQuestions():
         }
     ), 404
 
-# Retrieve all questions for specific quiz on create_quiz.html
+# Retrieve specific question for specific quiz on create_quiz.html
 @app.route("/quiz/retrieveQuestion", methods=['POST'])
 def retrieveQuestion():
     data = request.get_json()
@@ -127,12 +127,12 @@ def retrieveQuestion():
     if output:
         return jsonify(
             {
-                "code": 200,
+                "code": 201,
                 "data": {
                     "questions": output
                 }
             }
-        )
+        ), 201
 
     return jsonify(
         {
