@@ -42,6 +42,12 @@
     <!-- End of Navigation Bar -->
     <div id="main-container" class="container">
         <h1 class="display-4">Results</h1>
+
+        <!-- Alert message when the trainer choose invalid combination of CourseId and ClassId -->
+        <div id="displayAlert" class="alert alert-danger" role="alert"  style="display: none;">
+            <strong>Error!</strong> Please select the correct CourseId and ClassId.
+        </div>
+
         <h6 class="courseClassSelect">Select Course and Class</h6>
         <div class="form-row courseClassSelect">
             <div class="col-md-4 mb-3">
@@ -153,12 +159,13 @@
 
             if (CourseId != 'CourseId' && ClassId != 'ClassId') {
                 $(async () => {
-                    var getResultsURL = "http://127.0.0.1:5100/mono/trackResults/quizByCourseClass/"+ ClassId + '/' + CourseId;
+                    var getResultsURL = "http://127.0.0.1:5100/mono/trackResults/quizByCourseClass/" + ClassId + '/' + CourseId;
 
                     try {
                         const response = await fetch(getResultsURL, { method: "GET" });
                         const result = await response.json();
-                        
+
+                        $('#displayAlert').hide();
                         $('#resultTable').hide();
                         $('#quizOptions').empty();
 
@@ -178,21 +185,19 @@
                             $("#quizOptions").append(quizRows);
 
                         } else if (response.status == 404) {
-                            showError(result.message);
+                            $('#displayAlert').show();
                         } else {
-                            // unexpected outcome, throw the error
-                            throw response.status;
+                            $('#displayAlert').show();
                         }
                     } catch (error) {
                         // Errors when calling the service; such as network error,
                         // service offline, etc
-                        showError(
-                            "There is a problem retrieving your results, please try again later.<br />" +
-                            error
-                        );
+                        $('#displayAlert').show();
+                        $('.quizSelect').hide();
+                        $('#resultTable').hide();
                     }
                 });
-                
+
                 $('.quizSelect').show();
             }
         }
@@ -222,15 +227,13 @@
                             console.log(quizName)
 
                             for (var r in quizResults) {
-                                // console.log(quizResults[r]);
-
                                 var ID = quizResults[r].learner_id;
                                 var Name = engineerNameList[r]
                                 var qId = quizResults[r].quiz_id;
                                 var qName = quizName;
                                 var score = quizResults[r].score;
                                 var attempts = quizResults[r].attempts;
-                                
+
                                 rows += `
                                     <tr>
                                         <td> ${ID} </td>
@@ -246,18 +249,24 @@
                             // add all the rows to the table
                             $("#resultTable").append(rows);
                         } else if (response.status == 404) {
-                            showError(result.message);
+                            // showError(result.message);
+                            $('#displayAlert').show();
                         } else {
                             // unexpected outcome, throw the error
-                            throw response.status;
+                            // throw response.status;
+                            $('#displayAlert').show();
                         }
                     } catch (error) {
                         // Errors when calling the service; such as network error,
                         // service offline, etc
-                        showError(
-                            "There is a problem retrieving your results, please try again later.<br />" +
-                            error
-                        );
+                        // showError(
+                        //     "There is a problem retrieving your results, please try again later.<br />" +
+                        //     error
+                        // );
+
+                        $('#displayAlert').show();
+                        $('.quizSelect').hide();
+                        $('#resultTable').hide();
                     }
                 });
                 var x = document.getElementById("resultTable");
