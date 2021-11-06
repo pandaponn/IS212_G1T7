@@ -79,8 +79,8 @@ class Course(db.Model):
     StartEnroll = db.Column(db.DateTime, nullable=False)
     EndEnroll = db.Column(db.DateTime, nullable=False)
     Open = db.Column(db.Integer, nullable=False)
-    CreatedBy = db.Column(db.String(100), nullable=False)
-    UpdatedBy = db.Column(db.String(100), nullable=True)
+    CreatedBy = db.Column(db.Integer, nullable=False)
+    UpdatedBy = db.Column(db.Integer, nullable=True)
     CreatedTime = db.Column(db.DateTime, nullable=False, default=datetime.now)
     UpdateTime = db.Column(db.DateTime, nullable=True, default=datetime.now, onupdate=datetime.now)
     IsFull =  db.Column(db.Boolean, nullable=False)
@@ -427,7 +427,7 @@ def get_courses_by_admin(CreatedBy):
             {
                 "code": 200,
                 "data": {
-                    "Courses created by admin": [course.to_dict() for course in courseList]
+                    "courses": [course.to_dict() for course in courseList]
                 },
                 "message": "Courses created by admin {} successfully returned.".format(admin)
             },
@@ -438,6 +438,30 @@ def get_courses_by_admin(CreatedBy):
         {
             "code": 404,
             "message": "Can't find courses created by admin {}.".format(admin)
+        }
+    ), 404
+
+# get pending approval enrollment
+@app.route("/pending_courses")
+def get_pending_courses():
+    courseList = Learner.query.filter_by(assigned=0).filter_by(approved=None).all()
+    if len(courseList):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "pending": [course.to_dict() for course in courseList],
+                    "Number of courses": len(courseList)
+                },
+                "message": "Courses pending approval successfully returned."
+            },
+              
+        )
+        # return classList
+    return jsonify(
+        {
+            "code": 404,
+            "message": "All courses have been vetted"
         }
     ), 404
 
