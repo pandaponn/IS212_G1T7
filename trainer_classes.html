@@ -72,7 +72,6 @@
                   <th>Trainer ID</th>
                   <th>Start Date/Time</th>
                   <th>End Date/Time</th>
-                  <th>Materials</th>
                   <th>Capacity</th>
                   <th>Slots Available</th>
                 </tr>
@@ -124,12 +123,11 @@
                 // for loop to setup all table rows with obtained course information
                 var rows = "<tbody>";
                 for (var AssignedClass of AssignedClasses) {
-                  var ClassID = AssignedClass.ClassID;
-                  var CourseID = AssignedClass.CourseID;
-                  var Trainer = AssignedClass.TrainerID;
+                  var ClassID = AssignedClass.ClassId;
+                  var CourseID = AssignedClass.CourseId;
+                  var Trainer = AssignedClass.TrainerId;
                   var StartDateTime = AssignedClass.StartDateTime;
                   var EndDateTime = AssignedClass.EndDateTime;
-                  var Materials = AssignedClass.Materials;
                   var Capacity = AssignedClass.Capacity;
                   var SlotsAvailable = AssignedClass.SlotsAvailable;
     
@@ -140,7 +138,6 @@
                                     <td>${Trainer}</td>
                                     <td>${StartDateTime}</td>
                                     <td>${EndDateTime}</td>
-                                    <td>${Materials}</td>
                                     <td>${Capacity}</td>
                                     <td>${SlotsAvailable}</td>
                                   </tr>

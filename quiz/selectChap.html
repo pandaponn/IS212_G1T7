@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width">
 
-    <title> Results </title>
+    <title> Create Quiz </title>
 
     <link rel="stylesheet" href="">
     <!-- Bootstrap libraries -->
@@ -27,21 +27,36 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
         integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
         crossorigin="anonymous"></script>
+    <style>
+        body,
+        nav {
+            background-image: url(../src/background.jpg);
+            background-size: cover;
+            /* <------ */
+            background-repeat: no-repeat;
+            background-position: center center;
+            /* optional, center the image */
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Start of Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <!-- <a class="navbar-brand" href="index_tutor.html"><img src="img/tutor_logo.png" alt="" ></a> -->
-        <a class="navbar-brand" href="trainer_classes.html">Trainer Track Results</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <nav>
+        <div
+            class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                    href="learner_home.html">Trainer Page</a></h5>
+            <!-- <div class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+                <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+                <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+            </div> -->
+            <a class="btn btn-outline-primary" href="#">Log Out</a>
+        </div>
     </nav>
-    <!-- End of Navigation Bar -->
+
     <div id="main-container" class="container">
-        <h1 class="display-4">Results</h1>
+        <h1 class="display-4">Select chapter to create quiz</h1>
 
         <!-- Alert message when the trainer choose invalid combination of CourseId and ClassId -->
         <div id="displayAlert" class="alert alert-danger" role="alert"  style="display: none;">
@@ -52,38 +67,29 @@
         <div class="form-row courseClassSelect">
             <div class="col-md-4 mb-3">
                 <span>Course</span>
-                <select class="form-control" id=courseOptions onchange="getCourseClassIds(); getQuizId()">
+                <select class="form-control" id=courseOptions onchange="getCourseClassIds(); getChapId()">
                     <option>CourseId</option>
                 </select>
             </div>
             <div class="col-md-4 mb-3">
                 <span>Class</span>
-                <select class="form-control" id=classOptions onchange="getCourseClassIds(); getQuizId()">
+                <select class="form-control" id=classOptions onchange="getCourseClassIds(); getChapId()">
                     <option>ClassId</option>
                 </select>
             </div>
         </div>
-        <h6 class=quizSelect style="display: none;">Select Quiz Id</h6>
-        <div class="form-row quizSelect" style="display: none;">
+        <h6 class=chapterSelect style="display: none;">Select Chapter Id</h6>
+        <div class="form-row chapterSelect" style="display: none;">
             <div class="col-md-4 mb-3">
-                <span>Quiz</span>
-                <select class="form-control" id=quizOptions onchange="getQuizId()">
-                    <option>QuizId</option>
+                <span>Chapter</span>
+                <select class="form-control" id=chapterOptions onchange="getChapId()">
+                    <option>ChapterId</option>
                 </select>
             </div>
         </div>
-        <table id="resultTable" class="table table-bordered" border="1" style="display: none; width: fit-content;">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Learner Id</th>
-                    <th>Learner Name</th>
-                    <th>QuizId</th>
-                    <th>QuizName</th>
-                    <th>Score</th>
-                    <th>Attempts</th>
-                </tr>
-            </thead>
-        </table>
+        <div id="createQuiz" style="display: none;">
+
+        </div>
     </div>
     <div class="container" id="displayError"></div>
 
@@ -91,8 +97,8 @@
         // Helper function to display error message
         function showError(message) {
             $('.courseClassSelect').hide();
-            $('.quizSelect').hide();
-            $('#resultTable').hide();
+            $('.chapterSelect').hide();
+            $('#createQuiz').hide();
 
             // Display an error under the main container
             $("#displayError").append("<label>" + message + "</label>");
@@ -113,19 +119,13 @@
                     // success case
                     var courseIdList = result.data.courseIdList;
                     var classIdList = result.data.classIdList;
-                    console.log(classIdList);
-                    console.log(courseIdList);
 
                     for (var c in courseIdList) {
-                        // console.log(courseIdList[c]);
-
                         courseRows += `
                             <option>${courseIdList[c]}</option>`;
                     }
 
                     for (var c in classIdList) {
-                        // console.log(classIdList[c]);
-
                         classRows += `
                             <option>${classIdList[c]}</option>`;
                     }
@@ -152,102 +152,88 @@
 
         function getCourseClassIds() {
             var CourseId = document.getElementById("courseOptions").value;
-            console.log(CourseId);
-
             var ClassId = document.getElementById("classOptions").value;
-            console.log(ClassId);
 
             if (CourseId != 'CourseId' && ClassId != 'ClassId') {
                 $(async () => {
-                    var getResultsURL = "http://127.0.0.1:5100/mono/trackResults/quizByCourseClass/" + ClassId + '/' + CourseId;
+                    var getResultsURL = "http://127.0.0.1:5100/mono/allChaps/" + ClassId + '/' + CourseId;
 
                     try {
                         const response = await fetch(getResultsURL, { method: "GET" });
                         const result = await response.json();
 
                         $('#displayAlert').hide();
-                        $('#resultTable').hide();
-                        $('#quizOptions').empty();
+                        $('#createQuiz').hide();
+                        $('#chapterOptions').empty();
 
                         var quizRows = "<option>QuizId</option>";
                         if (response.status === 200) {
                             // success case
-                            var quizIdList = result.data.quizIdList;
-                            console.log(quizIdList);
+                            var chapIdList = result.data.chapIdList;
 
-                            for (var c in quizIdList) {
-                                // console.log(quizIdList[c]);
-
+                            for (var c in chapIdList) {
                                 quizRows += `
-                                    <option>${quizIdList[c]}</option>`;
+                                    <option>${chapIdList[c]}</option>`;
                             }
                             // add all the rows to the table
-                            $("#quizOptions").append(quizRows);
+                            $("#chapterOptions").append(quizRows);
 
                         } else if (response.status == 404) {
                             $('#displayAlert').show();
                         } else {
+                            // unexpected outcome, throw the error
                             $('#displayAlert').show();
                         }
                     } catch (error) {
                         // Errors when calling the service; such as network error,
                         // service offline, etc
+                        // showError(
+                        //     "There is a problem retrieving your results, please try again later.<br />" +
+                        //     error
+                        // );
                         $('#displayAlert').show();
-                        $('.quizSelect').hide();
+                        $('.chapterSelect').hide();
                         $('#resultTable').hide();
                     }
                 });
 
-                $('.quizSelect').show();
+                $('.chapterSelect').show();
             }
         }
 
-        function getQuizId() {
-            var QuizId = document.getElementById("quizOptions").value;
-            console.log(QuizId);
+        function getChapId() {
+            var ChapterId = document.getElementById("chapterOptions").value;
+            console.log(ChapterId);
 
-            if (QuizId != 'QuizId') {
+            var CourseId = document.getElementById("courseOptions").value;
+            console.log(CourseId);
+
+            var ClassId = document.getElementById("classOptions").value;
+            console.log(ClassId);
+
+            
+            $("#createQuiz").empty()
+            
+            if (CourseId != 'CourseId' && ClassId != 'ClassId' && ChapterId != 'ChapterId') {
                 $(async () => {
-                    var getQuizResultsURL = "http://127.0.0.1:5100/mono/ClassQuizResults/" + QuizId;
+                    var isValidURL = "http://127.0.0.1:5100/mono/chapterValid/" + ClassId + '/' + CourseId + '/' + ChapterId;
 
                     try {
-                        const response = await fetch(getQuizResultsURL, { method: "GET" });
+                        const response = await fetch(isValidURL, { method: "GET" });
                         const result = await response.json();
-
-                        $('#resultTable tbody').empty();
-
-                        var rows = "<tbody>";
+                         
+                        url = 'create_quiz.html?ClassId='+ ClassId + '&CourseId=' + CourseId + '&ChapterId=' + ChapterId
+                        console.log(url)
+                        
                         if (response.status === 200) {
                             // success case
-                            var quizResults = result.data.quizResults;
-                            console.log(quizResults);
-                            var engineerNameList = result.data.nameList;
-                            console.log(engineerNameList);
-                            var quizName = result.data.quizName;
-                            console.log(quizName)
+                           rows = `
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="window.location.href='${url}'">
+                                    Create Quiz
+                                </button>`;
 
-                            for (var r in quizResults) {
-                                var ID = quizResults[r].learner_id;
-                                var Name = engineerNameList[r]
-                                var qId = quizResults[r].quiz_id;
-                                var qName = quizName;
-                                var score = quizResults[r].score;
-                                var attempts = quizResults[r].attempts;
-
-                                rows += `
-                                    <tr>
-                                        <td> ${ID} </td>
-                                        <td> ${Name} </td>
-                                        <td> ${qId} </td>
-                                        <td> ${qName} </td>
-                                        <td> ${score} </td>
-                                        <td> ${attempts} </td>
-                                    </tr>`;
-                            }
-                            rows += "</tbody>";
-
-                            // add all the rows to the table
-                            $("#resultTable").append(rows);
+                            $("#createQuiz").append(rows);
                         } else if (response.status == 404) {
                             // showError(result.message);
                             $('#displayAlert').show();
@@ -269,13 +255,7 @@
                         $('#resultTable').hide();
                     }
                 });
-                var x = document.getElementById("resultTable");
-                if (x.style.display === "none") {
-                    x.style.display = "block";
-                }
-                // else {
-                //     x.style.display = "none";
-                // }
+                $('#createQuiz').show();
             }
         }
     </script>
