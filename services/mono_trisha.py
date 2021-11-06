@@ -29,10 +29,6 @@ class Learner(db.Model):
     approved = db.Column(db.Integer, nullable=True)
     CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
 
-    # __mapper_args__ = {
-    #     'polymorphic_identity': 'person'
-    # }
-
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -43,6 +39,8 @@ class Learner(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+    
+
 
 # Engineer
 class Engineer(db.Model):
@@ -96,6 +94,31 @@ class Course(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+
+    def has_prereq(self, count):
+        if self.PreReq != None:
+            count = 0
+        else:
+            count = 1
+        return count
+    
+    def is_open(self, date):
+        if date > datetime.now():
+            open = 1
+        else:
+            open = 0
+        return open
+    
+    def set_end_enrollment(self, endDate):
+        if endDate > self.StartEnroll:
+            result = "valid"
+        else:
+            result = "invalid"
+        return result
+    
+    # def is_full()
+        
+
 
 # Class
 class CourseClass(db.Model):
@@ -499,7 +522,7 @@ def set_enrollment_period(CourseID):
         }), 200
 
 # approve/reject self-enrollment
-@app.route("/vet_self_enroll/<int:LearnerID>", methods=["PUT"])
+@app.route("/vet_self_enroll/<string:LearnerID>", methods=["PUT"])
 def vet_self_enroll(LearnerID):
     # assigned = 0, approved = null (pending)
     Current = datetime.now()
