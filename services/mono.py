@@ -21,12 +21,13 @@ class Learner(db.Model):
     __tablename__ = 'Learner'
 
     LearnerID = db.Column(db.Integer, primary_key=True)
+    EngineerID = db.Column(db.Integer, nullable=False)
     LearnerName = db.Column(db.String(100), nullable=False)
     CourseID = db.Column(db.Integer, primary_key=True)
     ClassID = db.Column(db.Integer, primary_key=True)
-    assigned = db.Column(db.Boolean, nullable=False)
-    approved = db.Column(db.Boolean, nullable=True)
-    CourseCompleted = db.Column(db.Boolean, nullable=True)
+    assigned = db.Column(db.Integer, nullable=False)
+    approved = db.Column(db.Integer, nullable=True)
+    CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
 
     def to_dict(self):
         """
@@ -216,18 +217,44 @@ class Questions(db.Model):
     def json(self):
         return {"question_id": self.question_id, "quiz_id": self.quiz_id, "qn_type": self.qn_type, "question": self.question, "options": self.options, "answer": self.answer}
 
+class Engineer(db.Model):
+    __tablename__ = 'Engineer'
+
+    EngineerID = db.Column(db.Integer, primary_key = True)
+    EngineerName = db.Column(db.String(100), nullable = False)
+    TotalClasses = db.Column(db.Integer, nullable = False)
+    CourseCompleted = db.Column(db.Integer, nullable = False)
+    Trainer = db.Column(db.Integer, nullable = False)
+    Learner = db.Column(db.Integer, nullable = False)
+    LearnerId = db.Column(db.Integer, nullable = False)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
 db.create_all()
 
 # Learner sign up for course - from trisha
 @app.route("/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>", methods=['POST'])
 def course_signup(LearnerID, CourseID, ClassID):
     LearnerID = LearnerID
+    EngineerID =Engineer.query.filter_by(
+            LearnerId=LearnerID).first().EngineerID
     LearnerName = request.json.get('LearnerName')
     CourseID = CourseID
     ClassID = ClassID
+    assigned = 0
+    approved = 0
     CourseCompleted = 0
-    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID,
-                      CourseCompleted=CourseCompleted)
+    learner = Learner(LearnerID=LearnerID, EngineerID=EngineerID,LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID,
+                    assigned=assigned, approved=approved, CourseCompleted=CourseCompleted)
 
     try:
         db.session.add(learner)
