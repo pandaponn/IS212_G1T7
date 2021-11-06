@@ -322,23 +322,25 @@ def view_specific_learner(EngineerID):
 
 
 # Assigning and updating db
-@app.route("/assign_engineer/<string:LearnerID>/<string:CourseID>/<string:ClassID>", methods=['POST'])
-def assign_engineer(LearnerID, CourseID, ClassID):
+@app.route("/assign_engineer/<string:LearnerID>/<string:CourseID>/<string:ClassID>/<string:LearnerName>", methods=['POST'])
+def assign_engineer(LearnerID, CourseID, ClassID, LearnerName):
     LearnerID = LearnerID
-    LearnerName = request.json.get('LearnerName')
+    EngineerID = Engineer.query.filter_by(
+            LearnerId=LearnerID).first().EngineerID
+    LearnerName = LearnerName
     CourseID = CourseID
     ClassID = ClassID
     assigned = 1
     approved = 1
     CourseCompleted = 0
-    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, Assigned=assigned, Approved=approved,
+    learner = Learner(LearnerID=LearnerID, EngineerID=EngineerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, assigned=assigned, approved=approved,
                       CourseCompleted=CourseCompleted)
 
     try:
         db.session.add(learner)
 
         classInfo = CourseClass.query.filter_by(
-            CourseID=CourseID).filter_by(ClassID=ClassID).first()
+            CourseId=CourseID).filter_by(ClassId=ClassID).first()
         classInfo.SlotsAvailable -= 1
 
         db.session.commit()
@@ -473,6 +475,40 @@ def view_available_engineers(isLearner, CourseID):
             "code": 404,
             "data": {
                 "AvailableEngineers": Learner
+            },
+            "message": "Engineers not found."
+        }
+    ), 404
+
+# View all available engineers
+@app.route("/view_all_engineers/<int:isTrainer>/<int:CourseID>")
+def view_available_trainers(isTrainer, CourseID):
+    EngineerList = Engineer.query.filter_by(Trainer=isTrainer).all()
+    print(EngineerList)
+
+    AvailableList = []
+    for i in range(len(EngineerList)):
+        print(EngineerList[i].TrainerId)
+        result = Trainer.query.filter_by(TrainerID=EngineerList[i].TrainerId).filter_by(CourseID=CourseID).first()
+        if result:
+            continue
+        else:
+            AvailableList.append(EngineerList[i])
+    if EngineerList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in AvailableList]
+                },
+                "message": "All available trainers have successfully returned."
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "AvailableEngineers": Trainer
             },
             "message": "Engineers not found."
         }

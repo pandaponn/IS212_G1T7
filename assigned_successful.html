@@ -134,13 +134,15 @@
       var class_id = params.get('classid');
       console.log(params.get('learnerid'));
       var learner_id = params.get('learnerid');
-      var getClassesURL = "http://127.0.0.1:5100/assign_engineer/" + learner_id + "/" + course_id + "/" + class_id;
+      console.log(params.get('learnername'));
+      var learner_name = params.get('learnername');
+      var getClassesURL = "http://127.0.0.1:5100/assign_engineer/" + learner_id + "/" + course_id + "/" + class_id + "/" + learner_name;
 
       try {
-        const response = await fetch(getClassesURL, { method: "GET" });
+        const response = await fetch(getClassesURL, { method: "POST" });
 
         const result = await response.json();
-        if (response.status === 200) {
+        if (response.status === 201) {
           // success case
           document.getElementById("successful").innerHTML = "You have successfully assigned Learner " + learner_id + " to course " + course_id + ", class " + class_id;
 
