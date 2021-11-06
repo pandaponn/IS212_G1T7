@@ -74,8 +74,7 @@
           <tr>
             <th>Course ID</th>
             <th>Course Name</th>
-            <th>Start of Enrollment</th>
-            <th>End of Enrollment</th>
+            <th>Enrollment Period</th>
           </tr>
         </thead>
       </table>
@@ -136,8 +135,7 @@
               <tr class="maincourse">
                   <td> ${CourseID} </td>
                   <td> ${CourseName} </td>
-                  <td> ${StartEnroll} </td>
-                  <td> ${EndEnroll} </td>
+                  <td><a class="nav-link" href="admin_set_enroll.html?courseid=${CourseID}"> ${StartEnroll} to ${EndEnroll}</td>
               </tr>
                   `;
             }
