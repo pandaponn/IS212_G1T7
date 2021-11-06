@@ -836,20 +836,24 @@ def find_materials_chapter_id(learner_id, class_id, course_id, chapter_id):
 
 def mark_quiz_as_viewable(learner_id, ClassId, CourseId, ChapterId):
     try:
-        quiz_id =  Quiz.query.filter_by(class_id=ClassId).filter_by(
-            course_id=CourseId).filter_by(chapter_id=ChapterId).first().quiz_id
-        result = QuizResults.query.filter_by(learner_id=learner_id).filter_by(
-            quiz_id=quiz_id).first()
-        print(result)
-        if not result:
-            return []
+        quizList =  Quiz.query.filter_by(class_id=ClassId).filter_by(
+            course_id=CourseId).filter_by(chapter_id=ChapterId).all()
+        
+        for quiz in quizList:
+            quiz_id = quiz.quiz_id
+            
+            result = QuizResults.query.filter_by(learner_id=learner_id).filter_by(
+                quiz_id=quiz_id).first()
+            print(result)
+            if not result:
+                return []
 
-        print(result.isViewable)
-        if result.isViewable == False:
-            result.isViewable = True
             print(result.isViewable)
-        else:
-            return result
+            if result.isViewable == False:
+                result.isViewable = True
+                print(result.isViewable)
+            else:
+                return result
         db.session.commit()
         return result
     except Exception as e:
@@ -1078,6 +1082,51 @@ def get_learner_name(learnerList):
         result = Learner.query.filter_by(LearnerID=LearnerID).first()
         nameList.append(result.LearnerName)
     return nameList
+
+# Get all the chapters available for the class and course
+@app.route("/mono/allChaps/<string:class_id>/<string:course_id>")
+def get_chapIdBy_courseClass(class_id, course_id):
+    ChapList = CourseMaterials.query.filter_by(
+        class_id=class_id).filter_by(course_id=course_id).all()
+    print(ChapList)
+
+    chapIdList = []
+    for chap in ChapList:
+        if chap.chapter_id not in chapIdList:
+            chapIdList.append(chap.chapter_id)
+
+    print(chapIdList)
+    if chapIdList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "chapIdList": chapIdList
+                }
+            }
+        )
+
+@app.route("/mono/chapterValid/<string:class_id>/<string:course_id>/<string:chapter_id>")
+def check_chapterValid(class_id, course_id, chapter_id):
+    ChapValid = CourseMaterials.query.filter_by(
+        class_id=class_id).filter_by(course_id=course_id).filter_by(chapter_id=chapter_id).first()
+
+    print(ChapValid)
+    if ChapValid:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "ChapValid": ChapValid.to_dict()
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Chapter not found."
+        }
+    ), 404
 
 # trisha
 # User story: View all courses --> OK
