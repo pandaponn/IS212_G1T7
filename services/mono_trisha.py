@@ -22,10 +22,11 @@ class Learner(db.Model):
 
     LearnerID = db.Column(db.Integer, primary_key=True)
     LearnerName = db.Column(db.String(100), nullable=False)
+    EngineerID = db.Column(db.Integer,nullable=False )
     CourseID = db.Column(db.Integer, primary_key=True)
     ClassID = db.Column(db.Integer, primary_key=True)
-    Assigned = db.Column(db.Integer, nullable=False)
-    Approved = db.Column(db.Integer, nullable=True)
+    assigned = db.Column(db.Integer, nullable=False)
+    approved = db.Column(db.Integer, nullable=True)
     CourseCompleted = db.Column(db.Integer, nullable=True) # 0/1 --> boolean
 
     # __mapper_args__ = {
@@ -53,6 +54,7 @@ class Engineer(db.Model):
     CourseCompleted = db.Column(db.Integer, nullable = False)
     Trainer = db.Column(db.Integer, nullable = False)
     Learner = db.Column(db.Integer, nullable = False)
+    LearnerId = db.Column(db.Integer, nullable=True)
 
 
     def to_dict(self):
@@ -99,10 +101,10 @@ class Course(db.Model):
 class CourseClass(db.Model):
     __tablename__ = 'Class'
 
-    ClassID = db.Column(db.Integer, primary_key=True)
-    CourseID = db.Column(db.Integer, primary_key=True)
+    ClassId = db.Column(db.Integer, primary_key=True)
+    CourseId = db.Column(db.Integer, primary_key=True)
     CourseName = db.Column(db.String(100), nullable=False)
-    TrainerID = db.Column(db.Integer, nullable=True)
+    TrainerId = db.Column(db.Integer, nullable=True)
     StartDateTime = db.Column(db.DateTime, nullable=False,)
     EndDateTime = db.Column(db.DateTime, nullable=True,)
     Capacity = db.Column(db.Integer, nullable=False)
@@ -225,7 +227,7 @@ def find_by_pre_req(CourseID, LearnerID):
 # get class details of a specific course
 @app.route("/classdetails/<string:CourseID>")
 def get_class_details(CourseID):
-    classList = CourseClass.query.filter_by(CourseID=CourseID).all()
+    classList = CourseClass.query.filter_by(CourseId=CourseID).all()
     if len(classList):
         return jsonify(
             {
@@ -251,7 +253,7 @@ def get_class_details(CourseID):
 # get details of a specific class
 @app.route("/courseclassdetails/<string:ClassID>")
 def get_courseclass_details(ClassID):
-    courseclass = CourseClass.query.filter_by(ClassID=ClassID).first()
+    courseclass = CourseClass.query.filter_by(ClassId=ClassID).first()
     if courseclass:
         return jsonify(
             {
@@ -290,7 +292,7 @@ def validate_prereq(CourseID, LearnerID, ClassID):
     coursePreReq = course.PreReq
     isCourseEnrollOpen = course.Open
 
-    courseclass = CourseClass.query.filter_by(ClassID=ClassID).first() 
+    courseclass = CourseClass.query.filter_by(ClassId=ClassID).first() 
     SlotsAvailable = courseclass.SlotsAvailable
 
     # check if learner has taken/is taking/applied the course
@@ -337,7 +339,9 @@ def validate_prereq(CourseID, LearnerID, ClassID):
         else:
             # learner completed some courses before
             # loop through them to check if learner completed the prereq course
-             for each in learner:
+            # print(learner[::-1])
+            # learner = learner[::-1]
+            for each in learner:
                 if each.CourseID == coursePreReq:
                     # Prereq taken by learner and enrollment is open
                     if isCourseEnrollOpen == 1:
@@ -373,18 +377,19 @@ def course_signup(LearnerID, CourseID, ClassID):
 
     # LearnerName = request.json.get('LearnerName')
     LearnerName = 'Ling Li'
+    EngineerID = Engineer.query.filter_by(LearnerId=LearnerID).first().EngineerID
     CourseID = CourseID
     ClassID = ClassID
     Assigned = 0
     Approved = None
     CourseCompleted = 0
-    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, 
-                        Assigned=Assigned, Approved=Approved, CourseCompleted=CourseCompleted)
+    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, EngineerID=EngineerID, CourseID=CourseID, ClassID=ClassID, 
+                        assigned=Assigned, approved=Approved, CourseCompleted=CourseCompleted)
     
-    courseclass = CourseClass.query.filter_by(ClassID=ClassID).first() 
+    courseclass = CourseClass.query.filter_by(ClassId=ClassID).first() 
     print(courseclass)
-    SlotsAvailable = courseclass.SlotsAvailable
-    CourseName = courseclass.CourseName
+    # SlotsAvailable = courseclass.SlotsAvailable
+    # CourseName = courseclass.CourseName
  
     try:
         # data = SlotsAvailable -1
@@ -475,22 +480,23 @@ def vet_self_enroll(LearnerID):
     # assigned = 0, approved = null (pending)
     Current = datetime.now()
     print(Current)
-    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(Assigned=0).filter_by(Approved=None).first()
+    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(assigned=0).filter_by(approved=None).first()
     if not learner:
         return jsonify({
             "code": "404",
-            "message": "You have not self-enrolled in any class."
+            "message": "Learner has not self-enrolled in any class."
         }), 404
     else:
         print(learner)
         courseToApprove = learner.CourseID
         classToApprove = learner.ClassID
         courseDetails = Course.query.filter_by(CourseID=courseToApprove).first()
-        classDetails = CourseClass.query.filter_by(ClassID=classToApprove).first()
+        classDetails = CourseClass.query.filter_by(ClassId=classToApprove).first()
         print('enrollment period: ',courseDetails.StartEnroll, ' to ', courseDetails.EndEnroll)
         CourseStart = courseDetails.StartEnroll
         # CourseEnd = courseDetails.EndEnroll
         ClassStart = classDetails.StartDateTime
+        # slotsAvailable = classDetails.SlotsAvailable
 
 
         data = request.get_json()
@@ -501,9 +507,10 @@ def vet_self_enroll(LearnerID):
             print('able to approve or reject enrollment')
         
             if data["Approved"] == "approved":
-                learner.Approved = 1
+                learner.approved = 1
+                classDetails.SlotsAvailable -= 1
             if data["Approved"] == "rejected":
-                learner.Approved = 0
+                learner.approved = 0
 
             db.session.commit()
 
@@ -512,7 +519,7 @@ def vet_self_enroll(LearnerID):
                 "data": {
                     "learner pending course": learner.to_dict(),
                 },
-                "message": "Your enrollment has been " + data['Approved']
+                "message": "Enrollment has been " + data['Approved']
             }), 200
         else:
             return jsonify({
