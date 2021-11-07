@@ -123,6 +123,10 @@
             console.log(ClassId);
             console.log(CourseId);
 
+            document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+            document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+            document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+
             var getQuizzesURL = "http://127.0.0.1:5100/mono/allQuizzes/1/" + ClassId + "/" + CourseId;
 
             try {
@@ -150,14 +154,14 @@
                             rows += `
                                 <tr>
                                     <td> ${QuizId} </td>
-                                    <td> <a href="quiz/quiz.html?QuizId=${QuizId}">${QuizName} </a></td>
+                                    <td> <a href="quiz/quiz.html?ClassId=${ClassId}&CourseId=${CourseId}&QuizId=${QuizId}">${QuizName} </a></td>
                                     <td> ${Attempts} </td>
                                 </tr>`;
                         } else {
                             rows += `
                                 <tr>
                                     <td> ${QuizId} </td>
-                                    <td> <a href="quiz/quiz.html?QuizId=${QuizId}" class="not-active">${QuizName} </a>
+                                    <td> <a href="quiz/quiz.html?ClassId=${ClassId}&CourseId=${CourseId}&QuizId=${QuizId}" class="not-active">${QuizName} </a>
                                         <i class='fa fa-lock'></i>
                                     </td>
                                     <td> </td>
@@ -171,9 +175,6 @@
                     $("#quizTable").append(rows);
 
                     document.getElementById("courseName").innerHTML = "Course: "+CourseName;
-                    document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
-                    document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
-                    document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
                 } else if (response.status == 404) {
                     showError(result.message);
                 } else {

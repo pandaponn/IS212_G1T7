@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
@@ -95,6 +95,7 @@ class Engineer(db.Model):
     LearnerId = db.Column(db.Integer, nullable = False)
     TrainerId = db.Column(db.Integer, nullable = False)
 
+
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -175,6 +176,7 @@ class IsChapViewable(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+      
 class Quiz(db.Model):
     __tablename__ = 'quiz'
     quiz_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -238,6 +240,7 @@ class QuizResults(db.Model):
             result[column] = getattr(self, column)
         return result
 
+
 db.create_all()
 
 # User Story: Assign Engineers to sections
@@ -246,15 +249,12 @@ db.create_all()
 def view_assigned_courses(IsFull):
     AssignedCourseList = Course.query.filter_by(
         IsFull=IsFull).all()
-
-    courselist = [assigned_courses.to_dict() for assigned_courses in AssignedCourseList]
-    courselist = sorted(courselist, key=lambda k:k["CourseID"], reverse=True)
     if AssignedCourseList:
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "AssignedCourses": courselist
+                    "AssignedCourses": [assigned_courses.to_dict() for assigned_courses in AssignedCourseList]
                 },
                 "message": "All Assigned Courses have successfully returned."
             },
@@ -274,9 +274,9 @@ def view_assigned_courses(IsFull):
 def get_class_details(CourseID):
     classList = CourseClass.query.filter_by(CourseId=CourseID).all()
     if len(classList):
-        classlist = [courseclass.to_dict() for courseclass in classList]
-        classlist = sorted(classlist, key=lambda k:k["StartDateTime"], reverse=True)
-        return jsonify(
+      classlist = [courseclass.to_dict() for courseclass in classList]
+      classlist = sorted(classlist, key=lambda k:k["StartDateTime"], reverse=True)
+      return jsonify(
             {
                 "code": 200,
                 "data": {
@@ -296,6 +296,7 @@ def get_class_details(CourseID):
             "message": "Classes for courses with courseid: {} not found.".format(CourseID)
         }
     ), 404
+
 
 # Get details for specific learner through Engineer ID
 @app.route("/view_learner_details/<int:EngineerID>")
@@ -485,12 +486,13 @@ def view_available_engineers(isLearner, CourseID):
             continue
         else:
             AvailableList.append(EngineerList[i])
+
     if EngineerList:
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in AvailableList]
+                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in EngineerList]
                 },
                 "message": "All Assigned Courses have successfully returned."
             },

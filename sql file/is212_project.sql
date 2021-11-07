@@ -112,14 +112,38 @@ CREATE TABLE IF NOT EXISTS `coursematerials` (
 --
 
 INSERT INTO `coursematerials` (`course_id`, `class_id`, `chapter_id`, `subchapter_id`, `chapter_name`, `content`) VALUES
-(1, 1, 1, '1a', 'Introduction to Python', 'slides'),
+(1, 1, 1, '1a', 'Introduction to Python', 'Slides'),
 (1, 1, 1, '1b', 'Printing hello world', 'source code'),
-(1, 1, 2, '2a', 'For Loop', 'slides'),
+(1, 1, 2, '2a', 'For Loop', 'Slides'),
 (1, 1, 2, '2b', 'Class Exercise', 'code'),
 (1, 2, 1, '1a', 'I love Coffee', 'Coffee Beans'),
 (1, 2, 1, '1b', 'I love Tea', 'Tea Leaves'),
 (1, 2, 2, '2a', 'Baking Cake', 'Slides'),
-(1, 2, 2, '2b', 'Cookies', 'Videos');
+(1, 2, 2, '2b', 'Cookies', 'Videos'),
+(1, 3, 1, '1a', 'Introduction to Python', 'Slides'),
+(1, 3, 1, '1b', 'Printing hello world', 'source code'),
+(1, 3, 2, '2a', 'For Loop', 'Slides'),
+(1, 3, 2, '2b', 'Class Exercise', 'code'),
+(2, 4, 1, '1a', 'Python Intermediate Part 1a', 'Slides'),
+(2, 4, 1, '1b', 'Python Intermediate Part 1b', 'Source Code'),
+(2, 4, 2, '2a', 'Python Intermediate Part 2a', 'Slides'),
+(2, 4, 2, '2b', 'Python Intermediate Part 2b', 'Videos'),
+(3, 5, 1, '1a', 'Extreme Python Part 1a', 'Slides'),
+(3, 5, 1, '1b', 'Extreme Python Part 1b', 'Source Code'),
+(3, 5, 2, '2a', 'Extreme Python Part 2a', 'Slides'),
+(3, 5, 2, '2b', 'Extreme Python Part 2b', 'Videos'),
+(4, 6, 1, '1a', 'Data Management Part 1a', 'Slides'),
+(4, 6, 1, '1b', 'Data Management Part 1b', 'source code'),
+(4, 6, 2, '2a', 'Data Management Part 2a', 'Slides'),
+(4, 6, 2, '2b', 'Data Management Part 2b', 'code'),
+(5, 7, 1, '1a', 'Fire Python Part 1a', 'Coffee Beans'),
+(5, 7, 1, '1b', 'Fire Python Part 1b', 'Tea Leaves'),
+(5, 7, 2, '2a', 'Fire Python Part 2a', 'Slides'),
+(5, 7, 2, '2b', 'Fire Python Part 2b', 'Videos'),
+(5, 8, 1, '1a', 'Fire Python Part 1a', 'Coffee Beans'),
+(5, 8, 1, '1b', 'Fire Python Part 1b', 'Tea Leaves'),
+(5, 8, 2, '2a', 'Fire Python Part 2a', 'Slides'),
+(5, 8, 2, '2b', 'Fire Python Part 2b', 'Videos');
 
 -- --------------------------------------------------------
 
@@ -176,18 +200,22 @@ CREATE TABLE IF NOT EXISTS `ischapviewable` (
 --
 
 INSERT INTO `ischapviewable` (`learner_id`, `course_id`, `class_id`, `chapter_id`, `subchapter_id`, `chapter_viewable`, `chapter_viewed`) VALUES
-(1, 1, 1, 1, '1a', 1, 1),
-(1, 1, 1, 1, '1b', 1, 1),
+(1, 1, 1, 1, '1a', 1, 0),
+(1, 1, 1, 1, '1b', 1, 0),
 (1, 1, 1, 2, '2a', 0, 0),
 (1, 1, 1, 2, '2b', 0, 0),
-(2, 1, 2, 1, '1a', 1, 0),
-(2, 1, 2, 1, '1b', 1, 0),
-(2, 1, 2, 2, '2a', 0, 0),
-(2, 1, 2, 2, '2b', 0, 0),
-(4, 1, 1, 1, '1a', 1, 0),
-(4, 1, 1, 1, '1b', 1, 0),
-(4, 1, 1, 2, '2a', 0, 0),
-(4, 1, 1, 2, '2b', 0, 0);
+(1, 4, 6, 1, '1a', 1, 0),
+(1, 4, 6, 1, '1b', 1, 0),
+(1, 4, 6, 2, '2a', 0, 0),
+(1, 4, 6, 2, '2b', 0, 0),
+(2, 1, 1, 1, '1a', 1, 0),
+(2, 1, 1, 1, '1b', 1, 0),
+(2, 1, 1, 2, '2a', 0, 0),
+(2, 1, 1, 2, '2b', 0, 0),
+(2, 2, 4, 1, '1a', 1, 0),
+(2, 2, 4, 1, '1b', 1, 0),
+(2, 2, 4, 2, '2a', 0, 0),
+(2, 2, 4, 2, '2b', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -273,7 +301,28 @@ CREATE TABLE IF NOT EXISTS `quiz` (
 INSERT INTO `quiz` (`quiz_id`, `quiz_name`, `course_id`, `class_id`, `chapter_id`, `isGraded`, `passing_grade`, `duration`) VALUES
 (1, 'Quiz 1', 1, 1, 1, 'Y', 3, 10),
 (2, 'Quiz 2', 1, 1, 2, 'N', 5, 5),
-(3, 'Quiz 3', 1, 1, 2, 'Y', 5, 10);
+(3, 'Final Quiz', 1, 1, 2, 'Y', 5, 10),
+(4, 'Quiz 1', 1, 2, 1, 'Y', 3, 10),
+(5, 'Quiz 2', 1, 2, 2, 'N', 5, 5),
+(6, 'Final Quiz', 1, 2, 2, 'Y', 5, 10),
+(7, 'Quiz 1', 1, 3, 1, 'Y', 3, 10),
+(8, 'Quiz 2', 1, 3, 2, 'N', 5, 5),
+(9, 'Final Quiz', 1, 3, 2, 'Y', 5, 10),
+(10, 'Quiz 1', 2, 4, 1, 'Y', 3, 10),
+(11, 'Quiz 2', 2, 4, 2, 'N', 5, 5),
+(12, 'Final Quiz', 2, 4, 2, 'Y', 5, 10),
+(13, 'Quiz 1', 3, 5, 1, 'Y', 3, 10),
+(14, 'Quiz 2', 3, 5, 2, 'N', 5, 5),
+(15, 'Final Quiz', 3, 5, 2, 'Y', 5, 10),
+(16, 'Quiz 1', 4, 6, 1, 'Y', 3, 10),
+(17, 'Quiz 2', 4, 6, 2, 'N', 5, 5),
+(18, 'Final Quiz', 4, 6, 2, 'Y', 5, 10),
+(19, 'Quiz 1', 5, 7, 1, 'Y', 3, 10),
+(20, 'Quiz 2', 5, 7, 2, 'N', 5, 5),
+(21, 'Final Quiz', 5, 7, 2, 'Y', 5, 10),
+(22, 'Quiz 1', 5, 8, 1, 'Y', 3, 10),
+(23, 'Quiz 2', 5, 8, 2, 'N', 5, 5),
+(24, 'Final Quiz', 5, 8, 2, 'Y', 5, 10);
 
 -- --------------------------------------------------------
 
@@ -297,9 +346,18 @@ CREATE TABLE IF NOT EXISTS `quiz_results` (
 --
 
 INSERT INTO `quiz_results` (`learner_id`, `quiz_id`, `isViewable`, `score`, `quizPass`, `attempts`) VALUES
-(1, 1, 1, 3, 1, 1),
-(2, 1, 3, 1, 1, 1),
-(2, 2, 3, 1, 1, 1);
+(1, 1, 0, 0, 0, 0),
+(1, 2, 0, 0, 0, 0),
+(1, 3, 0, 0, 0, 0),
+(1, 16, 0, 0, 0, 0),
+(1, 17, 0, 0, 0, 0),
+(1, 18, 0, 0, 0, 0),
+(2, 1, 0, 0, 0, 0),
+(2, 2, 0, 0, 0, 0),
+(2, 3, 0, 0, 0, 0),
+(2, 10, 0, 0, 0, 0),
+(2, 11, 0, 0, 0, 0),
+(2, 12, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
