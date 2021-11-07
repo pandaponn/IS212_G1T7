@@ -283,7 +283,7 @@
             var quiz_questions = result.data.questions;
             console.log(quiz_questions);
 
-            if(response.status === 200){
+            if(response.status === 201){
 
                 for (let i = 0; i < quiz_questions.length; i++){
                     if (quiz_questions[i].qn_type == "mcq"){

@@ -101,6 +101,7 @@
           <th>Course Completed</th>
           <th>Trainer</th>
           <th>Learner</th>
+          <th>Learner ID</th>
           <th>Assign</th>
           </th>
         </tr>
@@ -143,6 +144,8 @@
       const params = new URLSearchParams(queryString);
       console.log(params.get('courseid'));
       var course_id = params.get('courseid');
+      console.log(params.get('classid'));
+      var class_id = params.get('classid');
       var getClassesURL = "http://127.0.0.1:5100/view_all_engineers/1/" + course_id;
 
       try {
@@ -161,7 +164,9 @@
             var TotalClasses = AvailableEngineer.TotalClasses;
             var CourseCompleted = AvailableEngineer.CourseCompleted;
             var Trainer = AvailableEngineer.Trainer;
-            var Learner = AvailableEngineer.LearnerId;
+            var Learner = AvailableEngineer.Learner;
+            var LearnerID = AvailableEngineer.LearnerId;
+
 
             if (Trainer == 0) {
               Trainer = '-'
@@ -183,8 +188,9 @@
                                     <td>${CourseCompleted}</td>
                                     <td>${Trainer}</td>
                                     <td>${Learner}</td>
+                                    <td>${LearnerID}</td>
                                     <td>
-                                      <a class="nav-link" href="class_list.html?engineerid=${EngineerID}">✚ ${EngineerName}</a></td>
+                                      <a class="nav-link" href="assigned_successful.html?learnerid=${LearnerID}&courseid=${course_id}&classid=${class_id}&learnername=${EngineerName}">✚ ${EngineerName}</a>
                                     </td>
                                   </tr>
                                       `;

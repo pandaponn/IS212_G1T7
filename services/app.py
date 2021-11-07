@@ -1,9 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import and_, or_
 from flask_cors import CORS
-import json
-from os import environ
 from datetime import datetime
 
 app = Flask(__name__)
@@ -19,10 +16,10 @@ class Questions(db.Model):
     __tablename__ = 'questions'
     question_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     quiz_id = db.Column(db.Integer, nullable=False)
-    qn_type = db.Column(db.String(65535), nullable=False)
-    question = db.Column(db.String(65535), nullable=False)
-    options = db.Column(db.String(65535), nullable=True)
-    answer = db.Column(db.String(65535), nullable=False)
+    qn_type = db.Column(db.Text(65535), nullable=False)
+    question = db.Column(db.Text(65535), nullable=False)
+    options = db.Column(db.Text(65535), nullable=True)
+    answer = db.Column(db.Text(65535), nullable=False)
 
     def __init__(self, quiz_id, qn_type, question, options, answer):
         self.quiz_id = quiz_id
@@ -91,12 +88,12 @@ def retrieveAllQuestions():
     if allQuestions:
         return jsonify(
             {
-                "code": 200,
+                "code": 201,
                 "data": {
                     "questions": allQuestions
                 }
             }
-        )
+        ), 201
     print(allQuestions)
 
     return jsonify(
@@ -106,7 +103,7 @@ def retrieveAllQuestions():
         }
     ), 404
 
-# Retrieve all questions for specific quiz on create_quiz.html
+# Retrieve specific question for specific quiz on create_quiz.html
 @app.route("/quiz/retrieveQuestion", methods=['POST'])
 def retrieveQuestion():
     data = request.get_json()
@@ -127,12 +124,12 @@ def retrieveQuestion():
     if output:
         return jsonify(
             {
-                "code": 200,
+                "code": 201,
                 "data": {
                     "questions": output
                 }
             }
-        )
+        ), 201
 
     return jsonify(
         {
@@ -145,12 +142,12 @@ def retrieveQuestion():
 class Quiz(db.Model):
     __tablename__ = 'quiz'
     quiz_id = db.Column(db.Integer, primary_key=True, nullable=False)
-    quiz_name = db.Column(db.String(65535), nullable=True)
+    quiz_name = db.Column(db.Text(65535), nullable=True)
     course_id = db.Column(db.Integer, primary_key=False, nullable=False)
     class_id = db.Column(db.Integer, primary_key=False, nullable=False)
     chapter_id = db.Column(db.Integer, primary_key=False, nullable=False)
-    isGraded = db.Column(db.String(65535), nullable=False)
-    passing_grade = db.Column(db.String(65535), nullable=False)
+    isGraded = db.Column(db.Text(65535), nullable=False)
+    passing_grade = db.Column(db.Text(65535), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
 
     def __init__(self, quiz_name, course_id, class_id, chapter_id, isGraded, passing_grade, duration):
@@ -164,6 +161,42 @@ class Quiz(db.Model):
 
     def json(self):
         return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade, "duration": self.duration}
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+        
+# check if Quiz exists inside db
+@app.route("/quiz/checkQuizExists", methods=['POST'])
+def check_quiz_exists():
+    data = request.get_json()
+    print(data)
+    course_id = data['course_id']
+    class_id = data['class_id']
+    chapter_id = data['chapter_id']
+
+    q = Quiz.query.filter_by(course_id=course_id).filter_by(class_id=class_id).filter_by(chapter_id=chapter_id).first()
+
+    if q:
+        return jsonify(
+            {
+                "quiz_id": q.quiz_id
+            }
+        )
+
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Quiz not found."
+        }
+    ), 404
 
 # create Quiz Entry inside quiz table (quiz_id=auto_increment, isGraded="N", passing_grade=0)
 @app.route("/quiz/createQuizInfo", methods=['POST'])
@@ -794,13 +827,25 @@ def mark_chapter(learner_id, class_id, course_id, chapter_id, subchapter_id):
             learner_id, class_id, course_id, chapter_id)
         print(Quiz_viewable)
 
-        return {
-            "Quiz": [Quiz_viewable.to_dict()],
-            "Materials": [subMaterials.to_dict()]
-        }
-    return {
-        "Materials": subMaterials.to_dict()
-    }
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "Quiz": [Quiz_viewable.to_dict()],
+                    "Materials": [subMaterials.to_dict()]
+                },
+                "message": "Chapter marked as viewed. Quiz for this chapter has been unlocked."
+            },
+        )
+    return jsonify(
+        {
+            "code": 201,
+            "data": {
+                "Materials": [subMaterials.to_dict()]
+            },
+            "message": "Chapter marked as viewed."
+        },
+    )
 
 
 def mark_as_viewed(learner_id, class_id, course_id, subchapter_id):
@@ -1125,6 +1170,29 @@ def check_chapterValid(class_id, course_id, chapter_id):
         {
             "code": 404,
             "message": "Chapter not found."
+        }
+    ), 404
+
+# Get ChapterIds and QuizId for trainer
+@app.route("/mono/trainer_quizzes/<string:class_id>/<string:course_id>")
+def all_trainer_quizzes(class_id, course_id):
+    quizList = Quiz.query.filter_by(
+        class_id=class_id).filter_by(course_id=course_id).all()
+
+    print(quizList)
+    if quizList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "quizList": [quiz.to_dict() for quiz in quizList]
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "No quiz found."
         }
     ), 404
 

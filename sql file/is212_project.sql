@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `class` (
 
 INSERT INTO `class` (`classId`, `courseId`, `courseName`, `trainerId`, `startDateTime`, `endDateTime`, `capacity`, `slotsAvailable`) VALUES
 (1, 1, 'Python Basics', 1, '2021-10-13 09:00:00.000000', '2021-10-27 21:00:00.000000', 40, 39),
-(2, 1, 'Python Basics', 1, '2021-10-11 11:00:00.000000', '2021-10-25 18:00:00.000000', 13, 0),
+(2, 1, 'Python Basics', NULL, '2021-10-11 11:00:00.000000', '2021-10-25 18:00:00.000000', 13, 8),
 (3, 1, 'Python Basics', 2, '2021-10-12 10:00:00.000000', '2021-10-26 19:00:00.000000', 14, 13),
 (4, 2, 'Python Intermediate', 3, '2021-10-15 09:00:00.000000', '2021-10-29 16:00:00.000000', 30, 25),
 (5, 3, 'Extreme Python', 2, '2021-10-19 00:00:00.000000', '2021-10-26 00:00:00.000000', 2, 1),
@@ -112,31 +112,31 @@ CREATE TABLE IF NOT EXISTS `coursematerials` (
 --
 
 INSERT INTO `coursematerials` (`course_id`, `class_id`, `chapter_id`, `subchapter_id`, `chapter_name`, `content`) VALUES
-(1, 1, 1, '1a', 'Introduction to Python', 'Slides'),
-(1, 1, 1, '1b', 'Printing hello world', 'source code'),
-(1, 1, 2, '2a', 'For Loop', 'Slides'),
-(1, 1, 2, '2b', 'Class Exercise', 'code'),
-(1, 2, 1, '1a', 'I love Coffee', 'Coffee Beans'),
-(1, 2, 1, '1b', 'I love Tea', 'Tea Leaves'),
-(1, 2, 2, '2a', 'Baking Cake', 'Slides'),
-(1, 2, 2, '2b', 'Cookies', 'Videos'),
-(1, 3, 1, '1a', 'Introduction to Python', 'Slides'),
-(1, 3, 1, '1b', 'Printing hello world', 'source code'),
-(1, 3, 2, '2a', 'For Loop', 'Slides'),
-(1, 3, 2, '2b', 'Class Exercise', 'code'),
-(2, 4, 1, '1a', 'Python Intermediate Part 1a', 'Slides'),
-(2, 4, 1, '1b', 'Python Intermediate Part 1b', 'Source Code'),
-(2, 4, 2, '2a', 'Python Intermediate Part 2a', 'Slides'),
-(2, 4, 2, '2b', 'Python Intermediate Part 2b', 'Videos'),
-(3, 5, 1, '1a', 'Extreme Python Part 1a', 'Slides'),
-(3, 5, 1, '1b', 'Extreme Python Part 1b', 'Source Code'),
-(3, 5, 2, '2a', 'Extreme Python Part 2a', 'Slides'),
-(3, 5, 2, '2b', 'Extreme Python Part 2b', 'Videos'),
-(4, 6, 1, '1a', 'Data Management Part 1a', 'Slides'),
-(4, 6, 1, '1b', 'Data Management Part 1b', 'source code'),
-(4, 6, 2, '2a', 'Data Management Part 2a', 'Slides'),
-(4, 6, 2, '2b', 'Data Management Part 2b', 'code'),
-(5, 7, 1, '1a', 'Fire Python Part 1a', 'Coffee Beans'),
+(1, 1, 1, '1a', 'Introduction to Python', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 1, 1, '1b', 'Printing hello world', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/scraper.py'),
+(1, 1, 2, '2a', 'For Loop', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 1, 2, '2b', 'Class Exercise', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 2, 1, '1a', 'I love Coffee', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 2, 1, '1b', 'I love Tea', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 2, 2, '2a', 'Baking Cake', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 2, 2, '2b', 'Cookies', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 3, 1, '1a', 'Introduction to Python', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 3, 1, '1b', 'Printing hello world', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/scraper.py'),
+(1, 3, 2, '2a', 'For Loop', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(1, 3, 2, '2b', 'Class Exercise', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/scraper.py'),
+(2, 4, 1, '1a', 'Python Intermediate Part 1a', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(2, 4, 1, '1b', 'Python Intermediate Part 1b', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/scraper.py'),
+(2, 4, 2, '2a', 'Python Intermediate Part 2a', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(2, 4, 2, '2b', 'Python Intermediate Part 2b', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(3, 5, 1, '1a', 'Extreme Python Part 1a', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(3, 5, 1, '1b', 'Extreme Python Part 1b', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(3, 5, 2, '2a', 'Extreme Python Part 2a', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(3, 5, 2, '2b', 'Extreme Python Part 2b', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(4, 6, 1, '1a', 'Data Management Part 1a', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(4, 6, 1, '1b', 'Data Management Part 1b', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/scraper.py'),
+(4, 6, 2, '2a', 'Data Management Part 2a', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
+(4, 6, 2, '2b', 'Data Management Part 2b', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/scraper.py'),
+(5, 7, 1, '1a', 'Fire Python Part 1a', 'https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf'),
 (5, 7, 1, '1b', 'Fire Python Part 1b', 'Tea Leaves'),
 (5, 7, 2, '2a', 'Fire Python Part 2a', 'Slides'),
 (5, 7, 2, '2b', 'Fire Python Part 2b', 'Videos'),
@@ -160,6 +160,7 @@ CREATE TABLE IF NOT EXISTS `engineer` (
   `trainer` int(100) NOT NULL,
   `learner` int(100) NOT NULL,
   `learnerId` int(11) DEFAULT NULL,
+  `trainerId` int(11) DEFAULT NULL,
   PRIMARY KEY (`engineerId`) USING BTREE,
   KEY `engineerId` (`engineerId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
@@ -168,12 +169,13 @@ CREATE TABLE IF NOT EXISTS `engineer` (
 -- Dumping data for table `engineer`
 --
 
-INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`, `learnerId`) VALUES
-(1, 'Ling Li', 2, 1, 0, 1, 1),
-(2, 'Trisha', 3, NULL, 0, 1, 2),
-(3, 'Faith', 5, NULL, 0, 1, 3),
-(4, 'Kal', 2, 3, 1, 0, NULL),
-(5, 'Dora', 3, 4, 1, 1, 4);
+INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`, `learnerId`,`trainerId`) VALUES
+(1, 'Ling Li', 2, 1, 0, 1, 1, NULL),
+(2, 'Trisha', 3, NULL, 0, 1, 2, NULL),
+(3, 'Faith', 5, NULL, 0, 1, 3, NULL),
+(4, 'Kal', 2, 3, 1, 0, NULL, 1),
+(5, 'Dora', 3, 4, 1, 1, 4, 2),
+(6, 'Kai', 2, 3, 1, 0, NULL, 3);
 
 -- --------------------------------------------------------
 
@@ -240,9 +242,10 @@ CREATE TABLE IF NOT EXISTS `learner` (
 --
 
 INSERT INTO `learner` (`LearnerID`, `engineerId`, `LearnerName`, `CourseID`, `ClassID`, `assigned`, `approved`, `courseCompleted`) VALUES
-(1, 1, 'Ling Li', 1, 1, 0, 1, 0),
-(1, 1, 'Ling Li', 4, 6, 0, 0, 0),
-(2, 2, 'Trisha', 1, 1, 1, 0, 0),
+(1, 1, 'Ling Li', 1, 1, 1, 1, 1),
+(1, 1, 'Ling Li', 2, 4, 0, NULL, 1),
+(1, 1, 'Ling Li', 4, 6, 0, 1, 0),
+(2, 2, 'Trisha', 1, 1, 1, NULL, 1),
 (2, 2, 'Trisha', 2, 4, 0, 1, 0);
 
 -- --------------------------------------------------------
@@ -364,22 +367,27 @@ INSERT INTO `quiz_results` (`learner_id`, `quiz_id`, `isViewable`, `score`, `qui
 
 DROP TABLE IF EXISTS `trainer`;
 CREATE TABLE IF NOT EXISTS `trainer` (
-  `trainerId` int(100) NOT NULL AUTO_INCREMENT,
+  `trainerId` int(100) NOT NULL,
   `engineerId` int(100) NOT NULL,
   `trainerName` varchar(100) NOT NULL,
-  `courseAssigned` int(100) NOT NULL,
-  `classAssigned` int(100) NOT NULL,
-  PRIMARY KEY (`trainerId`,`engineerId`) USING BTREE,
+  `courseId` int(100) NOT NULL,
+  `classId` int(100) NOT NULL,
+  PRIMARY KEY (`trainerId`,`engineerId`, `courseId`) USING BTREE,
   KEY `engineerId` (`engineerId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `trainer`
 --
 
-INSERT INTO `trainer` (`trainerId`, `engineerId`, `trainerName`, `courseAssigned`, `classAssigned`) VALUES
-(1, 4, 'Kal', 0, 0),
-(2, 5, 'Dora', 0, 0);
+INSERT INTO `trainer` (`trainerId`, `engineerId`, `trainerName`, `courseId`, `classId`) VALUES
+(1, 4, 'Kal', 1, 1),
+(1, 4, 'Kal', 4, 6),
+(1, 4, 'Kal', 5, 8),
+(2, 5, 'Dora', 1, 3),
+(2, 5, 'Dora', 3, 5),
+(2, 5, 'Dora', 5, 7),
+(3, 6, 'Kai', 2, 4);
 
 DROP TABLE IF EXISTS `administrator`;
 CREATE TABLE IF NOT EXISTS `administrator` (
