@@ -70,8 +70,8 @@ CREATE TABLE IF NOT EXISTS `course` (
   `startEnroll` datetime NOT NULL,
   `endEnroll` datetime NOT NULL,
   `open` tinyint(4) NOT NULL,
-  `createdBy` varchar(100) NOT NULL,
-  `updatedBy` varchar(100) DEFAULT NULL,
+  `createdBy` int(100) NOT NULL,
+  `updatedBy` int(100) DEFAULT NULL,
   `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updateTime` timestamp NULL DEFAULT NULL,
   `isFull` tinyint(1) NOT NULL,
@@ -84,11 +84,11 @@ CREATE TABLE IF NOT EXISTS `course` (
 --
 
 INSERT INTO `course` (`courseId`, `courseName`, `preReq`, `classes`, `startEnroll`, `endEnroll`, `open`, `createdBy`, `updatedBy`, `createdTime`, `updateTime`, `isFull`) VALUES
-(1, 'Python Basics', NULL, 3, '2021-10-01 00:00:00', '2021-10-08 00:00:00', 0, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 0),
-(2, 'Python Intermediate', 1, 1, '2021-10-06 00:00:00', '2021-10-12 00:00:00', 0, 'hr1', NULL, '2021-10-13 14:28:29', NULL, 1),
-(3, 'Extreme Python', 2, 1, '2021-10-13 00:00:00', '2021-10-17 00:00:00', 0, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0),
-(4, 'Data Management', 1, 1, '2021-10-28 00:00:00', '2021-11-17 00:00:00', 1, 'hr2', NULL, '2021-10-13 14:29:29', NULL, 0),
-(5, 'Fire Python', 3, 2, '2021-11-01 00:00:00', '2021-11-20 00:00:00', 1, 'hr1', NULL, '2021-10-13 14:29:29', NULL, 0);
+(1, 'Python Basics', NULL, 3, '2021-10-01 00:00:00', '2021-10-08 00:00:00', 0, '1', NULL, '2021-10-13 14:28:29', NULL, 0),
+(2, 'Python Intermediate', 1, 1, '2021-10-06 00:00:00', '2021-10-12 00:00:00', 0, '1', NULL, '2021-10-13 14:28:29', NULL, 1),
+(3, 'Extreme Python', 2, 1, '2021-10-13 00:00:00', '2021-10-17 00:00:00', 0, '2', NULL, '2021-10-13 14:29:29', NULL, 0),
+(4, 'Data Management', 1, 1, '2021-10-28 00:00:00', '2021-11-17 00:00:00', 1, '2', NULL, '2021-10-13 14:29:29', NULL, 0),
+(5, 'Fire Python', 3, 2, '2021-11-01 00:00:00', '2021-11-20 00:00:00', 1, '1', NULL, '2021-10-13 14:29:29', NULL, 0);
 
 -- --------------------------------------------------------
 
