@@ -162,6 +162,31 @@ class Quiz(db.Model):
     def json(self):
         return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade, "duration": self.duration}
 
+# check if Quiz exists inside db
+@app.route("/quiz/checkQuizExists", methods=['POST'])
+def check_quiz_exists():
+    data = request.get_json()
+    print(data)
+    course_id = data['course_id']
+    class_id = data['class_id']
+    chapter_id = data['chapter_id']
+
+    q = Quiz.query.filter_by(course_id=course_id).filter_by(class_id=class_id).filter_by(chapter_id=chapter_id).first()
+
+    if q:
+        return jsonify(
+            {
+                "quiz_id": q.quiz_id
+            }
+        )
+
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Quiz not found."
+        }
+    ), 404
+
 # create Quiz Entry inside quiz table (quiz_id=auto_increment, isGraded="N", passing_grade=0)
 @app.route("/quiz/createQuizInfo", methods=['POST'])
 def create_quiz_info():
