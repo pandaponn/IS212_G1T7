@@ -92,6 +92,11 @@
       <!-- <button class="btn btn-success" onclick=getFilteredCourses(1) id="filtercourse">Filter</button> -->
       <!-- <button class="btn btn-secondary" onclick="window.location.reload()">Reset Filters</button> -->
     </div>
+
+    <div id="displayAlert" class="alert alert-success" role="alert" style="display: none;">
+      <strong>Successfully Assigned!</strong>
+    </div>
+
     <table id="courseclassTable" class="table table-bordered" border="1">
       <thead class="thead-dark">
         <tr>
@@ -189,7 +194,7 @@
                                     <td>${Learner}</td>
                                     <td>${TrainerID}</td>
                                     <td>
-                                      <a>✚ ${EngineerName}</a>
+                                      <a class="nav-link" onclick = "sucessfully_assigned(${course_id}, ${class_id}, ${TrainerID})" >✚ ${EngineerName}</a>
                                     </td>
                                   </tr>
                                       `;
@@ -215,6 +220,37 @@
       } // error
     });
 
+    function sucessfully_assigned(course_id, class_id, TrainerID) {
+      $(async () => {
+        var getClassesURL = "http://127.0.0.1:5100/assign_trainer/" + TrainerID + '/' + course_id + '/' + class_id;
+
+        try {
+          const response = await fetch(getClassesURL, { method: "PUT" });
+
+          const result = await response.json();
+          if (response.status === 201) {
+            // success case
+            $('#displayAlert').show();
+
+            // for loop to setup all table rows with obtained course information
+
+          } else if (response.status == 404) {
+            // No books
+            showError(result.message);
+          } else {
+            // unexpected outcome, throw the error
+            throw response.status;
+          }
+        } catch (error) {
+          // Errors when calling the service; such as network error,
+          // service offline, etc
+          showError(
+            "There is a problem retrieving classes for the course, please try again later.<br />" +
+            error
+          );
+        } // error
+      });
+    }
 
   </script>
 

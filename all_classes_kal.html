@@ -163,7 +163,9 @@
             var Capacity = courseclass.Capacity;
             var SlotsAvailable = courseclass.SlotsAvailable;
 
-            rows += `
+            if (Trainer == null) {
+
+              rows += `
                           <tr class="maincourse">
                             <td>
                               <a class="nav-link" href="class_list.html?courseid=${CourseID}&classid=${ClassID}">
@@ -186,6 +188,29 @@
                             </td>
                           </tr>
                                       `;
+            } else {
+
+              rows += `
+                          <tr class="maincourse">
+                            <td>
+                              <a class="nav-link" href="class_list.html?courseid=${CourseID}&classid=${ClassID}">
+                              ${ClassID}
+                              </a>
+                            </td>
+                            <td>${CourseID}</td>
+                            <td>${Trainer}</td>
+                            <td>${StartDateTime}</td>
+                            <td>${EndDateTime}</td>
+                            <td>${Capacity}</td>
+                            <td>
+                              <a class="nav-link" href="available_engineers.html?courseid=${CourseID}&classid=${ClassID}">
+                                ${SlotsAvailable}
+                              </a>
+                            </td>
+                          </tr>
+                                      `;
+            }
+            
           }
           rows += "</tbody>";
 

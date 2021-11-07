@@ -69,8 +69,8 @@ class Trainer(db.Model):
     TrainerId = db.Column(db.Integer, primary_key = True)
     EngineerID = db.Column(db.Integer, primary_key = True)
     TrainerName = db.Column(db.String(100), nullable = False)
-    CourseAssigned = db.Column(db.Integer, nullable = False)
-    ClassAssigned = db.Column(db.Integer, nullable = False)
+    CourseId = db.Column(db.Integer, nullable = False)
+    ClassId = db.Column(db.Integer, nullable = False)
 
     def to_dict(self):
         """
@@ -93,6 +93,7 @@ class Engineer(db.Model):
     Trainer = db.Column(db.Integer, nullable = False)
     Learner = db.Column(db.Integer, nullable = False)
     LearnerId = db.Column(db.Integer, nullable = False)
+    TrainerId = db.Column(db.Integer, nullable = False)
 
     def to_dict(self):
         """
@@ -320,6 +321,30 @@ def view_specific_learner(EngineerID):
         }
     ), 404
 
+# Assigning and updating db for trainers
+@app.route("/assign_trainer/<string:TrainerID>/<string:CourseID>/<string:ClassID>", methods=['PUT'])
+def assign_trainer(TrainerID, CourseID, ClassID):
+    classInfo = CourseClass.query.filter_by(
+            CourseId=CourseID).filter_by(ClassId=ClassID).first()
+
+    classInfo.TrainerId = TrainerID
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while assigning engineer. " + str(e)
+            }
+        ), 500
+
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successfully assigned engineer to course."
+        }
+    ), 201
 
 # Assigning and updating db
 @app.route("/assign_engineer/<string:LearnerID>/<string:CourseID>/<string:ClassID>/<string:LearnerName>", methods=['POST'])
@@ -450,7 +475,7 @@ def addRowsToQuizResults(LearnerID, CourseID, ClassID):
 @app.route("/view_all_engineers/<int:isLearner>/<int:CourseID>")
 def view_available_engineers(isLearner, CourseID):
     EngineerList = Engineer.query.filter_by(Learner=isLearner).all()
-    print(EngineerList)
+    # print(EngineerList)
 
     AvailableList = []
     for i in range(len(EngineerList)):
@@ -480,16 +505,16 @@ def view_available_engineers(isLearner, CourseID):
         }
     ), 404
 
-# View all available engineers
-@app.route("/view_all_engineers/<int:isTrainer>/<int:CourseID>")
+# View all available trainers
+@app.route("/view_all_trainers/<int:isTrainer>/<int:CourseID>")
 def view_available_trainers(isTrainer, CourseID):
     EngineerList = Engineer.query.filter_by(Trainer=isTrainer).all()
-    print(EngineerList)
+    # print(EngineerList)
 
     AvailableList = []
     for i in range(len(EngineerList)):
         print(EngineerList[i].TrainerId)
-        result = Trainer.query.filter_by(TrainerID=EngineerList[i].TrainerId).filter_by(CourseID=CourseID).first()
+        result = Trainer.query.filter_by(TrainerId=EngineerList[i].TrainerId).filter_by(CourseId=CourseID).first()
         if result:
             continue
         else:
@@ -499,7 +524,7 @@ def view_available_trainers(isTrainer, CourseID):
             {
                 "code": 200,
                 "data": {
-                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in AvailableList]
+                    "AvailableTrainers": [available_trainers.to_dict() for available_trainers in AvailableList]
                 },
                 "message": "All available trainers have successfully returned."
             },
@@ -508,7 +533,7 @@ def view_available_trainers(isTrainer, CourseID):
         {
             "code": 404,
             "data": {
-                "AvailableEngineers": Trainer
+                "AvailableTrainers": Trainer
             },
             "message": "Engineers not found."
         }
