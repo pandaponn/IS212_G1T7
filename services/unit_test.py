@@ -56,6 +56,5 @@ class QuestionsTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-
 if __name__ == "__main__":
     unittest.main()
