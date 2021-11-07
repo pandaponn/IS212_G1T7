@@ -259,6 +259,8 @@
     var queryString = window.location.search;
     var urlParams = new URLSearchParams(queryString);
     var quiz_id = urlParams.get('QuizId');
+    var course_id = urlParams.get('CourseId');
+    var class_id = urlParams.get('ClassId');
 
     var quiz_completed = 0;
 
@@ -266,7 +268,7 @@
     window.onload = retrieveQuestions();
     async function retrieveQuestions(){
         on();
-        var retrieveQuestionsURL = 'http://localhost:5001/quiz/retrieveAllQuestions';
+        var retrieveQuestionsURL = 'http://localhost:5100/quiz/retrieveAllQuestions';
 
         try{
             var response = await fetch(
@@ -342,7 +344,7 @@
         }
 
         // Check if quiz is graded & passing grade
-        var retrieveQuizInfo = 'http://localhost:5001/quiz/retrieveQuizInfo';
+        var retrieveQuizInfo = 'http://localhost:5100/quiz/retrieveQuizInfo';
 
         try{
             var response = await fetch(
@@ -385,11 +387,11 @@
     }
 
     async function save_results(pass, score, isGraded){
-        var updateScoreURL = 'http://localhost:5001/quiz/updateQuizResults';
+        var updateScoreURL = 'http://localhost:5100/quiz/updateQuizResults';
         var quizPass = pass;
         var score = score;
         var isGraded = isGraded;
-        var learner_id = 2; // This is hard-coded, please change once we are able to capture learner_id
+        var learner_id = 1; // This is hard-coded, please change once we are able to capture learner_id
         console.log(score)
         try{
             var response = await fetch(
@@ -552,7 +554,7 @@
 
     function returnBack(){
         // change this to return to main menu later on
-        window.location.reload();
+        window.location.href = '../showQuiz.html?ClassId=' + class_id + "&CourseId=" + course_id;
     }
 
 </script>

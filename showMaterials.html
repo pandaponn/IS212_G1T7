@@ -197,6 +197,11 @@
             console.log(ClassId);
             console.log(CourseId);
 
+            document.getElementById("courseName").innerHTML = "Course: "+CourseName;
+            document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+            document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+            document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
+
             var getChaptersURL = "http://127.0.0.1:5100/mono/allMaterial/1/"+"/"+ClassId+"/"+CourseId;
 
             try {
@@ -222,9 +227,6 @@
                     $("#chapters").append(rows);
 
                     document.getElementById("courseName").innerHTML = "Course: "+CourseName;
-                    document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
-                    document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
-                    document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
                 } else if (response.status == 404) {
                     showError(result.message);
                 } else {

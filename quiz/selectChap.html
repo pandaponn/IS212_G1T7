@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title> Create Quiz </title>
+
+    <link rel="stylesheet" href="">
+    <!-- Bootstrap libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+    <style>
+        body,
+        nav {
+            background-image: url(../src/background.jpg);
+            background-size: cover;
+            /* <------ */
+            background-repeat: no-repeat;
+            background-position: center center;
+            /* optional, center the image */
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div
+            class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                    href="learner_home.html">Trainer Page</a></h5>
+            <!-- <div class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
+                <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
+                <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+            </div> -->
+            <a class="btn btn-outline-primary" href="#">Log Out</a>
+        </div>
+    </nav>
+
+    <div id="main-container" class="container">
+        <h1 class="display-4">Select chapter to create quiz</h1>
+
+        <!-- Alert message when the trainer choose invalid combination of CourseId and ClassId -->
+        <div id="displayAlert" class="alert alert-danger" role="alert"  style="display: none;">
+            <strong>Error!</strong> Please select the correct CourseId and ClassId.
+        </div>
+
+        <h6 class="courseClassSelect">Select Course and Class</h6>
+        <div class="form-row courseClassSelect">
+            <div class="col-md-4 mb-3">
+                <span>Course</span>
+                <select class="form-control" id=courseOptions onchange="getCourseClassIds(); getChapId()">
+                    <option>CourseId</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <span>Class</span>
+                <select class="form-control" id=classOptions onchange="getCourseClassIds(); getChapId()">
+                    <option>ClassId</option>
+                </select>
+            </div>
+        </div>
+        <h6 class=chapterSelect style="display: none;">Select Chapter Id</h6>
+        <div class="form-row chapterSelect" style="display: none;">
+            <div class="col-md-4 mb-3">
+                <span>Chapter</span>
+                <select class="form-control" id=chapterOptions onchange="getChapId()">
+                    <option>ChapterId</option>
+                </select>
+            </div>
+        </div>
+        <div id="createQuiz" style="display: none;">
+
+        </div>
+    </div>
+    <div class="container" id="displayError"></div>
+
+    <script>
+        // Helper function to display error message
+        function showError(message) {
+            $('.courseClassSelect').hide();
+            $('.chapterSelect').hide();
+            $('#createQuiz').hide();
+
+            // Display an error under the main container
+            $("#displayError").append("<label>" + message + "</label>");
+        }
+
+        // anonymous async function
+        // - using await requires the function that calls it to be async
+        $(async () => {
+            var getResultsURL = "http://127.0.0.1:5100/mono/trackResults/allClasses/1";
+
+            try {
+                const response = await fetch(getResultsURL, { method: "GET" });
+                const result = await response.json();
+
+                var courseRows = "";
+                var classRows = "";
+                if (response.status === 200) {
+                    // success case
+                    var courseIdList = result.data.courseIdList;
+                    var classIdList = result.data.classIdList;
+
+                    for (var c in courseIdList) {
+                        courseRows += `
+                            <option>${courseIdList[c]}</option>`;
+                    }
+
+                    for (var c in classIdList) {
+                        classRows += `
+                            <option>${classIdList[c]}</option>`;
+                    }
+
+                    // add all the rows to the table
+                    $("#classOptions").append(classRows);
+                    $("#courseOptions").append(courseRows);
+
+                } else if (response.status == 404) {
+                    showError(result.message);
+                } else {
+                    // unexpected outcome, throw the error
+                    throw response.status;
+                }
+            } catch (error) {
+                // Errors when calling the service; such as network error,
+                // service offline, etc
+                showError(
+                    "There is a problem retrieving your results, please try again later.<br />" +
+                    error
+                );
+            }
+        });
+
+        function getCourseClassIds() {
+            var CourseId = document.getElementById("courseOptions").value;
+            var ClassId = document.getElementById("classOptions").value;
+
+            if (CourseId != 'CourseId' && ClassId != 'ClassId') {
+                $(async () => {
+                    var getResultsURL = "http://127.0.0.1:5100/mono/allChaps/" + ClassId + '/' + CourseId;
+
+                    try {
+                        const response = await fetch(getResultsURL, { method: "GET" });
+                        const result = await response.json();
+
+                        $('#displayAlert').hide();
+                        $('#createQuiz').hide();
+                        $('#chapterOptions').empty();
+
+                        var quizRows = "<option>QuizId</option>";
+                        if (response.status === 200) {
+                            // success case
+                            var chapIdList = result.data.chapIdList;
+
+                            for (var c in chapIdList) {
+                                quizRows += `
+                                    <option>${chapIdList[c]}</option>`;
+                            }
+                            // add all the rows to the table
+                            $("#chapterOptions").append(quizRows);
+
+                        } else if (response.status == 404) {
+                            $('#displayAlert').show();
+                        } else {
+                            // unexpected outcome, throw the error
+                            $('#displayAlert').show();
+                        }
+                    } catch (error) {
+                        // Errors when calling the service; such as network error,
+                        // service offline, etc
+                        // showError(
+                        //     "There is a problem retrieving your results, please try again later.<br />" +
+                        //     error
+                        // );
+                        $('#displayAlert').show();
+                        $('.chapterSelect').hide();
+                        $('#resultTable').hide();
+                    }
+                });
+
+                $('.chapterSelect').show();
+            }
+        }
+
+        function getChapId() {
+            var ChapterId = document.getElementById("chapterOptions").value;
+            console.log(ChapterId);
+
+            var CourseId = document.getElementById("courseOptions").value;
+            console.log(CourseId);
+
+            var ClassId = document.getElementById("classOptions").value;
+            console.log(ClassId);
+
+            
+            $("#createQuiz").empty()
+            
+            if (CourseId != 'CourseId' && ClassId != 'ClassId' && ChapterId != 'ChapterId') {
+                $(async () => {
+                    var isValidURL = "http://127.0.0.1:5100/mono/chapterValid/" + ClassId + '/' + CourseId + '/' + ChapterId;
+
+                    try {
+                        const response = await fetch(isValidURL, { method: "GET" });
+                        const result = await response.json();
+                         
+                        url = 'create_quiz.html?ClassId='+ ClassId + '&CourseId=' + CourseId + '&ChapterId=' + ChapterId
+                        console.log(url)
+                        
+                        if (response.status === 200) {
+                            check_quiz_exists(CourseId, ClassId, ChapterId);
+
+                        } else if (response.status == 404) {
+                            // showError(result.message);
+                            $('#displayAlert').show();
+                        } else {
+                            // unexpected outcome, throw the error
+                            // throw response.status;
+                            $('#displayAlert').show();
+                        }
+                    } catch (error) {
+                        // Errors when calling the service; such as network error,
+                        // service offline, etc
+                        // showError(
+                        //     "There is a problem retrieving your results, please try again later.<br />" +
+                        //     error
+                        // );
+
+                        $('#displayAlert').show();
+                        $('.quizSelect').hide();
+                        $('#resultTable').hide();
+                    }
+                });
+                $('#createQuiz').show();
+            }
+        }
+
+        async function create_quiz(){
+            var createQuizURL = 'http://localhost:5100/quiz/createQuizInfo';
+            var quiz_name = 'Untitled Quiz';
+            var course_id = document.getElementById("courseOptions").value;
+            var class_id = document.getElementById("classOptions").value;
+            var chapter_id = document.getElementById("chapterOptions").value;
+            var isGraded = 'N';
+            var passing_grade = 0;
+            var duration = 10;
+            
+            try{
+                var response = await fetch(
+                createQuizURL, {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        quiz_name : quiz_name,
+                        course_id : course_id,
+                        class_id : class_id,
+                        chapter_id : chapter_id,
+                        isGraded : isGraded,
+                        passing_grade : passing_grade,
+                        duration : duration
+                    })
+                })
+                var result = await response.json();
+                console.log(result);
+
+                if(response.status === 201){
+                    window.location.href = "create_quiz.html?QuizId=" + result.data.quiz_id;
+                    console.log("200");
+                }
+                else if(response.status == 400){
+                    console.log("400");
+                }
+                else{
+                    throw response.status;
+                }
+            }
+            catch (error){
+                console.log(error);
+            }
+        }
+
+        async function check_quiz_exists(course_id, class_id, chapter_id){
+            checkQuizExistsURL = 'http://localhost:5100/quiz/checkQuizExists';
+
+            try{
+                var response = await fetch(
+                checkQuizExistsURL, {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        course_id : course_id,
+                        class_id : class_id,
+                        chapter_id : chapter_id
+                    })
+                })
+                var result = await response.json();
+                console.log(response.status);
+
+                if(response.status === 200){
+                    // success case
+                    rows = `    
+                                <p>Quiz already exists!</p>
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="window.location.href='create_quiz.html?QuizId=${result.quiz_id}'">
+                                    Edit Quiz
+                                </button>`;
+
+                            $("#createQuiz").append(rows);
+                    console.log("200");
+                }
+                else if(response.status == 404){
+                    rows = `
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="create_quiz()">
+                                    Create Quiz
+                                </button>`;
+
+                            $("#createQuiz").append(rows);
+                    console.log("404");
+                }
+                else{
+                    throw response.status;
+                }
+            }
+            catch (error){
+                console.log(error);
+            }
+        }
+    </script>
+</body>
+
+</html>
