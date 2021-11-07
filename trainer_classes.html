@@ -118,14 +118,15 @@
               const result = await response.json();
               if (response.status === 200) {
                 // success case
-                var AssignedClasses = result.data.AssignedClasses;
-    
+                var AssignedClasses = result.data.courseclasses;
+                console.log(result)
+                console.log(AssignedClasses)
                 // for loop to setup all table rows with obtained course information
                 var rows = "<tbody>";
                 for (var AssignedClass of AssignedClasses) {
-                  var ClassID = AssignedClass.ClassID;
-                  var CourseID = AssignedClass.CourseID;
-                  var Trainer = AssignedClass.TrainerID;
+                  var ClassID = AssignedClass.ClassId;
+                  var CourseID = AssignedClass.CourseId;
+                  var Trainer = AssignedClass.TrainerId;
                   var StartDateTime = AssignedClass.StartDateTime;
                   var EndDateTime = AssignedClass.EndDateTime;
                   var Capacity = AssignedClass.Capacity;
@@ -133,7 +134,7 @@
     
                   rows += `
                                   <tr class="maincourse">
-                                    <td><a  href="quiz/trainer_viewQuizzes.html?ClassId=${ClassID}&CourseId=${CourseId}">
+                                    <td><a  href="quiz/trainer_viewQuizzes.html?ClassId=${ClassID}&CourseId=${CourseID}">
                                         ${ClassID} </a></td>
                                     <td>${CourseID}</td>
                                     <td>${Trainer}</td>
