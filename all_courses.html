@@ -102,6 +102,9 @@
     </div> -->
       <!-- End of Modal-->
     </div>
+    <div id="nocourse">
+      <p><span>No courses completed</span></p>
+    </div>
 
     <script>
       // Helper function to display error message
@@ -150,6 +153,7 @@
 
             // add all the rows to the table
             $("#courseTable").append(rows);
+            $("#nocourse").hide();
           } else if (response.status == 404) {
             // No courses
             showError(result.message);
@@ -207,7 +211,8 @@
                 $("#filtercourse").addClass('disabled')
               }
               else {
-                console.log("no courses");
+                $("#courseTable").hide()
+                $("#nocourse").show()
               }
 
             } else if (response.status == 404) {
