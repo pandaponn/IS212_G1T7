@@ -37,7 +37,7 @@
           }
           body,
           nav {
-              background-image: url(src/background.jpg);
+              background-image: url(../src/background.jpg);
               background-size: cover;
               /* <------ */
               background-repeat: no-repeat;
@@ -50,17 +50,17 @@
     <body>
         <!-- Start of Navigation Bar -->
         <nav>
-          <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-              <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
-                      href="learner_home.html">Learner Page</a></h5>
-              <div class="my-2 my-md-0 mr-md-3">
-                  <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
-                  <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
-                  <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
-              </div>
-              <a class="btn btn-outline-primary" href="#">Log Out</a>
-          </div>
-      </nav>
+            <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+                <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                        href="trainer_home.html">Trainer Page</a></h5>
+                <div class="my-2 my-md-0 mr-md-3">
+                    <a class="p-2 text-dark" href="trainer_classes.html"> Assigned Classes </a>
+                    <a class="p-2 text-dark" href="../quiz/selectChap.html"> Create Quiz </a>
+                    <a class="p-2 text-dark" href="trainerTrack.html"> Track Results </a>
+                </div>
+                <a class="btn btn-outline-primary" href="#">Log Out</a>
+            </div>
+        </nav>
         <!-- End of Navigation Bar -->
 
         <div id="main-container" class="container">
@@ -115,11 +115,7 @@
           // anonymous async function
           // - using await requires the function that calls it to be async
           $(async () => {
-            const queryString = window.location.search;
-            const params = new URLSearchParams(queryString);
-            console.log(params.get('courseid'));
-            var course_id = params.get('courseid');
-            var getClassesURL = "http://127.0.0.1:5100/class_details/" + course_id ; 
+            var getClassesURL = "http://127.0.0.1:5100/class_details/1"; 
     
             try {
               const response = await fetch(getClassesURL, { method: "GET" });
@@ -127,27 +123,25 @@
               const result = await response.json();
               if (response.status === 200) {
                 // success case
-                var courseclasses = result.data.courseclasses;
-    
+                var AssignedClasses = result.data.courseclasses;
+                console.log(result)
+                console.log(AssignedClasses)
                 // for loop to setup all table rows with obtained course information
                 var rows = "<tbody>";
-                for (var courseclass of courseclasses) {
-                  var ClassId = courseclass.ClassId;
-                  var CourseId = courseclass.CourseId;
-                  var Trainer = courseclass.TrainerId;
-                  var StartDateTime = courseclass.StartDateTime;
-                  var EndDateTime = courseclass.EndDateTime;
-                  var Capacity = courseclass.Capacity;;
-                  var SlotsAvailable = courseclass.SlotsAvailable;;
+                for (var AssignedClass of AssignedClasses) {
+                  var ClassID = AssignedClass.ClassId;
+                  var CourseID = AssignedClass.CourseId;
+                  var Trainer = AssignedClass.TrainerId;
+                  var StartDateTime = AssignedClass.StartDateTime;
+                  var EndDateTime = AssignedClass.EndDateTime;
+                  var Capacity = AssignedClass.Capacity;
+                  var SlotsAvailable = AssignedClass.SlotsAvailable;
     
                   rows += `
                                   <tr class="maincourse">
-                                    <td>
-                                        <a class="nav-link" href="course_signup.html?courseid=${CourseId}&classid=${ClassId}">
-                                            ${ClassId}
-                                        </a>
-                                    </td>
-                                    <td>${CourseId}</td>
+                                    <td><a  href="../quiz/trainer_viewQuizzes.html?ClassId=${ClassID}&CourseId=${CourseID}">
+                                        ${ClassID} </a></td>
+                                    <td>${CourseID}</td>
                                     <td>${Trainer}</td>
                                     <td>${StartDateTime}</td>
                                     <td>${EndDateTime}</td>
@@ -170,10 +164,6 @@
             } catch (error) {
               // Errors when calling the service; such as network error,
               // service offline, etc
-              showError(
-                "There is a problem retrieving classes for the course, please try again later.<br />" +
-                error
-              );
             } // error
           });
     
@@ -181,5 +171,4 @@
         </script>
     
     </body>
-
 </html>
