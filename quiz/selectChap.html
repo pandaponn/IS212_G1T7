@@ -226,14 +226,8 @@
                         console.log(url)
                         
                         if (response.status === 200) {
-                            // success case
-                           rows = `
-                                <button type="button" class="btn btn-sm btn-primary"
-                                    onclick="window.location.href='${url}'">
-                                    Create Quiz
-                                </button>`;
+                            check_quiz_exists(CourseId, ClassId, ChapterId);
 
-                            $("#createQuiz").append(rows);
                         } else if (response.status == 404) {
                             // showError(result.message);
                             $('#displayAlert').show();
@@ -256,6 +250,98 @@
                     }
                 });
                 $('#createQuiz').show();
+            }
+        }
+
+        async function create_quiz(){
+            var createQuizURL = 'http://localhost:5100/quiz/createQuizInfo';
+            var quiz_name = 'Untitled Quiz';
+            var course_id = document.getElementById("courseOptions").value;
+            var class_id = document.getElementById("classOptions").value;
+            var chapter_id = document.getElementById("chapterOptions").value;
+            var isGraded = 'N';
+            var passing_grade = 0;
+            var duration = 10;
+            
+            try{
+                var response = await fetch(
+                createQuizURL, {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        quiz_name : quiz_name,
+                        course_id : course_id,
+                        class_id : class_id,
+                        chapter_id : chapter_id,
+                        isGraded : isGraded,
+                        passing_grade : passing_grade,
+                        duration : duration
+                    })
+                })
+                var result = await response.json();
+                console.log(result);
+
+                if(response.status === 201){
+                    window.location.href = "create_quiz.html?QuizId=" + result.data.quiz_id;
+                    console.log("200");
+                }
+                else if(response.status == 400){
+                    console.log("400");
+                }
+                else{
+                    throw response.status;
+                }
+            }
+            catch (error){
+                console.log(error);
+            }
+        }
+
+        async function check_quiz_exists(course_id, class_id, chapter_id){
+            checkQuizExistsURL = 'http://localhost:5100/quiz/checkQuizExists';
+
+            try{
+                var response = await fetch(
+                checkQuizExistsURL, {
+                    method: 'POST',
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        course_id : course_id,
+                        class_id : class_id,
+                        chapter_id : chapter_id
+                    })
+                })
+                var result = await response.json();
+                console.log(response.status);
+
+                if(response.status === 200){
+                    // success case
+                    rows = `    
+                                <p>Quiz already exists!</p>
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="window.location.href='create_quiz.html?QuizId=${result.quiz_id}'">
+                                    Edit Quiz
+                                </button>`;
+
+                            $("#createQuiz").append(rows);
+                    console.log("200");
+                }
+                else if(response.status == 404){
+                    rows = `
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="create_quiz()">
+                                    Create Quiz
+                                </button>`;
+
+                            $("#createQuiz").append(rows);
+                    console.log("404");
+                }
+                else{
+                    throw response.status;
+                }
+            }
+            catch (error){
+                console.log(error);
             }
         }
     </script>

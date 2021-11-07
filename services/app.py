@@ -172,6 +172,31 @@ class Quiz(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+        
+# check if Quiz exists inside db
+@app.route("/quiz/checkQuizExists", methods=['POST'])
+def check_quiz_exists():
+    data = request.get_json()
+    print(data)
+    course_id = data['course_id']
+    class_id = data['class_id']
+    chapter_id = data['chapter_id']
+
+    q = Quiz.query.filter_by(course_id=course_id).filter_by(class_id=class_id).filter_by(chapter_id=chapter_id).first()
+
+    if q:
+        return jsonify(
+            {
+                "quiz_id": q.quiz_id
+            }
+        )
+
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Quiz not found."
+        }
+    ), 404
 
 # create Quiz Entry inside quiz table (quiz_id=auto_increment, isGraded="N", passing_grade=0)
 @app.route("/quiz/createQuizInfo", methods=['POST'])
