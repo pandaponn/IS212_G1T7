@@ -162,6 +162,17 @@ class Quiz(db.Model):
     def json(self):
         return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade, "duration": self.duration}
 
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
 # create Quiz Entry inside quiz table (quiz_id=auto_increment, isGraded="N", passing_grade=0)
 @app.route("/quiz/createQuizInfo", methods=['POST'])
 def create_quiz_info():
@@ -1134,6 +1145,29 @@ def check_chapterValid(class_id, course_id, chapter_id):
         {
             "code": 404,
             "message": "Chapter not found."
+        }
+    ), 404
+
+# Get ChapterIds and QuizId for trainer
+@app.route("/mono/trainer_quizzes/<string:class_id>/<string:course_id>")
+def all_trainer_quizzes(class_id, course_id):
+    quizList = Quiz.query.filter_by(
+        class_id=class_id).filter_by(course_id=course_id).all()
+
+    print(quizList)
+    if quizList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "quizList": [quiz.to_dict() for quiz in quizList]
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "No quiz found."
         }
     ), 404
 
