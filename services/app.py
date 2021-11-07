@@ -2,8 +2,6 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_, or_
 from flask_cors import CORS
-import json
-from os import environ
 from datetime import datetime
 
 app = Flask(__name__)
