@@ -1336,9 +1336,9 @@ def get_class_details(CourseId):
         {
             "code": 404,
             "data": {
-                "CourseID": CourseID
+                "CourseID": CourseId
             },
-            "message": "Classes for courses with courseid: {} not found.".format(CourseID)
+            "message": "Classes for courses with courseid: {} not found.".format(CourseId)
         }
     ), 404
 
