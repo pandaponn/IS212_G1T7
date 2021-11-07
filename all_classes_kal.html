@@ -164,8 +164,31 @@
             var SlotsAvailable = courseclass.SlotsAvailable;
 
             if (Trainer == null) {
+              if (SlotsAvailable == 0) {
 
-              rows += `
+                rows += `
+                          <tr class="maincourse">
+                            <td>
+                              <a class="nav-link" href="class_list.html?courseid=${CourseID}&classid=${ClassID}">
+                              ${ClassID}
+                              </a>
+                            </td>
+                            <td>${CourseID}</td>
+                            <td>
+                              <a class="nav-link" href="available_trainers.html?courseid=${CourseID}&classid=${ClassID}">
+                                ${Trainer}
+                              </a>
+                            </td>
+                            <td>${StartDateTime}</td>
+                            <td>${EndDateTime}</td>
+                            <td>${Capacity}</td>
+                            <td>${SlotsAvailable}</td>
+                          </tr>
+                                      `;
+
+              } else {
+
+                rows += `
                           <tr class="maincourse">
                             <td>
                               <a class="nav-link" href="class_list.html?courseid=${CourseID}&classid=${ClassID}">
@@ -188,9 +211,31 @@
                             </td>
                           </tr>
                                       `;
+
+              }
+
             } else {
 
-              rows += `
+              if (SlotsAvailable == 0) {
+
+                rows += `
+                          <tr class="maincourse">
+                            <td>
+                              <a class="nav-link" href="class_list.html?courseid=${CourseID}&classid=${ClassID}">
+                              ${ClassID}
+                              </a>
+                            </td>
+                            <td>${CourseID}</td>
+                            <td>${Trainer}</td>
+                            <td>${StartDateTime}</td>
+                            <td>${EndDateTime}</td>
+                            <td>${Capacity}</td>
+                            <td>${SlotsAvailable}</td>
+                          </tr>
+                                      `;
+              } else {
+
+                rows += `
                           <tr class="maincourse">
                             <td>
                               <a class="nav-link" href="class_list.html?courseid=${CourseID}&classid=${ClassID}">
@@ -209,8 +254,9 @@
                             </td>
                           </tr>
                                       `;
+              }
             }
-            
+
           }
           rows += "</tbody>";
 
@@ -236,4 +282,5 @@
 
   </script>
 </body>
+
 </html>

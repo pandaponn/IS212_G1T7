@@ -476,7 +476,7 @@ def addRowsToQuizResults(LearnerID, CourseID, ClassID):
 @app.route("/view_all_engineers/<int:isLearner>/<int:CourseID>")
 def view_available_engineers(isLearner, CourseID):
     EngineerList = Engineer.query.filter_by(Learner=isLearner).all()
-    # print(EngineerList)
+    print(EngineerList)
 
     AvailableList = []
     for i in range(len(EngineerList)):
