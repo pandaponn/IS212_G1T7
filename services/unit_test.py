@@ -56,7 +56,6 @@ class QuestionsTestCase(unittest.TestCase):
         self.app.post('/quiz/createQuestion', data=json.dumps(dict(self.question_mcq)), content_type='application/json')
         res = self.app.post('/quiz/retrieveQuestion', data=json.dumps(dict(self.retrieve_question)), content_type='application/json')
         self.assertEqual(res.status_code, 201)
-        
 
     def tearDown(self):
         db.session.remove()
