@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>Set Enrollment Period</title>
+  <title>Set Class Schedule</title>
 
   <link rel="stylesheet" href="" />
   <!--[if lt IE 9]>
@@ -65,10 +65,10 @@
 
   <div class="container">
     <div>
-        <h2>Set Enrollment Period</h2>
+        <h2>Set Class Schedule</h2>
         <form
-          id="setEnrollPeriodForm"
-          name="setEnrollPeriodForm"
+          id="setClassSchedForm"
+          name="setClassSchedForm"
           class="needs-validation was-validated"
           novalidate
         >
@@ -79,18 +79,24 @@
           <div class="form-group col-lg-4" >
             <label for="courseName">Course Name: </label>
             <div id='courseNameDiv'></div>
+            </div>
+
+        <div class="form-group col-lg-4" >
+            <label for="classId">Class ID: </label>
+            <div id='classIdDiv'></div>
         </div>
+
           <div class="form-group col-lg-5">
-              <label for="start">Start of Enrollment: </label>
+              <label for="start">Class Start: </label>
               <div id='start'></div>
           </div>
             <div class="form-group col-lg-5" >
-              <label for="end">End of Enrollment: </label>
+              <label for="end">Class End: </label>
               <div id='end'></div>
           </div>
 
           <div class="form-group col-lg-4">
-            <button type="submit" id="setEnrollPeriod" class="btn btn-primary" data-toggle='modal' data-target="#successModal">Set!</button>
+            <button type="submit" id="setClassSched" class="btn btn-primary" data-toggle='modal' data-target="#successModal">Set!</button>
           </div>
         </form>
     </div>
@@ -121,7 +127,7 @@
 
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         var forms = document.querySelectorAll('.needs-validation');
-        var submitBtn = document.getElementById('setEnrollPeriod');
+        var submitBtn = document.getElementById('setClassSched');
 
         // Loop over them and prevent submission
         Array.prototype.slice.call(forms)
@@ -145,10 +151,11 @@
       // Helper function to display error message
       function showError(message) {
         // Hide the table and button in the event of error
-        $("#setEnrollPeriodForm").hide();
+        $("#setClassSchedForm").hide();
 
         // Display an error under the main container
         $("#main-container").append("<label>" + message + "</label>");
+        console.log(message)
       }
 
       // anonymous async function
@@ -157,24 +164,29 @@
         const queryString = window.location.search;
         const params = new URLSearchParams(queryString);
         var course_id = params.get("courseid");
+        var class_id = params.get("classid")
         console.log("course id is: ", course_id);
-        var getCourseURL =
-          "http://127.0.0.1:5100/get_course/" + course_id;
+        console.log("class id is: ", class_id);
+        var getCourseClassURL =
+          "http://127.0.0.1:5100/courseclassdetails/" + class_id;
 
         try {
-          const response = await fetch(getCourseURL, { method: "GET" });
+          const response = await fetch(getCourseClassURL, { method: "GET" });
 
           const result = await response.json();
           if (response.status === 200) {
             // success case
-            var course = result.data.course;
+            var courseclass = result.data.courseclass;
 
-            var CourseID = course.CourseID;
-            var CourseName = course.CourseName;
-            var StartEnroll = course.StartEnroll;
-            var EndEnroll = course.EndEnroll;
+            var CourseID = courseclass.CourseId;
+            var CourseName = courseclass.CourseName;
+            var StartDateTime = courseclass.StartDateTime;
+            var EndDateTime = courseclass.EndDateTime;
+            var ClassID = courseclass.ClassId;
 
             document.getElementById("courseIdDiv").innerHTML = `<input type="text" class="form-control" id="courseId" name="courseId" value=${CourseID} disabled required>`;
+            document.getElementById("courseNameDiv").innerHTML = `<text> ${CourseName} </text>`;
+            document.getElementById("classIdDiv").innerHTML = `<input type="text" class="form-control" id="classId" name="classId" value=${ClassID} disabled required>`;
             document.getElementById("courseNameDiv").innerHTML = `<text> ${CourseName} </text>`;
             document.getElementById("start").innerHTML = `<input type="datetime-local" class="form-control" id="newStart" name="newStart" required>`;
             document.getElementById("end").innerHTML = `<input type="datetime-local" class="form-control" id="newEnd" name="newEnd" required>`;
@@ -194,7 +206,7 @@
         } // error
       });
 
-      $("#setEnrollPeriodForm").submit(async (event) => {
+      $("#setClassSchedForm").submit(async (event) => {
         event.preventDefault();
 
         // show loading before the showing the confirmation that the assignment is posted
@@ -204,34 +216,47 @@
         document.getElementById('dismissModal').style.visibility = 'hidden';
 
         var CourseID = $("#courseId").val();
-        var StartEnroll = $("#newStart").val();
-        var EndEnroll = $("#newEnd").val()
+        var ClassID = $("#classId").val();
+        var StartClass = $("#newStart").val();
+        var EndClass = $("#newEnd").val()
 
         // http://localhost:5100/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>
 
         var setURL =
-          "http://localhost:5100/set_enrollment_period/" + CourseID;
+          "http://localhost:5100/set_class_schedule/" + CourseID + "/" + ClassID;
 
         try {
           const response = await fetch(setURL, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                Start_Date: StartEnroll,
-                End_Date: EndEnroll
+                Start_Date: StartClass,
+                End_Date: EndClass
             }),
           });
           console.log(response.status);
           if (response.status == 200) {
-            console.log('success')
-            // var success_msg = `<h2>Sign Up successful</h2>`;
-            // document.getElementById('signupForm').style.visibility = 'hidden'
+            // console.log('success')
+            // window.alert('Successful. Go back to courses?');
+            // window.location.href = 'admin_courses.html'
+            document.getElementById('setClassSchedForm').style.visibility = 'hidden'
             document.getElementById('resultModalTitle').innerText = "Success"
             document.getElementById('resultModalTitle').style.visibility = 'visible';
-            document.getElementById('resultModalBody').innerText = "You have successfully set a new enrollment period";
+            document.getElementById('resultModalBody').innerText = "You have successfully set a new class schedule";
             document.getElementById('dismissModal').style.visibility = 'visible';
             document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='admin_courses.html'>Go To Courses</a>`;
             
+          }
+          else if (response.status == 404){
+            //   console.log("fail")
+            //   window.alert('Failed, unable to find class. Go back to courses?')
+            //   window.location.href = 'admin_courses.html'
+            document.getElementById('setClassSchedForm').style.visibility = 'hidden'
+            document.getElementById('resultModalTitle').innerText = "Failed."
+            document.getElementById('resultModalTitle').style.visibility = 'visible';
+            document.getElementById('resultModalBody').innerText = "Unable to set a new class schedule. Please try again later.";
+            document.getElementById('dismissModal').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='admin_courses.html'>Go To Courses</a>`;
           }
           else {
             // unexpected outcome, throw the error
@@ -240,7 +265,7 @@
         } catch (error) {
           // Errors when calling the service; such as network error,
           // service offline, etc
-          showMsg("An error occurred when setting enrollment period.<br />" + error);
+            showMsg("An error occurred when setting class schedule.<br />" + error);
         } // error
       });
     </script>

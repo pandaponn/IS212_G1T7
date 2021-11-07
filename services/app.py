@@ -1617,6 +1617,37 @@ def get_learner_course(LearnerID, CourseID, ClassID):
               
         ), 200
 
+# set start and end date/time of a class
+@app.route("/set_class_schedule/<int:CourseID>/<int:ClassID>", methods=["PUT"])
+def set_class_schedule(CourseID, ClassID):
+    courseclass = CourseClass.query.filter_by(CourseId=CourseID).filter_by(ClassId=ClassID).first()
+    if not courseclass:
+        return jsonify({
+            "code": 404,
+            "message": "Class not found"
+        }), 404
+    else:
+        start = courseclass.StartDateTime
+        end = courseclass.EndDateTime
+        print(start, end)
+        data = request.get_json()
+        print(data)
+        if "Start_Date" in data:
+            courseclass.StartEnroll = data["Start_Date"]
+        if "End_Date" in data:
+            courseclass.EndEnroll = data["End_Date"]
+
+        
+        db.session.commit()
+        
+        return jsonify({
+            "code": 200,
+            "data": {
+                "Start_Date": courseclass.StartDateTime,
+                "End_Date": courseclass.EndDateTime
+            },
+            "message": "class start and end successfully set"
+        }), 200
    
 # kaldora
 # User Story: Assign Engineers to sections

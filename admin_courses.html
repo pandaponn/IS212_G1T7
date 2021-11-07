@@ -83,6 +83,7 @@
             <th>Course ID</th>
             <th>Course Name</th>
             <th>Enrollment Period</th>
+            <th>Classes</th>
           </tr>
         </thead>
       </table>
@@ -120,12 +121,14 @@
               var CourseName = course.CourseName;
               var StartEnroll = course.StartEnroll;
               var EndEnroll = course.EndEnroll;
+              var Classes = course.Classes;
 
               rows += `
               <tr class="maincourse">
                   <td> ${CourseID} </td>
                   <td> ${CourseName} </td>
-                  <td><a class="nav-link" href="admin_set_enroll.html?courseid=${CourseID}"> ${StartEnroll} to ${EndEnroll}</td>
+                  <td><a class="nav-link" href="admin_set_enroll.html?courseid=${CourseID}"> ${StartEnroll} to ${EndEnroll}</a></td>
+                  <td><a class="nav-link" href="admin_classes.html?courseid=${CourseID}">${Classes}<a/></td>
               </tr>
                   `;
             }

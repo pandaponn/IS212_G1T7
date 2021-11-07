@@ -214,7 +214,7 @@
         event.preventDefault();
 
         // show loading before the showing the confirmation that the assignment is posted
-        var loading_str = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Setting new enrollment period...`;
+        var loading_str = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Processing...`;
         document.getElementById('resultModalBody').innerHTML = loading_str;
         document.getElementById('resultModalTitle').style.visibility = 'hidden';
         document.getElementById('dismissModal').style.visibility = 'hidden';
@@ -245,7 +245,7 @@
             window.alert('Successful. Go back to courses?');
             window.location.href = 'admin_courses.html'
             // var success_msg = `<h2>Sign Up successful</h2>`;
-            // document.getElementById('signupForm').style.visibility = 'hidden'
+            // document.getElementById('vetEnrollForm').style.visibility = 'hidden'
             // document.getElementById('resultModalTitle').innerText = "Success"
             // document.getElementById('resultModalTitle').style.visibility = 'visible';
             // document.getElementById('resultModalBody').innerText = "You have successfully vetted learner's self enrollment.";
@@ -257,6 +257,7 @@
             window.alert('Enrollment cannot be approved or rejected as the enrollment period has closed or the class has started. Go back to courses?');
             window.location.href = 'admin_courses.html'
             // document.getElementById('resultModalTitle').innerText = "Failed"
+            // document.getElementById('resultModalTitle').style.visibility = 'visible';
             // document.getElementById('resultModalBody').innerText = "Enrollment cannot be approved or rejected.";
             // document.getElementById('resultModalTitle').style.visibility = 'visible';
             // document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='admin_courses.html'>Go To Courses</a>`;
