@@ -132,8 +132,8 @@
                 // for loop to setup all table rows with obtained course information
                 var rows = "<tbody>";
                 for (var courseclass of courseclasses) {
-                  var ClassID = courseclass.ClassId;
-                  var CourseID = courseclass.CourseId;
+                  var ClassId = courseclass.ClassId;
+                  var CourseId = courseclass.CourseId;
                   var Trainer = courseclass.TrainerId;
                   var StartDateTime = courseclass.StartDateTime;
                   var EndDateTime = courseclass.EndDateTime;
@@ -143,11 +143,11 @@
                   rows += `
                                   <tr class="maincourse">
                                     <td>
-                                        <a class="nav-link" href="course_signup.html?courseid=${CourseID}&classid=${ClassID}">
-                                            ${ClassID}
+                                        <a class="nav-link" href="course_signup.html?courseid=${CourseId}&classid=${ClassId}">
+                                            ${ClassId}
                                         </a>
                                     </td>
-                                    <td>${CourseID}</td>
+                                    <td>${CourseId}</td>
                                     <td>${Trainer}</td>
                                     <td>${StartDateTime}</td>
                                     <td>${EndDateTime}</td>

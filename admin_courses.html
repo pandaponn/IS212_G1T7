@@ -53,11 +53,11 @@
   <nav>
     <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
         <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
-                href="learner_home.html">Learner Page</a></h5>
+                href="admin_courses.html">Administrator Page</a></h5>
         <div class="my-2 my-md-0 mr-md-3">
-            <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
-            <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
-            <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+            <a class="p-2 text-dark" href="admin_courses.html"> View Created Courses</a>
+            <a class="p-2 text-dark" href="admin_set_enroll.html">Set Enrollment Period</a>
+            <a class="p-2 text-dark" href="admin_vet_enroll.html">Vet Learner's Enrollment</a>
         </div>
         <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
@@ -65,9 +65,7 @@
 
   <div id="main-container" class="container">
     <div>
-      <h1 class="display-4">View Courses</h1>
-      <button class="btn btn-success" onclick=getFilteredCourses(1) id="filtercourse">Filter by Pre-requisite</button>
-      <button class="btn btn-secondary" onclick="window.location.reload()">Reset Filters</button>
+      <h1 class="display-4">View My Created Courses</h1>
     </div>
 
     <div>
@@ -76,9 +74,7 @@
           <tr>
             <th>Course ID</th>
             <th>Course Name</th>
-            <th>Pre-requisite Course</th>
-            <th>Number of Classes</th>
-            <th>Full?</th>
+            <th>Enrollment Period</th>
           </tr>
         </thead>
       </table>
@@ -102,9 +98,6 @@
     </div> -->
       <!-- End of Modal-->
     </div>
-    <div id="nocourse">
-      <p><span>No courses completed</span></p>
-    </div>
 
     <script>
       // Helper function to display error message
@@ -119,7 +112,7 @@
       // anonymous async function
       // - using await requires the function that calls it to be async
       $(async () => {
-        var getCoursesURL = "http://127.0.0.1:5100/view_all_courses";
+        var getCoursesURL = "http://127.0.0.1:5100/admin_courses/1"; // admin id = 1
 
         try {
           const response = await fetch(getCoursesURL, { method: "GET" });
@@ -133,19 +126,16 @@
             var rows = "<tbody>";
             for (var course of courses) {
               console.log(course);
-              var Classes = course.Classes;
               var CourseID = course.CourseID;
               var CourseName = course.CourseName;
-              var PreReq = course.PreReq;
-              var IsFull = course.IsFull;
+              var StartEnroll = course.StartEnroll;
+              var EndEnroll = course.EndEnroll;
 
               rows += `
               <tr class="maincourse">
                   <td> ${CourseID} </td>
                   <td> ${CourseName} </td>
-                  <td> ${PreReq} </td>
-                  <td><a class="nav-link" href="all_classes.html?courseid=${CourseID}"> ${Classes} </a></td>
-                  <td> ${IsFull} </td>
+                  <td><a class="nav-link" href="admin_set_enroll.html?courseid=${CourseID}"> ${StartEnroll} to ${EndEnroll}</td>
               </tr>
                   `;
             }
@@ -153,7 +143,6 @@
 
             // add all the rows to the table
             $("#courseTable").append(rows);
-            $("#nocourse").hide();
           } else if (response.status == 404) {
             // No courses
             showError(result.message);
@@ -171,67 +160,6 @@
         } // error
       });
 
-      // this function gets tutor details by assignment ID 
-      function getFilteredCourses(LearnerID) {
-        $("#courseTable tbody").empty()
-
-        $(async () => {
-          var getFilteredCourses_URL = "http://127.0.0.1:5100/learner_prereq/" + LearnerID;
-
-          try {
-            const response = await fetch(getFilteredCourses_URL, { method: "GET" });
-            const result = await response.json();
-
-            if (response.status === 200) {
-              // success case
-              if (result.code === 200) {
-                var courses = result.data.courses
-                var rows = "<tbody>";
-
-                for (var course of courses) {
-                  var CourseID = course.CourseID;
-                  console.log('CourseID: ', CourseID)
-                  var CourseName = course.CourseName;
-                  var PreReq = course.PreReq;
-                  var Classes = course.Classes;
-                  var IsFull = course.IsFull;
-
-                  rows += ` 
-                            <tr>
-                                <td> ${CourseID} </td>
-                                <td> ${CourseName} </td>
-                                <td> ${PreReq} </td>
-                                <td> <a class="nav-link" href="all_classes.html?courseid=${CourseID}">${Classes} </a></td>
-                                <td> ${IsFull} </td>
-                            </tr>`;
-                }
-
-                rows += '</tbody>';
-                $("#courseTable").append(rows);
-                $("#filtercourse").addClass('disabled')
-              }
-              else {
-                $("#courseTable").hide()
-                $("#nocourse").show()
-              }
-
-            } else if (response.status == 404) {
-              // No books
-              showError(result.message);
-            } else {
-              // unexpected outcome, throw the error
-              throw response.status;
-            }
-          } catch (error) {
-            // Errors when calling the service; such as network error,
-            // service offline, etc
-            showError(
-              "There is a problem retrieving courses, please try again later.<br />" +
-              error
-            );
-          } // error
-        });
-      }
 
     </script>
     <!-- Start of footer-->
