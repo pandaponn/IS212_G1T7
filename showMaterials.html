@@ -115,6 +115,7 @@
                 font-size: 18px;
             }
         }
+
         body,
         nav {
             background-image: url(src/background.jpg);
@@ -129,7 +130,8 @@
 
 <body>
     <nav>
-        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <div
+            class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
             <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
                     href="learner_home.html">Learner Page</a></h5>
             <div class="my-2 my-md-0 mr-md-3">
@@ -197,12 +199,12 @@
             console.log(ClassId);
             console.log(CourseId);
 
-            document.getElementById("courseName").innerHTML = "Course: "+CourseName;
+            document.getElementById("courseName").innerHTML = "Course: " + CourseName;
             document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
             document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
             document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
 
-            var getChaptersURL = "http://127.0.0.1:5100/mono/allMaterial/1/"+"/"+ClassId+"/"+CourseId;
+            var getChaptersURL = "http://127.0.0.1:5100/mono/allMaterial/1/" + "/" + ClassId + "/" + CourseId;
 
             try {
                 const response = await fetch(getChaptersURL, { method: "GET" });
@@ -226,7 +228,7 @@
                     // add all the rows to the table
                     $("#chapters").append(rows);
 
-                    document.getElementById("courseName").innerHTML = "Course: "+CourseName;
+                    document.getElementById("courseName").innerHTML = "Course: " + CourseName;
                 } else if (response.status == 404) {
                     showError(result.message);
                 } else {
@@ -275,11 +277,19 @@
                             rows += `
                                 <button class="accordion">${SubChapterId}. ${ChapterName}</button>
                                 <div class="panel" style="display: none; overflow: auto; width: auto;">
-                                    <p><a href="http://127.0.0.1:5100/mono/markChapterMaterial/${LearnerId}/${ClassId}/${CourseId}//${ChapterId}/${SubChapterId}">
-                                        ${Content}</a></p>
+                                    <p>
+                                        <a href="${Content}">
+                                            ${Content}</a> <br>
+                                        <span>Preview:</span><br>
+                                        <iframe src="${Content}"></iframe><br>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                onclick="markChap('${LearnerId},${ClassId},${CourseId},${ChapterId},${SubChapterId}');">
+                                                Mark as Viewed</button>
+                                        </div>
+                                    </p>
                                 </div>`;
                         }
-
                         // add all the rows to the table
                         $("#materials").append(rows);
                     } else if (response.status == 404) {
@@ -318,6 +328,39 @@
                 }
             });
         }
+
+        function markChap(LearnerId, ClassId, CourseId, ChapterId, SubChapterId) {
+            console.log(LearnerId)
+            console.log(LearnerId.split(','))
+            strArr = LearnerId.split(',')
+            console.log(strArr[4])
+            $(async () => {
+                var markChapViewedURL = "http://127.0.0.1:5100/mono/markChapterMaterial/" + strArr[0] + "/" +  strArr[1] + "/" +  strArr[2] + "/" +  strArr[3] + '/' +  strArr[4];
+                console.log(markChapViewedURL)
+                try {
+                    const response = await fetch(markChapViewedURL, { method: "GET" });
+                    const result = await response.json();
+                    console.log(result)
+
+                    if (response.status === 200 || response.status === 201) {
+                        console.log('Successfully marked the chapter as viewed')
+
+                    // } else if (response.status == 404) {
+                    //     showError(result.message);
+                    } else {
+                        // unexpected outcome, throw the error
+                        throw response.status;
+                    }
+                } catch (error) {
+                    // Errors when calling the service; such as network error,
+                    // service offline, etc
+                    showError(
+                        "There is a problem marking the chapter as viewed, please try again later.<br />" +
+                        error
+                    );
+                }
+            })
+        };
     </script>
 </body>
 

@@ -4,8 +4,8 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -162,6 +162,17 @@ class Quiz(db.Model):
     def json(self):
         return {"quiz_id": self.quiz_id, "quiz_name": self.quiz_name, "course_id": self.course_id, "class_id": self.class_id, "chapter_id": self.chapter_id, "isGraded": self.isGraded, "passing_grade": self.passing_grade, "duration": self.duration}
 
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+        
 # check if Quiz exists inside db
 @app.route("/quiz/checkQuizExists", methods=['POST'])
 def check_quiz_exists():
@@ -816,13 +827,25 @@ def mark_chapter(learner_id, class_id, course_id, chapter_id, subchapter_id):
             learner_id, class_id, course_id, chapter_id)
         print(Quiz_viewable)
 
-        return {
-            "Quiz": [Quiz_viewable.to_dict()],
-            "Materials": [subMaterials.to_dict()]
-        }
-    return {
-        "Materials": subMaterials.to_dict()
-    }
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "Quiz": [Quiz_viewable.to_dict()],
+                    "Materials": [subMaterials.to_dict()]
+                },
+                "message": "Chapter marked as viewed. Quiz for this chapter has been unlocked."
+            },
+        )
+    return jsonify(
+        {
+            "code": 201,
+            "data": {
+                "Materials": [subMaterials.to_dict()]
+            },
+            "message": "Chapter marked as viewed."
+        },
+    )
 
 
 def mark_as_viewed(learner_id, class_id, course_id, subchapter_id):
@@ -1147,6 +1170,29 @@ def check_chapterValid(class_id, course_id, chapter_id):
         {
             "code": 404,
             "message": "Chapter not found."
+        }
+    ), 404
+
+# Get ChapterIds and QuizId for trainer
+@app.route("/mono/trainer_quizzes/<string:class_id>/<string:course_id>")
+def all_trainer_quizzes(class_id, course_id):
+    quizList = Quiz.query.filter_by(
+        class_id=class_id).filter_by(course_id=course_id).all()
+
+    print(quizList)
+    if quizList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "quizList": [quiz.to_dict() for quiz in quizList]
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "No quiz found."
         }
     ), 404
 
