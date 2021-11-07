@@ -1490,7 +1490,7 @@ def get_courses_by_admin(CreatedBy):
             {
                 "code": 200,
                 "data": {
-                    "Courses created by admin": [course.to_dict() for course in courseList]
+                    "courses": [course.to_dict() for course in courseList]
                 },
                 "message": "Courses created by admin {} successfully returned.".format(admin)
             },
@@ -1501,6 +1501,30 @@ def get_courses_by_admin(CreatedBy):
         {
             "code": 404,
             "message": "Can't find courses created by admin {}.".format(admin)
+        }
+    ), 404
+
+# get pending approval enrollment
+@app.route("/pending_courses")
+def get_pending_courses():
+    courseList = Learner.query.filter_by(assigned=0).filter_by(approved=None).all()
+    if len(courseList):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "pending": [course.to_dict() for course in courseList],
+                    "Number_of_courses": len(courseList)
+                },
+                "message": "Courses pending approval successfully returned."
+            },
+              
+        )
+        # return classList
+    return jsonify(
+        {
+            "code": 404,
+            "message": "All courses have been vetted"
         }
     ), 404
 
@@ -1519,10 +1543,10 @@ def set_enrollment_period(CourseID):
         print(start, end)
         data = request.get_json()
         print(data)
-        if "Start Date" in data:
-            course.StartEnroll = data["Start Date"]
-        if "End Date" in data:
-            course.EndEnroll = data["End Date"]
+        if "Start_Date" in data:
+            course.StartEnroll = data["Start_Date"]
+        if "End_Date" in data:
+            course.EndEnroll = data["End_Date"]
         
         course.Open = 1
         
@@ -1531,34 +1555,35 @@ def set_enrollment_period(CourseID):
         return jsonify({
             "code": 200,
             "data": {
-                "course start of enrollment": course.StartEnroll,
-                "course end of enrollment": course.EndEnroll
+                "Start_Date": course.StartEnroll,
+                "End_Date": course.EndEnroll
             },
             "message": "enrollment period successfully set"
         }), 200
 
 # approve/reject self-enrollment
-@app.route("/vet_self_enroll/<int:LearnerId>", methods=["PUT"])
-def vet_self_enroll(LearnerId):
+@app.route("/vet_self_enroll/<string:Assigned>", methods=["PUT"])
+def vet_self_enroll(Assigned):
     # assigned = 0, approved = null (pending)
     Current = datetime.now()
     print(Current)
-    learner = Learner.query.filter_by(LearnerId=LearnerId).filter_by(Assigned=0).filter_by(Approved=None).first()
+    learner = Learner.query.filter_by(assigned=Assigned).filter_by(approved=None).first()
     if not learner:
         return jsonify({
             "code": "404",
-            "message": "You have not self-enrolled in any class."
+            "message": "No enrollment pending approval"
         }), 404
     else:
         print(learner)
         courseToApprove = learner.CourseID
         classToApprove = learner.ClassID
         courseDetails = Course.query.filter_by(CourseID=courseToApprove).first()
-        classDetails = CourseClass.query.filter_by(ClassID=classToApprove).first()
+        classDetails = CourseClass.query.filter_by(ClassId=classToApprove).first()
         print('enrollment period: ',courseDetails.StartEnroll, ' to ', courseDetails.EndEnroll)
         CourseStart = courseDetails.StartEnroll
         # CourseEnd = courseDetails.EndEnroll
         ClassStart = classDetails.StartDateTime
+        # slotsAvailable = classDetails.SlotsAvailable
 
 
         data = request.get_json()
@@ -1569,25 +1594,26 @@ def vet_self_enroll(LearnerId):
             print('able to approve or reject enrollment')
         
             if data["Approved"] == "approved":
-                learner.Approved = 1
+                learner.approved = 1
+                classDetails.SlotsAvailable -= 1
             if data["Approved"] == "rejected":
-                learner.Approved = 0
+                learner.approved = 0
 
             db.session.commit()
 
             return jsonify({
                 "code": "200",
                 "data": {
-                    "learner pending course": learner.to_dict(),
+                    "pending_course": learner.to_dict(),
                 },
-                "message": "Your enrollment has been " + data['Approved']
+                "message": "Enrollment has been " + data['Approved']
             }), 200
         else:
             return jsonify({
                 "code": "500",
                 "message": "Enrollment cannot be approved or rejected."
             }), 500
-
+   
 # kaldora
 # User Story: Assign Engineers to sections
 # Get all the courses that are assigned to a trainer by assignedEngineer
@@ -1937,4 +1963,4 @@ def view_class_list(approved, CourseID, ClassID):
     ), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5100, debug=True)
+    app.run(host='0.0.0.0' ,port=5100, debug=True)

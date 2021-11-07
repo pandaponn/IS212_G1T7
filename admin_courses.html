@@ -57,7 +57,7 @@
         <div class="my-2 my-md-0 mr-md-3">
             <a class="p-2 text-dark" href="admin_courses.html"> View Created Courses</a>
             <!-- <a class="p-2 text-dark" href="admin_set_enroll.html">Set Enrollment Period</a> -->
-            <a class="p-2 text-dark" href="admin_vet_enroll.html">Vet Learner's Enrollment</a>
+            <a class="p-2 text-dark" href="admin_vet_learner.html">Vet Learner's Enrollment</a>
         </div>
         <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
@@ -67,6 +67,12 @@
     <div>
       <h1 class="display-4">View My Created Courses</h1>
     </div>
+
+    <!-- <div>
+      <h1 class="display-4">View Courses</h1>
+      <button class="btn btn-success" onclick=getPendingCourses(0) id="filtercourse">Pending</button>
+      <button class="btn btn-secondary" onclick="window.location.reload()">Reset</button>
+    </div> -->
 
     <div>
       <table id="courseTable" class="table table-striped" border="1">
@@ -79,24 +85,6 @@
         </thead>
       </table>
 
-      <!-- Modal to confirmation message of accept/reject-->
-      <!-- <div class="modal fade" id="statusModel" tabindex="-1" role="dialog" aria-labelledby="statusModelTitle"
-      aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="statusModelTitle">Status Updated</h5>
-          </div>
-          <div class="modal-body" +AssignmentID>
-            <p id="statusModelBody"></p>
-          </div>
-          <div class="modal-footer">
-            <a id="dismissStatusModel" class="btn btn-success" href="check_tutee.html">Okay</a>
-          </div>
-        </div>
-      </div>
-    </div> -->
-      <!-- End of Modal-->
     </div>
 
     <script>
@@ -159,6 +147,67 @@
           );
         } // error
       });
+
+      // function getPendingCourses(Assigned) {
+      //   $("#courseTable tbody").empty()
+
+      //   $(async () => {
+      //     var getPendingCourses_URL = "http://127.0.0.1:5100/pending_courses" ;
+
+      //     try {
+      //       const response = await fetch(getPendingCourses_URL, { method: "GET" });
+      //       const result = await response.json();
+
+      //       if (response.status === 200) {
+      //         // success case
+      //         if (result.code === 200) {
+      //           var courses = result.data.courses
+      //           var rows = "<tbody>";
+
+      //           for (var course of courses) {
+      //             var CourseID = course.CourseID;
+      //             console.log('CourseID: ', CourseID)
+      //             var CourseName = course.CourseName;
+      //             var PreReq = course.PreReq;
+      //             var Classes = course.Classes;
+      //             var IsFull = course.IsFull;
+
+      //             rows += ` 
+      //                       <tr>
+      //                           <td> ${CourseID} </td>
+      //                           <td> ${CourseName} </td>
+      //                           <td> ${PreReq} </td>
+      //                           <td> <a class="nav-link" href="all_classes.html?courseid=${CourseID}">${Classes} </a></td>
+      //                           <td> ${IsFull} </td>
+      //                       </tr>`;
+      //           }
+
+      //           rows += '</tbody>';
+      //           $("#courseTable").append(rows);
+      //           $("#filtercourse").addClass('disabled')
+      //         }
+      //         else {
+      //           $("#courseTable").hide()
+      //           $("#nocourse").show()
+      //         }
+
+      //       } else if (response.status == 404) {
+      //         // No books
+      //         showError(result.message);
+      //       } else {
+      //         // unexpected outcome, throw the error
+      //         throw response.status;
+      //       }
+      //     } catch (error) {
+      //       // Errors when calling the service; such as network error,
+      //       // service offline, etc
+      //       showError(
+      //         "There is a problem retrieving courses, please try again later.<br />" +
+      //         error
+      //       );
+      //     } // error
+      //   });
+      // }
 
 
     </script>
