@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>Class List</title>
+  <title>Successfully Assigned Engineer</title>
 
   <link rel="stylesheet" href="" />
   <!--[if lt IE 9]>
@@ -88,21 +88,11 @@
 
   <div id="main-container" class="container">
     <div>
-      <h1 class="display-4"><b>Class List</b></h1>
+      <h1 class="display-4"><b>Successfully Assigned Engineer</b></h1>
       <!-- <button class="btn btn-success" onclick=getFilteredCourses(1) id="filtercourse">Filter</button> -->
       <!-- <button class="btn btn-secondary" onclick="window.location.reload()">Reset Filters</button> -->
+      <h2 id = "successful"></h2>
     </div>
-    <table id="courseclassTable" class="table table-bordered" border="1">
-      <thead class="thead-dark">
-        <tr>
-          <th>Learner ID</th>
-          <th>Learner Name</th>
-          <th>Course ID</th>
-          <th>Class ID</th>
-          </th>
-        </tr>
-      </thead>
-    </table>
 
     <!-- Modal to confirmation message of accept/reject-->
     <!-- <div class="modal fade" id="statusModel" tabindex="-1" role="dialog" aria-labelledby="statusModelTitle"
@@ -139,37 +129,22 @@
       const queryString = window.location.search;
       const params = new URLSearchParams(queryString);
       console.log(params.get('courseid'));
-      console.log(params.get('classid'));
       var course_id = params.get('courseid');
+      console.log(params.get('classid'));
       var class_id = params.get('classid');
-      var getClassesURL = "http://127.0.0.1:5100/view_class_list/1/" + course_id + "/" + class_id;
+      console.log(params.get('learnerid'));
+      var learner_id = params.get('learnerid');
+      console.log(params.get('learnername'));
+      var learner_name = params.get('learnername');
+      var getClassesURL = "http://127.0.0.1:5100/assign_engineer/" + learner_id + "/" + course_id + "/" + class_id + "/" + learner_name;
 
       try {
-        const response = await fetch(getClassesURL, { method: "GET" });
+        const response = await fetch(getClassesURL, { method: "POST" });
 
         const result = await response.json();
-        if (response.status === 200) {
+        if (response.status === 201) {
           // success case
-          var ClassList = result.data.ClassList;
-
-          // for loop to setup all table rows with obtained course information
-          var rows = "<tbody>";
-          for (var Details of ClassList) {
-            var LearnerID = Details.LearnerID;
-            var LearnerName = Details.LearnerName;
-            var CourseID = Details.CourseID;
-            var ClassID = Details.ClassID;
-
-            rows += `
-                                  <tr class="maincourse">
-                                    <td>${LearnerID}</td>
-                                    <td>${LearnerName}</td>
-                                    <td>${CourseID}</td>
-                                    <td>${ClassID}</td>
-                                  </tr>
-                                      `;
-          }
-          rows += "</tbody>";
+          document.getElementById("successful").innerHTML = "You have successfully assigned Learner " + learner_id + " to course " + course_id + ", class " + class_id;
 
           // add all the rows to the table
           $("#courseclassTable").append(rows);
@@ -183,10 +158,10 @@
       } catch (error) {
         // Errors when calling the service; such as network error,
         // service offline, etc
-        showError(
-          "There is a problem retrieving classes for the course, please try again later.<br />" +
-          error
-        );
+        //showError(
+          //"There is a problem assigning learners to the course, please try again later.<br />" +
+          //error
+        //);
       } // error
     });
 
