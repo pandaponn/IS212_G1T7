@@ -57,7 +57,7 @@
         <div class="my-2 my-md-0 mr-md-3">
             <a class="p-2 text-dark" href="admin_courses.html"> View Created Courses</a>
             <!-- <a class="p-2 text-dark" href="admin_set_enroll.html">Set Enrollment Period</a> -->
-            <a class="p-2 text-dark" href="admin_vet_learner.html">Vet Learner's Enrollment</a>
+            <!-- <a class="p-2 text-dark" href="admin_vet_learner.html">Vet Learner's Enrollment</a> -->
         </div>
         <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
@@ -66,6 +66,8 @@
   <div id="main-container" class="container">
     <div>
       <h1 class="display-4">View My Created Courses</h1>
+      <button class="btn btn-success" onclick=getPendingCourses(0) id="filtercourse">Pending</button>
+      <button class="btn btn-secondary" onclick="window.location.reload()">Reset</button>
     </div>
 
     <!-- <div>
@@ -81,6 +83,7 @@
             <th>Course ID</th>
             <th>Course Name</th>
             <th>Enrollment Period</th>
+            <th>Classes</th>
           </tr>
         </thead>
       </table>
@@ -118,12 +121,14 @@
               var CourseName = course.CourseName;
               var StartEnroll = course.StartEnroll;
               var EndEnroll = course.EndEnroll;
+              var Classes = course.Classes;
 
               rows += `
               <tr class="maincourse">
                   <td> ${CourseID} </td>
                   <td> ${CourseName} </td>
-                  <td><a class="nav-link" href="admin_set_enroll.html?courseid=${CourseID}"> ${StartEnroll} to ${EndEnroll}</td>
+                  <td><a class="nav-link" href="admin_set_enroll.html?courseid=${CourseID}"> ${StartEnroll} to ${EndEnroll}</a></td>
+                  <td><a class="nav-link" href="admin_classes.html?courseid=${CourseID}">${Classes}<a/></td>
               </tr>
                   `;
             }
@@ -148,66 +153,74 @@
         } // error
       });
 
-      // function getPendingCourses(Assigned) {
-      //   $("#courseTable tbody").empty()
+      function getPendingCourses(Assigned) {
+        $("#courseTable thead").empty()
+        $("#courseTable tbody").empty()
 
-      //   $(async () => {
-      //     var getPendingCourses_URL = "http://127.0.0.1:5100/pending_courses" ;
+        $(async () => {
+          var getPendingCourses_URL = "http://127.0.0.1:5100/pending_courses" ;
 
-      //     try {
-      //       const response = await fetch(getPendingCourses_URL, { method: "GET" });
-      //       const result = await response.json();
+          try {
+            const response = await fetch(getPendingCourses_URL, { method: "GET" });
+            const result = await response.json();
 
-      //       if (response.status === 200) {
-      //         // success case
-      //         if (result.code === 200) {
-      //           var courses = result.data.courses
-      //           var rows = "<tbody>";
+            if (response.status === 200) {
+              // success case
+              if (result.code === 200) {
+                var courses = result.data.pending
+                var head = `
+                <thead class="thead-dark">
+                  <tr>
+                    <th>Learner ID</th>
+                    <th>Course ID</th>
+                    <th>Class ID</th>
+                    <th>Approved?</th>
+                  </tr>
+                </thead>
+                `;
+                $("#courseTable").append(head);
+                var rows = "<tbody>";
 
-      //           for (var course of courses) {
-      //             var CourseID = course.CourseID;
-      //             console.log('CourseID: ', CourseID)
-      //             var CourseName = course.CourseName;
-      //             var PreReq = course.PreReq;
-      //             var Classes = course.Classes;
-      //             var IsFull = course.IsFull;
+                for (var course of courses) {
+                  var LearnerID = course.LearnerID;
+                  var CourseID = course.CourseID;
+                  var ClassID = course.ClassID;
+                  var Approved = course.approved
 
-      //             rows += ` 
-      //                       <tr>
-      //                           <td> ${CourseID} </td>
-      //                           <td> ${CourseName} </td>
-      //                           <td> ${PreReq} </td>
-      //                           <td> <a class="nav-link" href="all_classes.html?courseid=${CourseID}">${Classes} </a></td>
-      //                           <td> ${IsFull} </td>
-      //                       </tr>`;
-      //           }
+                  rows += ` 
+                            <tr>
+                                <td> ${LearnerID} </td>
+                                <td> ${CourseID} </td>
+                                <td> ${ClassID} </td>
+                                <td> <a class="nav-link" href="admin_vet_learner.html?learnerid=${LearnerID}&courseid=${CourseID}&classid=${ClassID}">${Approved}</a> </td>
+                            </tr>`;
+                }
 
-      //           rows += '</tbody>';
-      //           $("#courseTable").append(rows);
-      //           $("#filtercourse").addClass('disabled')
-      //         }
-      //         else {
-      //           $("#courseTable").hide()
-      //           $("#nocourse").show()
-      //         }
+                rows += '</tbody>';
+                $("#courseTable").append(rows);
+                $("#filtercourse").addClass('disabled')
+              }
+              else {
+                $("#courseTable").hide()
+                $("#nocourse").show()
+              }
 
-      //       } else if (response.status == 404) {
-      //         // No books
-      //         showError(result.message);
-      //       } else {
-      //         // unexpected outcome, throw the error
-      //         throw response.status;
-      //       }
-      //     } catch (error) {
-      //       // Errors when calling the service; such as network error,
-      //       // service offline, etc
-      //       showError(
-      //         "There is a problem retrieving courses, please try again later.<br />" +
-      //         error
-      //       );
-      //     } // error
-      //   });
-      // }
+            } else if (response.status == 404) {
+              showError(result.message);
+            } else {
+              // unexpected outcome, throw the error
+              throw response.status;
+            }
+          } catch (error) {
+            // Errors when calling the service; such as network error,
+            // service offline, etc
+            showError(
+              "There is a problem retrieving courses, please try again later.<br />" +
+              error
+            );
+          } // error
+        });
+      }
 
 
     </script>
