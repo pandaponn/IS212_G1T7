@@ -136,6 +136,7 @@ CREATE TABLE IF NOT EXISTS `engineer` (
   `trainer` int(100) NOT NULL,
   `learner` int(100) NOT NULL,
   `learnerId` int(11) DEFAULT NULL,
+  `trainerId` int(11) DEFAULT NULL,
   PRIMARY KEY (`engineerId`) USING BTREE,
   KEY `engineerId` (`engineerId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
@@ -144,12 +145,13 @@ CREATE TABLE IF NOT EXISTS `engineer` (
 -- Dumping data for table `engineer`
 --
 
-INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`, `learnerId`) VALUES
-(1, 'Ling Li', 2, 1, 0, 1, 1),
-(2, 'Trisha', 3, NULL, 0, 1, 2),
-(3, 'Faith', 5, NULL, 0, 1, 3),
-(4, 'Kal', 2, 3, 1, 0, NULL),
-(5, 'Dora', 3, 4, 1, 1, 4);
+INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`, `learnerId`,`trainerId`) VALUES
+(1, 'Ling Li', 2, 1, 0, 1, 1, NULL),
+(2, 'Trisha', 3, NULL, 0, 1, 2, NULL),
+(3, 'Faith', 5, NULL, 0, 1, 3, NULL),
+(4, 'Kal', 2, 3, 1, 0, NULL, 1),
+(5, 'Dora', 3, 4, 1, 1, 4, 2),
+(6, 'Kai', 2, 3, 1, 0, NULL, 3);
 
 -- --------------------------------------------------------
 
@@ -307,22 +309,27 @@ INSERT INTO `quiz_results` (`learner_id`, `quiz_id`, `isViewable`, `score`, `qui
 
 DROP TABLE IF EXISTS `trainer`;
 CREATE TABLE IF NOT EXISTS `trainer` (
-  `trainerId` int(100) NOT NULL AUTO_INCREMENT,
+  `trainerId` int(100) NOT NULL,
   `engineerId` int(100) NOT NULL,
   `trainerName` varchar(100) NOT NULL,
-  `courseAssigned` int(100) NOT NULL,
-  `classAssigned` int(100) NOT NULL,
-  PRIMARY KEY (`trainerId`,`engineerId`) USING BTREE,
+  `courseId` int(100) NOT NULL,
+  `classId` int(100) NOT NULL,
+  PRIMARY KEY (`trainerId`,`engineerId`, `courseId`) USING BTREE,
   KEY `engineerId` (`engineerId`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `trainer`
 --
 
-INSERT INTO `trainer` (`trainerId`, `engineerId`, `trainerName`, `courseAssigned`, `classAssigned`) VALUES
-(1, 4, 'Kal', 0, 0),
-(2, 5, 'Dora', 0, 0);
+INSERT INTO `trainer` (`trainerId`, `engineerId`, `trainerName`, `courseId`, `classId`) VALUES
+(1, 4, 'Kal', 1, 1),
+(1, 4, 'Kal', 4, 6),
+(1, 4, 'Kal', 5, 8),
+(2, 5, 'Dora', 1, 3),
+(2, 5, 'Dora', 3, 5),
+(2, 5, 'Dora', 5, 7),
+(3, 6, 'Kai', 2, 4);
 
 DROP TABLE IF EXISTS `administrator`;
 CREATE TABLE IF NOT EXISTS `administrator` (
