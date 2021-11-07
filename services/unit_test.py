@@ -1,11 +1,11 @@
 from app import app, db
+import json
 import unittest
 
 class QuestionsTestCase(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
-        # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm_test'
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/spm_test'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
         db.create_all()
         self.question_tf = {
                             "quiz_id" : 1,
