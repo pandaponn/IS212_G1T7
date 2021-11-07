@@ -27,19 +27,33 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
         integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
         crossorigin="anonymous"></script>
+    <style>
+        body,
+        nav {
+            background-image: url(../src/background.jpg);
+            background-size: cover;
+            /* <------ */
+            background-repeat: no-repeat;
+            background-position: center center;
+            /* optional, center the image */
+        }
+    </style>
 </head>
 
 <body>
-    <!-- Start of Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <!-- <a class="navbar-brand" href="index_tutor.html"><img src="img/tutor_logo.png" alt="" ></a> -->
-        <a class="navbar-brand" href="trainer_classes.html">Trainer Track Results</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <nav>
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                    href="trainer_home.html">Trainer Page</a></h5>
+            <div class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="trainer_classes.html"> Assigned Classes </a>
+                <a class="p-2 text-dark" href="../quiz/selectChap.html"> Create Quiz </a>
+                <a class="p-2 text-dark" href="trainerTrack.html"> Track Results </a>
+            </div>
+            <a class="btn btn-outline-primary" href="#">Log Out</a>
+        </div>
     </nav>
-    <!-- End of Navigation Bar -->
+
     <div id="main-container" class="container">
         <h1 class="display-4">Results</h1>
 

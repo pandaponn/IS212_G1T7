@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width">
 
-    <title> Quiz List </title>
+    <title> Results </title>
 
     <link rel="stylesheet" href="">
     <!-- Bootstrap libraries -->
@@ -27,20 +27,10 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
         integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
         crossorigin="anonymous"></script>
-
-    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
     <style>
-        .not-active {
-            pointer-events: none;
-            cursor: default;
-            text-decoration: none;
-            color: black;
-        }
         body,
         nav {
-            background-image: url(src/background.jpg);
+            background-image: url(../src/background.jpg);
             background-size: cover;
             /* <------ */
             background-repeat: no-repeat;
@@ -78,25 +68,29 @@
                     <li class="nav-item">
                         <a class="nav-link" id="navContent" href="showMaterials.html">Content</a>
                     </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" id="navQuiz" href="showQuiz.html">Quizzes <span
-                                class="sr-only">(current)</span></a>
-                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="navResult" href="showResults.html">Results</a>
+                        <a class="nav-link" id="navQuiz" href="showQuiz.html">Quizzes</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" id="navResult" href="showResults.html">Results<span
+                                class="sr-only">(current)</span></a>
                     </li>
                 </ul>
             </div>
         </nav>
 
         <div id="main-container" class="container">
-            <h4 class="display-4">Quiz List</h4>
-            <table id="quizTable" class="table table-bordered" border="1">
+            <h4 class="display-4">My Result</h4>
+            <table id="resultTable" class="table table-bordered" border="1">
                 <thead class="thead-dark">
                     <tr>
                         <th>QuizId</th>
                         <th>QuizName</th>
-                        <th>Attempts</th>
+                        <th>Pass/Fail</th>
+                        <th>Score</th>
+                        <th>Average Score</th>
+                        <th>Min Score</th>
+                        <th>Max Score</th>
                     </tr>
                 </thead>
             </table>
@@ -107,7 +101,7 @@
     <script>
         // Helper function to display error message
         function showError(message) {
-            $('#quizTable').hide();
+            $('#resultTable').hide();
             // Display an error under the main container
             $("#displayError").append("<label>" + message + "</label>");
         }
@@ -126,53 +120,66 @@
             document.getElementById("navContent").href = "showMaterials.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
             document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
             document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
-
-            var getQuizzesURL = "http://127.0.0.1:5100/mono/allQuizzes/1/" + ClassId + "/" + CourseId;
+            
+            var getResultsURL = "http://127.0.0.1:5100/mono/allResults/1/" + ClassId + "/" + CourseId;
 
             try {
-                const response = await fetch(getQuizzesURL, { method: "GET" });
+                const response = await fetch(getResultsURL, { method: "GET" });
                 const result = await response.json();
 
                 var rows = "<tbody>";
                 if (response.status === 200) {
                     // success case
-                    var Quizzes = result.data.Quizzes;
-                    var QuizNames = result.data.QuizNameList;
+                    var quizResults = result.data.quizResults;
+                    var quizStats = result.data.stats;
+                    var quizNames = result.data.QuizNameList;
                     var CourseName = result.data.CourseName;
 
-                    for (var q in Quizzes) {
-                        console.log(Quizzes[q]);
+                    for (var r in quizResults) {
+                        console.log(quizResults[r]);
 
-                        var QuizId = Quizzes[q].quiz_id;
-                        var QuizName = QuizNames[q];
-                        var Attempts = Quizzes[q].attempts;
-                        var isViewable = Quizzes[q].isViewable;
+                        var quiz_id = quizResults[r].quiz_id;
+                        var QuizName = quizNames[r];
+                        var quizPass = quizResults[r].quizPass;
+                        var score = quizResults[r].score;
+                        var avg = quizStats[r][quiz_id].avgScore;
+                        var min = quizStats[r][quiz_id].minScore;
+                        var max = quizStats[r][quiz_id].maxScore;
 
-                        console.log('QuizId is ' + QuizId + ' and QuizName is ' + QuizName);
+                        if (quizPass == 1) {
+                            quizPass = 'Pass'
+                        } else {
+                            quizPass = 'Fail'
+                        }
 
-                        if (isViewable) {
+                        if (avg == undefined) {
                             rows += `
                                 <tr>
-                                    <td> ${QuizId} </td>
-                                    <td> <a href="quiz/quiz.html?ClassId=${ClassId}&CourseId=${CourseId}&QuizId=${QuizId}">${QuizName} </a></td>
-                                    <td> ${Attempts} </td>
+                                    <td> ${quiz_id} </td>
+                                    <td> ${QuizName} </td>
+                                    <td> ${quizPass} </td>
+                                    <td> ${score} </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>`;
                         } else {
                             rows += `
                                 <tr>
-                                    <td> ${QuizId} </td>
-                                    <td> <a href="quiz/quiz.html?ClassId=${ClassId}&CourseId=${CourseId}&QuizId=${QuizId}" class="not-active">${QuizName} </a>
-                                        <i class='fa fa-lock'></i>
-                                    </td>
-                                    <td> </td>
+                                    <td> ${quiz_id} </td>
+                                    <td> ${QuizName} </td>
+                                    <td> ${quizPass} </td>
+                                    <td> ${score} </td>
+                                    <td> ${avg} </td>
+                                    <td> ${min} </td>
+                                    <td> ${max} </td>
                                 </tr>`;
-
                         }
                     }
                     rows += "</tbody>";
 
                     // add all the rows to the table
-                    $("#quizTable").append(rows);
+                    $("#resultTable").append(rows);
 
                     document.getElementById("courseName").innerHTML = "Course: "+CourseName;
                 } else if (response.status == 404) {
@@ -185,7 +192,7 @@
                 // Errors when calling the service; such as network error,
                 // service offline, etc
                 showError(
-                    "There is a problem retrieving the quizzes, please try again later.<br />" +
+                    "There is a problem retrieving your results, please try again later.<br />" +
                     error
                 );
             }
