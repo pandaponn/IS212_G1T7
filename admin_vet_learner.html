@@ -62,6 +62,12 @@
             <a class="btn btn-outline-primary" href="#">Log Out</a>
         </div>
     </nav>
+    <!-- <script>
+        const queryString = window.location.search;
+        const params = new URLSearchParams(queryString);
+        var course_id = params.get("courseid");
+        console.log("course id is: ", course_id);
+    </script> -->
 
   <div class="container">
     <div>
@@ -194,7 +200,7 @@
         } // error
       });
 
-      $("#setEnrollPeriodForm").submit(async (event) => {
+      $("#vetForm").submit(async (event) => {
         event.preventDefault();
 
         // show loading before the showing the confirmation that the assignment is posted
@@ -210,16 +216,16 @@
 
         // http://localhost:5100/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>
 
-        var setURL =
-          "http://localhost:5100/set_enrollment_period/" + CourseID;
+        // var vetURL =
+        //   "http://localhost:5100/set_enrollment_period/" + CourseID;
 
         try {
-          const response = await fetch(setURL, {
+          const response = await fetch(vetURL, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                Start_Date: StartEnroll,
-                End_Date: EndEnroll
+                StartEnroll: StartEnroll,
+                EndEnroll: EndEnroll
             }),
           });
           console.log(response.status);
