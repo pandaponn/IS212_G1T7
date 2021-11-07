@@ -66,7 +66,7 @@ class Engineer(db.Model):
             result[column] = getattr(self, column)
         return result
 
-# Course
+# Course: Trisha Faith 
 class Course(db.Model):
     __tablename__ = 'Course'
 
@@ -95,30 +95,20 @@ class Course(db.Model):
             result[column] = getattr(self, column)
         return result
 
-    def has_prereq(self, count):
-        if self.PreReq != None:
-            count = 0
+    def has_prereq(self, course):
+        if course == None:
+            result = 0
         else:
-            count = 1
-        return count
+            result = 1
+        return result
     
-    def is_open(self, date):
-        if date > datetime.now():
+    def is_open(self, EnrollDate):
+        if EnrollDate < self.EndEnroll :
             open = 1
-        else:
+        if EnrollDate > self.EndEnroll:
             open = 0
         return open
     
-    def set_end_enrollment(self, endDate):
-        if endDate > self.StartEnroll:
-            result = "valid"
-        else:
-            result = "invalid"
-        return result
-    
-    # def is_full()
-        
-
 
 # Class
 class CourseClass(db.Model):
@@ -503,10 +493,10 @@ def set_enrollment_period(CourseID):
         print(start, end)
         data = request.get_json()
         print(data)
-        if "Start Date" in data:
-            course.StartEnroll = data["Start Date"]
-        if "End Date" in data:
-            course.EndEnroll = data["End Date"]
+        if "Start_Date" in data:
+            course.StartEnroll = data["Start_Date"]
+        if "End_Date" in data:
+            course.EndEnroll = data["End_Date"]
         
         course.Open = 1
         
@@ -515,8 +505,8 @@ def set_enrollment_period(CourseID):
         return jsonify({
             "code": 200,
             "data": {
-                "course start of enrollment": course.StartEnroll,
-                "course end of enrollment": course.EndEnroll
+                "Start_Date": course.StartEnroll,
+                "End_Date": course.EndEnroll
             },
             "message": "enrollment period successfully set"
         }), 200
