@@ -1,9 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import and_, or_
 from flask_cors import CORS
-import json
-from os import environ
 from datetime import datetime
 
 app = Flask(__name__)
@@ -19,10 +16,10 @@ class Questions(db.Model):
     __tablename__ = 'questions'
     question_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     quiz_id = db.Column(db.Integer, nullable=False)
-    qn_type = db.Column(db.String(65535), nullable=False)
-    question = db.Column(db.String(65535), nullable=False)
-    options = db.Column(db.String(65535), nullable=True)
-    answer = db.Column(db.String(65535), nullable=False)
+    qn_type = db.Column(db.Text(65535), nullable=False)
+    question = db.Column(db.Text(65535), nullable=False)
+    options = db.Column(db.Text(65535), nullable=True)
+    answer = db.Column(db.Text(65535), nullable=False)
 
     def __init__(self, quiz_id, qn_type, question, options, answer):
         self.quiz_id = quiz_id
@@ -91,12 +88,12 @@ def retrieveAllQuestions():
     if allQuestions:
         return jsonify(
             {
-                "code": 200,
+                "code": 201,
                 "data": {
                     "questions": allQuestions
                 }
             }
-        )
+        ), 201
     print(allQuestions)
 
     return jsonify(
@@ -106,7 +103,7 @@ def retrieveAllQuestions():
         }
     ), 404
 
-# Retrieve all questions for specific quiz on create_quiz.html
+# Retrieve specific question for specific quiz on create_quiz.html
 @app.route("/quiz/retrieveQuestion", methods=['POST'])
 def retrieveQuestion():
     data = request.get_json()
@@ -127,12 +124,12 @@ def retrieveQuestion():
     if output:
         return jsonify(
             {
-                "code": 200,
+                "code": 201,
                 "data": {
                     "questions": output
                 }
             }
-        )
+        ), 201
 
     return jsonify(
         {
@@ -145,12 +142,12 @@ def retrieveQuestion():
 class Quiz(db.Model):
     __tablename__ = 'quiz'
     quiz_id = db.Column(db.Integer, primary_key=True, nullable=False)
-    quiz_name = db.Column(db.String(65535), nullable=True)
+    quiz_name = db.Column(db.Text(65535), nullable=True)
     course_id = db.Column(db.Integer, primary_key=False, nullable=False)
     class_id = db.Column(db.Integer, primary_key=False, nullable=False)
     chapter_id = db.Column(db.Integer, primary_key=False, nullable=False)
-    isGraded = db.Column(db.String(65535), nullable=False)
-    passing_grade = db.Column(db.String(65535), nullable=False)
+    isGraded = db.Column(db.Text(65535), nullable=False)
+    passing_grade = db.Column(db.Text(65535), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
 
     def __init__(self, quiz_name, course_id, class_id, chapter_id, isGraded, passing_grade, duration):
