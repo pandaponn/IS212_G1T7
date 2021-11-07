@@ -4,8 +4,8 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -1404,13 +1404,13 @@ def course_signup(LearnerID, CourseID, ClassID):
     LearnerName = 'Ling Li'
     CourseID = CourseID
     ClassID = ClassID
-    Assigned = 0
-    Approved = None
+    assigned = 0
+    approved = None
     CourseCompleted = 0
     learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, 
-                        Assigned=Assigned, Approved=Approved, CourseCompleted=CourseCompleted)
+                        assigned=assigned, approved=approved, CourseCompleted=CourseCompleted)
     
-    courseclass = CourseClass.query.filter_by(ClassID=ClassID).first() 
+    courseclass = CourseClass.query.filter_by(ClassId=ClassID).first() 
     print(courseclass)
     SlotsAvailable = courseclass.SlotsAvailable
     CourseName = courseclass.CourseName
@@ -1573,8 +1573,13 @@ def vet_self_enroll(Assigned):
             if data["Approved"] == "approved":
                 learner.approved = 1
                 classDetails.SlotsAvailable -= 1
-            if data["Approved"] == "rejected":
+            elif data["Approved"] == "rejected":
                 learner.approved = 0
+            else:
+                return jsonify({
+                    "code": "501",
+                    "message": "invalid input"
+                }), 501
 
             db.session.commit()
 
@@ -1590,6 +1595,28 @@ def vet_self_enroll(Assigned):
                 "code": "500",
                 "message": "Enrollment cannot be approved or rejected."
             }), 500
+
+@app.route("/get_learner_course/<string:LearnerID>/<string:CourseID>/<string:ClassID>")
+def get_learner_course(LearnerID, CourseID, ClassID):
+    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(CourseID=CourseID).filter_by(ClassID=ClassID).first()
+
+    if not learner:
+        return jsonify({
+        "code": "404",
+        "message": "No enrollment pending approval"
+    }), 404
+    else:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "learner_course": learner.to_dict(),
+                },
+                "message": "learner successfully returned."
+            },
+              
+        ), 200
+
    
 # kaldora
 # User Story: Assign Engineers to sections
@@ -1878,4 +1905,4 @@ def view_trainer_classes(TrainerId):
     ), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0' ,port=5100, debug=True)
+    app.run(port=5100, debug=True)
