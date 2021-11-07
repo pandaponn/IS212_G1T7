@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>Successfully Assigned Engineer</title>
+  <title>Class List</title>
 
   <link rel="stylesheet" href="" />
   <!--[if lt IE 9]>
@@ -39,7 +39,7 @@
 
     body,
     nav {
-      background-image: url(src/background.jpg);
+      background-image: url(../src/background.jpg);
       background-size: cover;
       /* <------ */
       background-repeat: no-repeat;
@@ -68,31 +68,37 @@
 
 <body>
   <!-- Start of Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="all_courses.html">View Courses</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Search Courses<span class="sr-only">(current)</span></a>
-        </li>
-      </ul>
+  <nav>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="hr_home.html">Administrator Page</a></h5>
+        <div class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses_Kal.html"> Assign Engineers </a>
+            <a class="p-2 text-dark" href="admin_vet_learner.html"> Vet Learner </a>
+            <a class="p-2 text-dark" href="admin_courses.html"> Created Courses</a>
+        </div>
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
-  </nav>
+</nav>
   <!-- End of Navigation Bar -->
 
   <div id="main-container" class="container">
     <div>
-      <h1 class="display-4"><b>Successfully Assigned Engineer</b></h1>
+      <h1 class="display-4"><b>Class List</b></h1>
       <!-- <button class="btn btn-success" onclick=getFilteredCourses(1) id="filtercourse">Filter</button> -->
       <!-- <button class="btn btn-secondary" onclick="window.location.reload()">Reset Filters</button> -->
-      <h2 id = "successful"></h2>
     </div>
+    <table id="courseclassTable" class="table table-bordered" border="1">
+      <thead class="thead-dark">
+        <tr>
+          <th>Learner ID</th>
+          <th>Learner Name</th>
+          <th>Course ID</th>
+          <th>Class ID</th>
+          </th>
+        </tr>
+      </thead>
+    </table>
 
     <!-- Modal to confirmation message of accept/reject-->
     <!-- <div class="modal fade" id="statusModel" tabindex="-1" role="dialog" aria-labelledby="statusModelTitle"
@@ -129,22 +135,37 @@
       const queryString = window.location.search;
       const params = new URLSearchParams(queryString);
       console.log(params.get('courseid'));
-      var course_id = params.get('courseid');
       console.log(params.get('classid'));
+      var course_id = params.get('courseid');
       var class_id = params.get('classid');
-      console.log(params.get('learnerid'));
-      var learner_id = params.get('learnerid');
-      console.log(params.get('learnername'));
-      var learner_name = params.get('learnername');
-      var getClassesURL = "http://127.0.0.1:5100/assign_engineer/" + learner_id + "/" + course_id + "/" + class_id + "/" + learner_name;
+      var getClassesURL = "http://127.0.0.1:5100/view_class_list/1/" + course_id + "/" + class_id;
 
       try {
-        const response = await fetch(getClassesURL, { method: "POST" });
+        const response = await fetch(getClassesURL, { method: "GET" });
 
         const result = await response.json();
-        if (response.status === 201) {
+        if (response.status === 200) {
           // success case
-          document.getElementById("successful").innerHTML = "You have successfully assigned Learner " + learner_id + " to course " + course_id + ", class " + class_id;
+          var ClassList = result.data.ClassList;
+
+          // for loop to setup all table rows with obtained course information
+          var rows = "<tbody>";
+          for (var Details of ClassList) {
+            var LearnerID = Details.LearnerID;
+            var LearnerName = Details.LearnerName;
+            var CourseID = Details.CourseID;
+            var ClassID = Details.ClassID;
+
+            rows += `
+                                  <tr class="maincourse">
+                                    <td>${LearnerID}</td>
+                                    <td>${LearnerName}</td>
+                                    <td>${CourseID}</td>
+                                    <td>${ClassID}</td>
+                                  </tr>
+                                      `;
+          }
+          rows += "</tbody>";
 
           // add all the rows to the table
           $("#courseclassTable").append(rows);
@@ -158,10 +179,10 @@
       } catch (error) {
         // Errors when calling the service; such as network error,
         // service offline, etc
-        //showError(
-          //"There is a problem assigning learners to the course, please try again later.<br />" +
-          //error
-        //);
+        showError(
+          "There is a problem retrieving classes for the course, please try again later.<br />" +
+          error
+        );
       } // error
     });
 

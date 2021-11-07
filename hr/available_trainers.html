@@ -39,7 +39,7 @@
 
     body,
     nav {
-      background-image: url(src/background.jpg);
+      background-image: url(../src/background.jpg);
       background-size: cover;
       /* <------ */
       background-repeat: no-repeat;
@@ -68,22 +68,18 @@
 
 <body>
   <!-- Start of Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="all_courses.html">View Courses</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Search Courses<span class="sr-only">(current)</span></a>
-        </li>
-      </ul>
+  <nav>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="hr_home.html">Administrator Page</a></h5>
+        <div class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses_Kal.html"> Assign Engineers </a>
+            <a class="p-2 text-dark" href="admin_vet_learner.html"> Vet Learner </a>
+            <a class="p-2 text-dark" href="admin_courses.html"> Created Courses</a>
+        </div>
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
-  </nav>
+</nav>
   <!-- End of Navigation Bar -->
 
   <div id="main-container" class="container">
