@@ -7,8 +7,8 @@ from os import environ
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -794,13 +794,25 @@ def mark_chapter(learner_id, class_id, course_id, chapter_id, subchapter_id):
             learner_id, class_id, course_id, chapter_id)
         print(Quiz_viewable)
 
-        return {
-            "Quiz": [Quiz_viewable.to_dict()],
-            "Materials": [subMaterials.to_dict()]
-        }
-    return {
-        "Materials": subMaterials.to_dict()
-    }
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "Quiz": [Quiz_viewable.to_dict()],
+                    "Materials": [subMaterials.to_dict()]
+                },
+                "message": "Chapter marked as viewed. Quiz for this chapter has been unlocked."
+            },
+        )
+    return jsonify(
+        {
+            "code": 201,
+            "data": {
+                "Materials": [subMaterials.to_dict()]
+            },
+            "message": "Chapter marked as viewed."
+        },
+    )
 
 
 def mark_as_viewed(learner_id, class_id, course_id, subchapter_id):
