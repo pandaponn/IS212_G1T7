@@ -1914,7 +1914,7 @@ def view_available_trainers(isTrainer, CourseID):
     ), 404
 
 # User Story: View Assigned Courses by Trainer
-@app.route("/classdetails/<int:TrainerId>")
+@app.route("/assignedtrainer/<int:TrainerId>")
 def view_trainer_classes(TrainerID):
     AssignedClassList = CourseClass.query.filter_by(
         TrainerId=TrainerID).all()
