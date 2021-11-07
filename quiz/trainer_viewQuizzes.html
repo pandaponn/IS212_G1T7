@@ -110,10 +110,10 @@
                         rows += `
                                 <tr>
                                     <td> ${chapter_id} </td>
-                                    <td> ${chapter_id} </td>
+                                    <td> ${quiz_id} </td>
                                     <td> ${quiz_name} </td>
                                     <td> 
-                                        <a href="quiz/create_quiz.html?QuizId=${QuizId}">
+                                        <a href="create_quiz.html?QuizId=${quiz_id}">
                                             Edit
                                         </a>
                                     </td>
@@ -125,7 +125,6 @@
                     // add all the rows to the table
                     $("#quizTable").append(rows);
 
-                    document.getElementById("courseName").innerHTML = "Course: " + CourseName;
                 } else if (response.status == 404) {
                     showError(result.message);
                 } else {
