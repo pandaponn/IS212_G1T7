@@ -110,7 +110,7 @@
           // anonymous async function
           // - using await requires the function that calls it to be async
           $(async () => {
-            var getClassesURL = "http://127.0.0.1:5100/classdetails/1"; 
+            var getClassesURL = "http://127.0.0.1:5100/class_details/1"; 
     
             try {
               const response = await fetch(getClassesURL, { method: "GET" });
@@ -123,9 +123,9 @@
                 // for loop to setup all table rows with obtained course information
                 var rows = "<tbody>";
                 for (var AssignedClass of AssignedClasses) {
-                  var ClassID = AssignedClass.ClassId;
-                  var CourseID = AssignedClass.CourseId;
-                  var Trainer = AssignedClass.TrainerId;
+                  var ClassID = AssignedClass.ClassID;
+                  var CourseID = AssignedClass.CourseID;
+                  var Trainer = AssignedClass.TrainerID;
                   var StartDateTime = AssignedClass.StartDateTime;
                   var EndDateTime = AssignedClass.EndDateTime;
                   var Capacity = AssignedClass.Capacity;
@@ -157,10 +157,6 @@
             } catch (error) {
               // Errors when calling the service; such as network error,
               // service offline, etc
-              showError(
-                "There is a problem retrieving classes for the course, please try again later.<br />" +
-                error
-              );
             } // error
           });
     
@@ -168,5 +164,4 @@
         </script>
     
     </body>
-
 </html>
