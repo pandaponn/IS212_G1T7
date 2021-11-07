@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width" />
+
+  <title>Set Enrollment Period</title>
+
+  <link rel="stylesheet" href="" />
+  <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  <!-- Bootstrap libraries -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
+
+  <!-- Latest compiled and minified JavaScript -->
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+    integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+    crossorigin="anonymous"></script>
+
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+    integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+    crossorigin="anonymous"></script>
+
+  <style>
+    .disabled {
+      pointer-events: none;
+    }
+    body,
+    nav {
+        background-image: url(src/background.jpg);
+        background-size: cover;
+        /* <------ */
+        background-repeat: no-repeat;
+        background-position: center center;
+        /* optional, center the image */
+    }
+  </style>
+</head>
+
+<body>
+    <nav>
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                    href="admin_courses.html">Administrator Page</a></h5>
+            <div class="my-2 my-md-0 mr-md-3">
+                <a class="p-2 text-dark" href="admin_courses.html"> View Created Courses</a>
+                <!-- <a class="p-2 text-dark" href="admin_set_enroll.html">Set Enrollment Period</a> -->
+                <a class="p-2 text-dark" href="admin_vet_learner.html">Vet Learner's Enrollment</a>
+            </div>
+            <a class="btn btn-outline-primary" href="#">Log Out</a>
+        </div>
+    </nav>
+    <!-- <script>
+        const queryString = window.location.search;
+        const params = new URLSearchParams(queryString);
+        var course_id = params.get("courseid");
+        console.log("course id is: ", course_id);
+    </script> -->
+
+  <div class="container">
+    <div>
+        <h2>Set Enrollment Period</h2>
+        <form
+          id="setEnrollPeriodForm"
+          name="setEnrollPeriodForm"
+          class="needs-validation was-validated"
+          novalidate
+        >
+          <div class="form-group col-lg-4" >
+              <label for="courseId">Course ID: </label>
+              <div id='courseIdDiv'></div>
+          </div>
+          <div class="form-group col-lg-4" >
+            <label for="courseName">Course Name: </label>
+            <div id='courseNameDiv'></div>
+        </div>
+          <div class="form-group col-lg-5">
+              <label for="start">Start of Enrollment: </label>
+              <div id='start'></div>
+          </div>
+            <div class="form-group col-lg-5" >
+              <label for="end">End of Enrollment: </label>
+              <div id='end'></div>
+          </div>
+
+          <div class="form-group col-lg-4">
+            <button type="submit" id="setEnrollPeriod" class="btn btn-primary" data-toggle='modal' data-target="#successModal">Set!</button>
+          </div>
+        </form>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="resultModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body" id="resultModalBody">
+            
+            </div>
+            <div class="modal-footer" id='modal-footer'>
+            <a class="btn btn-primary" data-dismiss="modal" id="dismissModal" href='all_courses.html'>Back</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <!-- End of Modal-->
+
+    <script>
+        (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation');
+        var submitBtn = document.getElementById('setEnrollPeriod');
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        submitBtn.classList.add("disabled");
+                    }
+                    else {
+                        form.classList.add('was-validated')
+                        submitBtn.classList.remove("disabled");
+                        $('#resultModal').modal('show');
+                    }
+
+                }, false)
+            })
+        })()
+
+      // Helper function to display error message
+      function showError(message) {
+        // Hide the table and button in the event of error
+        $("#setEnrollPeriodForm").hide();
+
+        // Display an error under the main container
+        $("#main-container").append("<label>" + message + "</label>");
+      }
+
+      // anonymous async function
+      // - using await requires the function that calls it to be async
+      $(async () => {
+        const queryString = window.location.search;
+        const params = new URLSearchParams(queryString);
+        var course_id = params.get("courseid");
+        console.log("course id is: ", course_id);
+        var getCourseURL =
+          "http://127.0.0.1:5100/get_course/" + course_id;
+
+        try {
+          const response = await fetch(getCourseURL, { method: "GET" });
+
+          const result = await response.json();
+          if (response.status === 200) {
+            // success case
+            var course = result.data.course;
+
+            var CourseID = course.CourseID;
+            var CourseName = course.CourseName;
+            var StartEnroll = course.StartEnroll;
+            var EndEnroll = course.EndEnroll;
+
+            document.getElementById("courseIdDiv").innerHTML = `<input type="text" class="form-control" id="courseId" name="courseId" value=${CourseID} disabled required>`;
+            document.getElementById("courseNameDiv").innerHTML = `<text> ${CourseName} </text>`;
+            document.getElementById("start").innerHTML = `<input type="datetime-local" class="form-control" id="newStart" name="newStart" required>`;
+            document.getElementById("end").innerHTML = `<input type="datetime-local" class="form-control" id="newEnd" name="newEnd" required>`;
+          } else if (response.status == 404) {
+            showError(result.message);
+          } else {
+            // unexpected outcome, throw the error
+            throw response.status;
+          }
+        } catch (error) {
+          // Errors when calling the service; such as network error,
+          // service offline, etc
+          showError(
+            "There is a problem loading page, please try again later.<br />" +
+              error
+          );
+        } // error
+      });
+
+      $("#vetForm").submit(async (event) => {
+        event.preventDefault();
+
+        // show loading before the showing the confirmation that the assignment is posted
+        var loading_str = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Setting new enrollment period...`;
+        document.getElementById('resultModalBody').innerHTML = loading_str;
+        document.getElementById('resultModalTitle').style.visibility = 'hidden';
+        document.getElementById('dismissModal').style.visibility = 'hidden';
+
+        var CourseID = $("#courseId").val();
+        var StartEnroll = $("#newStart").val();
+        console.log(StartEnroll)
+        var EndEnroll = $("#newEnd").val()
+
+        // http://localhost:5100/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>
+
+        // var vetURL =
+        //   "http://localhost:5100/set_enrollment_period/" + CourseID;
+
+        try {
+          const response = await fetch(vetURL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                StartEnroll: StartEnroll,
+                EndEnroll: EndEnroll
+            }),
+          });
+          console.log(response.status);
+          if (response.status == 200) {
+            console.log('success')
+            // var success_msg = `<h2>Sign Up successful</h2>`;
+            // document.getElementById('signupForm').style.visibility = 'hidden'
+            document.getElementById('resultModalTitle').innerText = "Success"
+            document.getElementById('resultModalTitle').style.visibility = 'visible';
+            document.getElementById('resultModalBody').innerText = "You have successfully set a new enrollment period";
+            document.getElementById('dismissModal').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='admin_courses.html'>Go To Courses</a>`;
+            
+          }
+          else {
+            // unexpected outcome, throw the error
+            throw response.status;
+          }
+        } catch (error) {
+          // Errors when calling the service; such as network error,
+          // service offline, etc
+          showMsg("An error occurred when setting enrollment period.<br />" + error);
+        } // error
+      });
+    </script>
+    <!-- Start of footer-->
+    <footer class="container py-5">
+
+  </div>
+  </footer>
+  <!-- End of footer-->
+</body>
+
+</html>

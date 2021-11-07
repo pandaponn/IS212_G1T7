@@ -2,6 +2,7 @@ from app import app, db
 import json
 import unittest
 
+# Lim Zhi Hao (START)
 class QuestionsTestCase(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
@@ -56,6 +57,7 @@ class QuestionsTestCase(unittest.TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+# Lim Zhi Hao (END)
 
 class ClassTestCase(unittest.TestCase):
     def setUp(self):

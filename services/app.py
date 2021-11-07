@@ -4,8 +4,8 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -373,6 +373,26 @@ class QuizResults(db.Model):
     def json(self):
         return {"learner_id": self.learner_id, "quiz_id": self.quiz_id, "score": self.score, "quizPass": self.quizPass, "isViewable": self.isViewable, "attempts": self.attempts}
 
+class Trainer(db.Model):
+    __tablename__ = 'Trainer'
+
+    TrainerId = db.Column(db.Integer, primary_key = True)
+    EngineerID = db.Column(db.Integer, primary_key = True)
+    TrainerName = db.Column(db.String(100), nullable = False)
+    CourseId = db.Column(db.Integer, nullable = False)
+    ClassId = db.Column(db.Integer, nullable = False)
+
+    def to_dict(self):
+        """
+        'to_dict' converts the object into a dictionary,
+        in which the keys correspond to database columns
+        """
+        columns = self.__mapper__.column_attrs.keys()
+        result = {}
+        for column in columns:
+            result[column] = getattr(self, column)
+        return result
+
 class Engineer(db.Model):
     __tablename__ = 'Engineer'
 
@@ -381,7 +401,9 @@ class Engineer(db.Model):
     TotalClasses = db.Column(db.Integer, nullable = False)
     CourseCompleted = db.Column(db.Integer, nullable = False)
     Trainer = db.Column(db.Integer, nullable = False)
+    Learner = db.Column(db.Integer, nullable = False)
     LearnerId = db.Column(db.Integer, nullable = False)
+    TrainerId = db.Column(db.Integer, nullable = False)
 
     def to_dict(self):
         """
@@ -531,6 +553,7 @@ class Learner(db.Model):
     __tablename__ = 'Learner'
 
     LearnerID = db.Column(db.Integer, primary_key=True)
+    EngineerID = db.Column(db.Integer, nullable=False)
     LearnerName = db.Column(db.String(100), nullable=False)
     CourseID = db.Column(db.Integer, primary_key=True)
     ClassID = db.Column(db.Integer, primary_key=True)
@@ -1467,7 +1490,7 @@ def get_courses_by_admin(CreatedBy):
             {
                 "code": 200,
                 "data": {
-                    "Courses created by admin": [course.to_dict() for course in courseList]
+                    "courses": [course.to_dict() for course in courseList]
                 },
                 "message": "Courses created by admin {} successfully returned.".format(admin)
             },
@@ -1478,6 +1501,30 @@ def get_courses_by_admin(CreatedBy):
         {
             "code": 404,
             "message": "Can't find courses created by admin {}.".format(admin)
+        }
+    ), 404
+
+# get pending approval enrollment
+@app.route("/pending_courses")
+def get_pending_courses():
+    courseList = Learner.query.filter_by(assigned=0).filter_by(approved=None).all()
+    if len(courseList):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "pending": [course.to_dict() for course in courseList],
+                    "Number_of_courses": len(courseList)
+                },
+                "message": "Courses pending approval successfully returned."
+            },
+              
+        )
+        # return classList
+    return jsonify(
+        {
+            "code": 404,
+            "message": "All courses have been vetted"
         }
     ), 404
 
@@ -1496,10 +1543,10 @@ def set_enrollment_period(CourseID):
         print(start, end)
         data = request.get_json()
         print(data)
-        if "Start Date" in data:
-            course.StartEnroll = data["Start Date"]
-        if "End Date" in data:
-            course.EndEnroll = data["End Date"]
+        if "Start_Date" in data:
+            course.StartEnroll = data["Start_Date"]
+        if "End_Date" in data:
+            course.EndEnroll = data["End_Date"]
         
         course.Open = 1
         
@@ -1508,34 +1555,35 @@ def set_enrollment_period(CourseID):
         return jsonify({
             "code": 200,
             "data": {
-                "course start of enrollment": course.StartEnroll,
-                "course end of enrollment": course.EndEnroll
+                "Start_Date": course.StartEnroll,
+                "End_Date": course.EndEnroll
             },
             "message": "enrollment period successfully set"
         }), 200
 
 # approve/reject self-enrollment
-@app.route("/vet_self_enroll/<int:LearnerId>", methods=["PUT"])
-def vet_self_enroll(LearnerId):
+@app.route("/vet_self_enroll/<string:Assigned>", methods=["PUT"])
+def vet_self_enroll(Assigned):
     # assigned = 0, approved = null (pending)
     Current = datetime.now()
     print(Current)
-    learner = Learner.query.filter_by(LearnerId=LearnerId).filter_by(Assigned=0).filter_by(Approved=None).first()
+    learner = Learner.query.filter_by(assigned=Assigned).filter_by(approved=None).first()
     if not learner:
         return jsonify({
             "code": "404",
-            "message": "You have not self-enrolled in any class."
+            "message": "No enrollment pending approval"
         }), 404
     else:
         print(learner)
         courseToApprove = learner.CourseID
         classToApprove = learner.ClassID
         courseDetails = Course.query.filter_by(CourseID=courseToApprove).first()
-        classDetails = CourseClass.query.filter_by(ClassID=classToApprove).first()
+        classDetails = CourseClass.query.filter_by(ClassId=classToApprove).first()
         print('enrollment period: ',courseDetails.StartEnroll, ' to ', courseDetails.EndEnroll)
         CourseStart = courseDetails.StartEnroll
         # CourseEnd = courseDetails.EndEnroll
         ClassStart = classDetails.StartDateTime
+        # slotsAvailable = classDetails.SlotsAvailable
 
 
         data = request.get_json()
@@ -1546,62 +1594,39 @@ def vet_self_enroll(LearnerId):
             print('able to approve or reject enrollment')
         
             if data["Approved"] == "approved":
-                learner.Approved = 1
+                learner.approved = 1
+                classDetails.SlotsAvailable -= 1
             if data["Approved"] == "rejected":
-                learner.Approved = 0
+                learner.approved = 0
 
             db.session.commit()
 
             return jsonify({
                 "code": "200",
                 "data": {
-                    "learner pending course": learner.to_dict(),
+                    "pending_course": learner.to_dict(),
                 },
-                "message": "Your enrollment has been " + data['Approved']
+                "message": "Enrollment has been " + data['Approved']
             }), 200
         else:
             return jsonify({
                 "code": "500",
                 "message": "Enrollment cannot be approved or rejected."
             }), 500
-
+   
 # kaldora
 # User Story: Assign Engineers to sections
 # Get all the courses that are assigned to a trainer by assignedEngineer
-class Trainer(db.Model):
-    __tablename__ = 'Trainer'
-
-    TrainerId = db.Column(db.Integer, primary_key = True)
-    EngineerID = db.Column(db.Integer, primary_key = True)
-    TrainerName = db.Column(db.String(100), nullable = False)
-    CourseAssigned = db.Column(db.Integer, nullable = False)
-    ClassAssigned = db.Column(db.Integer, nullable = False)
-
-    def to_dict(self):
-        """
-        'to_dict' converts the object into a dictionary,
-        in which the keys correspond to database columns
-        """
-        columns = self.__mapper__.column_attrs.keys()
-        result = {}
-        for column in columns:
-            result[column] = getattr(self, column)
-        return result
-
-
 @app.route("/view_all_courses/<int:IsFull>")
 def view_assigned_courses(IsFull):
     AssignedCourseList = Course.query.filter_by(
         IsFull=IsFull).all()
-
-    courselist = [assigned_courses.to_dict() for assigned_courses in AssignedCourseList]
-    courselist = sorted(courselist, key=lambda k:k["CourseID"], reverse=True)
     if AssignedCourseList:
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "AssignedCourses": courselist
+                    "AssignedCourses": [assigned_courses.to_dict() for assigned_courses in AssignedCourseList]
                 },
                 "message": "All Assigned Courses have successfully returned."
             },
@@ -1621,9 +1646,9 @@ def view_assigned_courses(IsFull):
 def get_class_details_kal(CourseID):
     classList = CourseClass.query.filter_by(CourseId=CourseID).all()
     if len(classList):
-        classlist = [courseclass.to_dict() for courseclass in classList]
-        classlist = sorted(classlist, key=lambda k:k["StartDateTime"], reverse=True)
-        return jsonify(
+      classlist = [courseclass.to_dict() for courseclass in classList]
+      classlist = sorted(classlist, key=lambda k:k["StartDateTime"], reverse=True)
+      return jsonify(
             {
                 "code": 200,
                 "data": {
@@ -1643,6 +1668,7 @@ def get_class_details_kal(CourseID):
             "message": "Classes for courses with courseid: {} not found.".format(CourseID)
         }
     ), 404
+
 
 # Get details for specific learner through Engineer ID
 @app.route("/view_learner_details/<int:EngineerID>")
@@ -1668,25 +1694,51 @@ def view_specific_learner(EngineerID):
         }
     ), 404
 
+# Assigning and updating db for trainers
+@app.route("/assign_trainer/<string:TrainerID>/<string:CourseID>/<string:ClassID>", methods=['PUT'])
+def assign_trainer(TrainerID, CourseID, ClassID):
+    classInfo = CourseClass.query.filter_by(
+            CourseId=CourseID).filter_by(ClassId=ClassID).first()
+
+    classInfo.TrainerId = TrainerID
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while assigning engineer. " + str(e)
+            }
+        ), 500
+
+    return jsonify(
+        {
+            "code": 201,
+            "message": "Successfully assigned engineer to course."
+        }
+    ), 201
 
 # Assigning and updating db
-@app.route("/assign_engineer/<string:LearnerID>/<string:CourseID>/<string:ClassID>", methods=['POST'])
-def assign_engineer(LearnerID, CourseID, ClassID):
+@app.route("/assign_engineer/<string:LearnerID>/<string:CourseID>/<string:ClassID>/<string:LearnerName>", methods=['POST'])
+def assign_engineer(LearnerID, CourseID, ClassID, LearnerName):
     LearnerID = LearnerID
-    LearnerName = request.json.get('LearnerName')
+    EngineerID = Engineer.query.filter_by(
+            LearnerId=LearnerID).first().EngineerID
+    LearnerName = LearnerName
     CourseID = CourseID
     ClassID = ClassID
     assigned = 1
     approved = 1
     CourseCompleted = 0
-    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, Assigned=Assigned, Approved=Approved,
+    learner = Learner(LearnerID=LearnerID, EngineerID=EngineerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, assigned=assigned, approved=approved,
                       CourseCompleted=CourseCompleted)
 
     try:
         db.session.add(learner)
 
         classInfo = CourseClass.query.filter_by(
-            CourseID=CourseID).filter_by(ClassID=ClassID).first()
+            CourseId=CourseID).filter_by(ClassId=ClassID).first()
         classInfo.SlotsAvailable -= 1
 
         db.session.commit()
@@ -1795,8 +1847,8 @@ def addRowsToQuizResults(LearnerID, CourseID, ClassID):
 # View all available engineers
 @app.route("/view_all_engineers/<int:isLearner>/<int:CourseID>")
 def view_available_engineers(isLearner, CourseID):
-    EngineerList = Engineer.query.filter_by(LearnerId=isLearner).all()
-    print(EngineerList)
+    EngineerList = Engineer.query.filter_by(Learner=isLearner).all()
+    # print(EngineerList)
 
     AvailableList = []
     for i in range(len(EngineerList)):
@@ -1806,12 +1858,13 @@ def view_available_engineers(isLearner, CourseID):
             continue
         else:
             AvailableList.append(EngineerList[i])
+
     if EngineerList:
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in AvailableList]
+                    "AvailableEngineers": [available_engineers.to_dict() for available_engineers in EngineerList]
                 },
                 "message": "All Assigned Courses have successfully returned."
             },
@@ -1826,11 +1879,45 @@ def view_available_engineers(isLearner, CourseID):
         }
     ), 404
 
+# View all available trainers
+@app.route("/view_all_trainers/<int:isTrainer>/<int:CourseID>")
+def view_available_trainers(isTrainer, CourseID):
+    EngineerList = Engineer.query.filter_by(Trainer=isTrainer).all()
+    # print(EngineerList)
+
+    AvailableList = []
+    for i in range(len(EngineerList)):
+        print(EngineerList[i].TrainerId)
+        result = Trainer.query.filter_by(TrainerId=EngineerList[i].TrainerId).filter_by(CourseId=CourseID).first()
+        if result:
+            continue
+        else:
+            AvailableList.append(EngineerList[i])
+    if EngineerList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "AvailableTrainers": [available_trainers.to_dict() for available_trainers in AvailableList]
+                },
+                "message": "All available trainers have successfully returned."
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "AvailableTrainers": Trainer
+            },
+            "message": "Engineers not found."
+        }
+    ), 404
+
 # User Story: View Assigned Courses by Trainer
 @app.route("/classdetails/<int:TrainerId>")
-def view_trainer_classes(TrainerId):
+def view_trainer_classes(TrainerID):
     AssignedClassList = CourseClass.query.filter_by(
-        TrainerId=TrainerId).all()
+        TrainerId=TrainerID).all()
     if AssignedClassList:
         return jsonify(
             {
@@ -1838,18 +1925,42 @@ def view_trainer_classes(TrainerId):
                 "data": {
                     "AssignedClasses": [assigned_classes.to_dict() for assigned_classes in AssignedClassList]
                 },
-                "message": "All assigned classes with trainer ID {} has successfully returned.".format(TrainerId)
+                "message": "All assigned classes with trainer ID {} has successfully returned.".format(TrainerID)
             },
         )
     return jsonify(
         {
             "code": 404,
             "data": {
-                "trainerId": TrainerId
+                "trainerID": TrainerID
             },
             "message": "Trainer not found."
         }
     ), 404
 
+# Get Class List
+@app.route("/view_class_list/<int:approved>/<int:CourseID>/<int:ClassID>")
+def view_class_list(approved, CourseID, ClassID):
+    ClassList = Learner.query.filter_by(approved=approved).filter_by(CourseID=CourseID).filter_by(ClassID=ClassID).all()
+    if ClassList:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "ClassList": [class_list.to_dict() for class_list in ClassList]
+                },
+                "message": "Learner have successfully returned."
+            },
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "courseID": CourseID
+            },
+            "message": "Learner not found."
+        }
+    ), 404
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5100, debug=True)
+    app.run(host='0.0.0.0' ,port=5100, debug=True)
