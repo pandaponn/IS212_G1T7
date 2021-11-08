@@ -376,7 +376,7 @@ class QuizResults(db.Model):
         return {"learner_id": self.learner_id, "quiz_id": self.quiz_id, "score": self.score, "quizPass": self.quizPass, "isViewable": self.isViewable, "attempts": self.attempts}
 
 class Trainer(db.Model):
-    __tablename__ = 'Trainer'
+    __tablename__ = 'trainer'
 
     TrainerId = db.Column(db.Integer, primary_key = True)
     EngineerID = db.Column(db.Integer, primary_key = True)
@@ -396,7 +396,7 @@ class Trainer(db.Model):
         return result
 
 class Engineer(db.Model):
-    __tablename__ = 'Engineer'
+    __tablename__ = 'engineer'
 
     EngineerID = db.Column(db.Integer, primary_key = True)
     EngineerName = db.Column(db.String(100), nullable = False)
@@ -419,7 +419,7 @@ class Engineer(db.Model):
         return result
 
 class IsChapViewable(db.Model):
-    __tablename__ = 'isChapViewable'
+    __tablename__ = 'ischapviewable'
 
     learner_id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, primary_key=True)
@@ -552,7 +552,7 @@ def mark_course_completed(learner_id, CourseId, ClassId):
 
 # mono.py
 class Learner(db.Model):
-    __tablename__ = 'Learner'
+    __tablename__ = 'learner'
 
     LearnerID = db.Column(db.Integer, primary_key=True)
     EngineerID = db.Column(db.Integer, nullable=False)
@@ -588,7 +588,7 @@ class Learner(db.Model):
         return {"learner_id": self.LearnerID, "engineer_id": self.EngineerID, "learner_name": self.LearnerName, "course_id": self.CourseID, "class_id": self.ClassID, "assigned": self.assigned, "approved": self.approved, "CourseCompleted": self.CourseCompleted}
 
 class Course(db.Model):
-    __tablename__ = 'Course'
+    __tablename__ = 'course'
 
     CourseID = db.Column(db.Integer, primary_key=True)
     CourseName = db.Column(db.String(100), nullable=False)
@@ -615,7 +615,7 @@ class Course(db.Model):
         return result
 
 class CourseClass(db.Model):
-    __tablename__ = 'Class'
+    __tablename__ = 'class'
 
     ClassId = db.Column(db.Integer, primary_key=True)
     CourseId = db.Column(db.Integer, primary_key=True)
@@ -651,7 +651,7 @@ class CourseClass(db.Model):
         return {"ClassId": self.ClassId, "CourseId": self.CourseId, "CourseName": self.CourseName, "TrainerId": self.TrainerId, "StartDateTime": self.StartDateTime, "EndDateTime": self.EndDateTime, "Capacity": self.Capacity, "SlotsAvailable": self.CourseCompleted}
 
 class CourseMaterials(db.Model):
-    __tablename__ = 'CourseMaterials'
+    __tablename__ = 'coursematerials'
 
     course_id = db.Column(db.Integer, primary_key=True)
     class_id = db.Column(db.Integer, primary_key=True)
