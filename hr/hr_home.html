@@ -34,7 +34,7 @@
     <style>
         body,
         nav {
-            background-image: url(src/background.jpg);
+            background-image: url(../src/background.jpg);
             background-size: cover;
             /* <------ */
             background-repeat: no-repeat;
@@ -48,11 +48,10 @@
     <nav>
         <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
             <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
-                    href="learner_home.html">Learner Page</a></h5>
+                    href="hr_home.html">Administrator Page</a></h5>
             <div class="my-2 my-md-0 mr-md-3">
-                <a class="p-2 text-dark" href="all_courses.html"> Sign Up for Class</a>
-                <a class="p-2 text-dark" href="withdraw.html">Withdraw from Class</a>
-                <a class="p-2 text-dark" href="enrolledCourses.html">Attend Class</a>
+                <a class="p-2 text-dark" href="all_courses_Kal.html"> Assign Engineers </a>
+                <a class="p-2 text-dark" href="admin_courses.html"> Created Courses</a>
             </div>
             <a class="btn btn-outline-primary" href="#">Log Out</a>
         </div>
@@ -70,17 +69,17 @@
                 <div class="col">
                     <div class="card shadow-sm h-100">
                         <div class="card-header">
-                            <h4> Sign Up for Class </h4>
+                            <h4> Assign Engineers </h4>
                         </div>
 
                         <div class="card-body">
                             <p class="card-text">
-                                View available courses and sign up for it.
+                                View available courses and classes to assign engineers as either trainer or learner.
                             </p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-outline-secondary"
-                                        onclick="window.location.href='all_courses.html'">View</button>
+                                        onclick="window.location.href='all_courses_Kal.html'">View</button>
                                 </div>
                             </div>
                         </div>
@@ -89,36 +88,17 @@
                 <div class="col">
                     <div class="card shadow-sm h-100">
                         <div class="card-header">
-                            <h4> Withdraw from Class </h4>
+                            <h4> Created Courses </h4>
                         </div>
 
                         <div class="card-body">
                             <p class="card-text">
-                                Withdraw from classes that are still in enrollment period.
+                                Select course, class and quiz id to track results.
                             </p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-outline-secondary"
-                                        onclick="window.location.href='withdraw.html'">View</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header">
-                            <h4> Attend Class </h4>
-                        </div>
-
-                        <div class="card-body">
-                            <p class="card-text">
-                                View all enrolled classes. Select a class to view course materials and quizzes.
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                        onclick="window.location.href='enrolledCourses.html'">View</button>
+                                        onclick="window.location.href='admin_courses.html'">View</button>
                                 </div>
                             </div>
                         </div>

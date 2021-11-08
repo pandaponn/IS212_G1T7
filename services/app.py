@@ -5,7 +5,8 @@ from datetime import datetime
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -658,6 +659,22 @@ class CourseMaterials(db.Model):
     chapter_name = db.Column(db.String(100), nullable=False)
     content = db.Column(db.String(100), nullable=False)
 
+    def __init__(self, course_id, class_id, chapter_id, subchapter_id, chapter_name, content):
+        self.course_id = course_id
+        self.class_id = class_id
+        self.chapter_id = chapter_id
+        self.subchapter_id = subchapter_id
+        self.chapter_name = chapter_name
+        self.content = content
+
+    def json(self):
+        return {"course_id": self.course_id,
+            "class_id": self.class_id, 
+            "chapter_id": self.chapter_id, 
+            "subchapter_id": self.subchapter_id, 
+            "chapter_name": self.chapter_name, 
+            "content": self.content}
+
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -1199,6 +1216,15 @@ def get_chapIdBy_courseClass(class_id, course_id):
                 }
             }
         )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "class_id": class_id,
+                "course_id": course_id
+            }
+        }
+    )
 
 @app.route("/mono/chapterValid/<string:class_id>/<string:course_id>/<string:chapter_id>")
 def check_chapterValid(class_id, course_id, chapter_id):
@@ -1214,7 +1240,7 @@ def check_chapterValid(class_id, course_id, chapter_id):
                     "ChapValid": ChapValid.to_dict()
                 }
             }
-        )
+        ), 200
     return jsonify(
         {
             "code": 404,
@@ -1453,13 +1479,13 @@ def course_signup(LearnerID, CourseID, ClassID):
     LearnerName = 'Ling Li'
     CourseID = CourseID
     ClassID = ClassID
-    Assigned = 0
-    Approved = None
+    assigned = 0
+    approved = None
     CourseCompleted = 0
     learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, 
-                        Assigned=Assigned, Approved=Approved, CourseCompleted=CourseCompleted)
+                        assigned=assigned, approved=approved, CourseCompleted=CourseCompleted)
     
-    courseclass = CourseClass.query.filter_by(ClassID=ClassID).first() 
+    courseclass = CourseClass.query.filter_by(ClassId=ClassID).first() 
     print(courseclass)
     SlotsAvailable = courseclass.SlotsAvailable
     CourseName = courseclass.CourseName
@@ -1601,6 +1627,7 @@ def vet_self_enroll(Assigned):
         }), 404
     else:
         print(learner)
+        LearnerID = learner.LearnerID
         courseToApprove = learner.CourseID
         classToApprove = learner.ClassID
         courseDetails = Course.query.filter_by(CourseID=courseToApprove).first()
@@ -1622,23 +1649,93 @@ def vet_self_enroll(Assigned):
             if data["Approved"] == "approved":
                 learner.approved = 1
                 classDetails.SlotsAvailable -= 1
-            if data["Approved"] == "rejected":
+
+                addRowsToViewable(LearnerID, courseToApprove, classToApprove)
+                addRowsToQuizResults(LearnerID, courseToApprove, classToApprove)
+            
+                db.session.commit()
+
+                return jsonify({
+                    "code": "200",
+                    "data": {
+                        "pending_course": learner.to_dict(),
+                    },
+                    "message": "Enrollment has been " + data['Approved']
+                }), 200
+            elif data["Approved"] == "rejected":
                 learner.approved = 0
+                db.session.commit()
 
-            db.session.commit()
-
-            return jsonify({
-                "code": "200",
-                "data": {
-                    "pending_course": learner.to_dict(),
-                },
-                "message": "Enrollment has been " + data['Approved']
-            }), 200
+                return jsonify({
+                    "code": "200",
+                    "data": {
+                        "pending_course": learner.to_dict(),
+                    },
+                    "message": "Enrollment has been " + data['Approved']
+                }), 200
+            else:
+                return jsonify({
+                    "code": "501",
+                    "message": "invalid input"
+                }), 501
         else:
             return jsonify({
                 "code": "500",
                 "message": "Enrollment cannot be approved or rejected."
             }), 500
+
+@app.route("/get_learner_course/<string:LearnerID>/<string:CourseID>/<string:ClassID>")
+def get_learner_course(LearnerID, CourseID, ClassID):
+    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(CourseID=CourseID).filter_by(ClassID=ClassID).first()
+
+    if not learner:
+        return jsonify({
+        "code": "404",
+        "message": "No enrollment pending approval"
+    }), 404
+    else:
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "learner_course": learner.to_dict(),
+                },
+                "message": "learner successfully returned."
+            },
+              
+        ), 200
+
+# set start and end date/time of a class
+@app.route("/set_class_schedule/<int:CourseID>/<int:ClassID>", methods=["PUT"])
+def set_class_schedule(CourseID, ClassID):
+    courseclass = CourseClass.query.filter_by(CourseId=CourseID).filter_by(ClassId=ClassID).first()
+    if not courseclass:
+        return jsonify({
+            "code": 404,
+            "message": "Class not found"
+        }), 404
+    else:
+        start = courseclass.StartDateTime
+        end = courseclass.EndDateTime
+        print(start, end)
+        data = request.get_json()
+        print(data)
+        if "Start_Date" in data:
+            courseclass.StartDateTime = data["Start_Date"]
+        if "End_Date" in data:
+            courseclass.EndDateTime = data["End_Date"]
+
+        
+        db.session.commit()
+        
+        return jsonify({
+            "code": 200,
+            "data": {
+                "Start_Date": courseclass.StartDateTime,
+                "End_Date": courseclass.EndDateTime
+            },
+            "message": "class start and end successfully set"
+        }), 200
    
 # kaldora
 # User Story: Assign Engineers to sections
@@ -1989,4 +2086,4 @@ def view_class_list(approved, CourseID, ClassID):
     ), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0' ,port=5100, debug=True)
+    app.run(port=5100, debug=True)

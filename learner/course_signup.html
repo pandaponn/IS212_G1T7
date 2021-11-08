@@ -47,7 +47,7 @@
       }
       body,
       nav {
-          background-image: url(src/background.jpg);
+          background-image: url(../src/background.jpg);
           background-size: cover;
           /* <------ */
           background-repeat: no-repeat;
@@ -261,7 +261,7 @@
             }),
           });
           console.log(response.status);
-          if (response.status == 200) {
+          if (response.status == 201) {
             console.log('success')
             // var success_msg = `<h2>Sign Up successful</h2>`;
             // document.getElementById('signupForm').style.visibility = 'hidden'
@@ -287,7 +287,7 @@
             
           } else if (response.status == 501) { // course enrolled in already
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
-            document.getElementById('resultModalBody').innerText = "You have already enrolled / applied for this course. Please try a different course.";
+            document.getElementById('resultModalBody').innerText = "You are already enrolled. Please try a different course.";
             document.getElementById('resultModalTitle').style.visibility = 'visible';
             // document.getElementById('dismissModal').style.visibility = 'visible';
             document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;

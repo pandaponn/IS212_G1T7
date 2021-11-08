@@ -37,7 +37,7 @@
           }
           body,
           nav {
-              background-image: url(src/background.jpg);
+              background-image: url(../src/background.jpg);
               background-size: cover;
               /* <------ */
               background-repeat: no-repeat;
@@ -119,7 +119,7 @@
             const params = new URLSearchParams(queryString);
             console.log(params.get('courseid'));
             var course_id = params.get('courseid');
-            var getClassesURL = "http://127.0.0.1:5100/classdetails/" + course_id ; 
+            var getClassesURL = "http://127.0.0.1:5100/class_details/" + course_id ; 
     
             try {
               const response = await fetch(getClassesURL, { method: "GET" });
