@@ -12,7 +12,9 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
+DROP DATABASE IF EXISTS spm;
+CREATE DATABASE spm;
+Use spm;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -105,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `coursematerials` (
   `chapter_name` varchar(100) NOT NULL,
   `content` varchar(100) NOT NULL,
   PRIMARY KEY (`course_id`,`class_id`,`chapter_id`,`subchapter_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `coursematerials`
