@@ -5,7 +5,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -2038,9 +2038,9 @@ def view_available_trainers(isTrainer, CourseID):
 
 # User Story: View Assigned Courses by Trainer
 @app.route("/assignedtrainer/<int:TrainerId>")
-def view_trainer_classes(TrainerID):
+def view_trainer_classes(TrainerId):
     AssignedClassList = CourseClass.query.filter_by(
-        TrainerId=TrainerID).all()
+        TrainerId=TrainerId).all()
     if AssignedClassList:
         return jsonify(
             {
@@ -2048,14 +2048,14 @@ def view_trainer_classes(TrainerID):
                 "data": {
                     "AssignedClasses": [assigned_classes.to_dict() for assigned_classes in AssignedClassList]
                 },
-                "message": "All assigned classes with trainer ID {} has successfully returned.".format(TrainerID)
+                "message": "All assigned classes with trainer ID {} has successfully returned.".format(TrainerId)
             },
         )
     return jsonify(
         {
             "code": 404,
             "data": {
-                "trainerID": TrainerID
+                "trainerID": TrainerId
             },
             "message": "Trainer not found."
         }
