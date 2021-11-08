@@ -51,7 +51,7 @@ INSERT INTO `class` (`classId`, `courseId`, `courseName`, `trainerId`, `startDat
 (3, 1, 'Python Basics', 2, '2021-10-12 10:00:00.000000', '2021-10-26 19:00:00.000000', 4, 4),
 (4, 2, 'Python Intermediate', 3, '2021-10-15 09:00:00.000000', '2021-10-29 16:00:00.000000', 6, 5),
 (5, 3, 'Extreme Python', 2, '2021-10-19 00:00:00.000000', '2021-10-26 00:00:00.000000', 2, 2),
-(6, 4, 'Data Management', 1, '2021-11-20 08:00:00.000000', '2021-11-30 17:00:00.000000', 4, 3),
+(6, 4, 'Data Management', 1, '2021-11-20 08:00:00.000000', '2021-11-30 17:00:00.000000', 4, 4),
 (7, 5, 'Fire Python', 2, '2021-11-25 08:00:00.000000', '2021-12-15 23:59:00.000000', 10, 10),
 (8, 5, 'Fire Python', 1, '2021-11-26 08:00:00.000000', '2021-12-16 23:59:00.000000', 10, 10);
 
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `engineer` (
 --
 
 INSERT INTO `engineer` (`engineerId`, `engineerName`, `totalClasses`, `courseCompleted`, `trainer`, `learner`, `learnerId`,`trainerId`) VALUES
-(1, 'Ling Li', 2, 1, 0, 1, 1, NULL),
+(1, 'Ling Li', 1, 1, 0, 1, 1, NULL),
 (2, 'Trisha', 2, 1, 0, 1, 2, NULL),
 (3, 'Faith', 5, NULL, 0, 1, 3, NULL),
 (4, 'Kal', 2, 3, 1, 0, NULL, 1),
@@ -204,10 +204,6 @@ INSERT INTO `ischapviewable` (`learner_id`, `course_id`, `class_id`, `chapter_id
 (1, 1, 1, 1, '1b', 1, 0),
 (1, 1, 1, 2, '2a', 0, 0),
 (1, 1, 1, 2, '2b', 0, 0),
-(1, 4, 6, 1, '1a', 1, 0),
-(1, 4, 6, 1, '1b', 1, 0),
-(1, 4, 6, 2, '2a', 0, 0),
-(1, 4, 6, 2, '2b', 0, 0),
 (2, 1, 1, 1, '1a', 1, 0),
 (2, 1, 1, 1, '1b', 1, 0),
 (2, 1, 1, 2, '2a', 0, 0),
@@ -245,7 +241,6 @@ CREATE TABLE IF NOT EXISTS `learner` (
 INSERT INTO `learner` (`LearnerID`, `engineerId`, `LearnerName`, `CourseID`, `ClassID`, `assigned`, `approved`, `courseCompleted`) VALUES
 (1, 1, 'Ling Li', 1, 1, 1, NULL, 1),
 (1, 1, 'Ling Li', 2, 4, 0, NULL, 0),
-(1, 1, 'Ling Li', 4, 6, 0, 1, 0),
 (2, 2, 'Trisha', 1, 1, 1, NULL, 1),
 (2, 2, 'Trisha', 2, 4, 0, 1, 0);
 
@@ -350,9 +345,6 @@ INSERT INTO `quiz_results` (`learner_id`, `quiz_id`, `isViewable`, `score`, `qui
 (1, 1, 0, 0, 0, 0),
 (1, 2, 0, 0, 0, 0),
 (1, 3, 0, 0, 0, 0),
-(1, 16, 0, 0, 0, 0),
-(1, 17, 0, 0, 0, 0),
-(1, 18, 0, 0, 0, 0),
 (2, 1, 0, 0, 0, 0),
 (2, 2, 0, 0, 0, 0),
 (2, 3, 0, 0, 0, 0),
