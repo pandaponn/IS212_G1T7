@@ -135,7 +135,7 @@
       // anonymous async function
       // - using await requires the function that calls it to be async
       $(async () => {
-        var getCoursesURL = "http://127.0.0.1:5100/view_all_courses/0";
+        var getCoursesURL = "http://13.213.133.176:5100/view_all_courses/0";
 
         try {
           const response = await fetch(getCoursesURL, { method: "GET" });
@@ -197,7 +197,7 @@
         $("#courseTable tbody").empty()
 
         $(async () => {
-          var getFilteredCourses_URL = "http://127.0.0.1:5100/learner_prereq/" + LearnerID;
+          var getFilteredCourses_URL = "http://13.213.133.176:5100/learner_prereq/" + LearnerID;
 
           try {
             const response = await fetch(getFilteredCourses_URL, { method: "GET" });

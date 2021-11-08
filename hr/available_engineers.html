@@ -141,7 +141,7 @@
       var course_id = params.get('courseid');
       console.log(params.get('classid'));
       var class_id = params.get('classid');
-      var getClassesURL = "http://127.0.0.1:5100/view_all_engineers/1/" + course_id;
+      var getClassesURL = "http://13.213.133.176:5100/view_all_engineers/1/" + course_id;
 
       try {
         const response = await fetch(getClassesURL, { method: "GET" });

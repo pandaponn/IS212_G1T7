@@ -110,7 +110,7 @@
             console.log(ClassId);
             console.log(CourseId);
 
-            var getQuizzesURL = "http://127.0.0.1:5100/mono/trainer_quizzes/" + ClassId + "/" + CourseId;
+            var getQuizzesURL = "http://13.213.133.176:5100/mono/trainer_quizzes/" + ClassId + "/" + CourseId;
 
             try {
                 const response = await fetch(getQuizzesURL, { method: "GET" });

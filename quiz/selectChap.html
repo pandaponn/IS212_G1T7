@@ -106,7 +106,7 @@
         // anonymous async function
         // - using await requires the function that calls it to be async
         $(async () => {
-            var getResultsURL = "http://127.0.0.1:5100/mono/trackResults/allClasses/1";
+            var getResultsURL = "http://13.213.133.176:5100/mono/trackResults/allClasses/1";
 
             try {
                 const response = await fetch(getResultsURL, { method: "GET" });
@@ -155,7 +155,7 @@
 
             if (CourseId != 'CourseId' && ClassId != 'ClassId') {
                 $(async () => {
-                    var getResultsURL = "http://127.0.0.1:5100/mono/allChaps/" + ClassId + '/' + CourseId;
+                    var getResultsURL = "http://13.213.133.176:5100/mono/allChaps/" + ClassId + '/' + CourseId;
 
                     try {
                         const response = await fetch(getResultsURL, { method: "GET" });
@@ -215,7 +215,7 @@
             
             if (CourseId != 'CourseId' && ClassId != 'ClassId' && ChapterId != 'ChapterId') {
                 $(async () => {
-                    var isValidURL = "http://127.0.0.1:5100/mono/chapterValid/" + ClassId + '/' + CourseId + '/' + ChapterId;
+                    var isValidURL = "http://13.213.133.176:5100/mono/chapterValid/" + ClassId + '/' + CourseId + '/' + ChapterId;
 
                     try {
                         const response = await fetch(isValidURL, { method: "GET" });
@@ -253,7 +253,7 @@
         }
 
         async function create_quiz(){
-            var createQuizURL = 'http://localhost:5100/quiz/createQuizInfo';
+            var createQuizURL = 'http://13.213.133.176:5100/quiz/createQuizInfo';
             var quiz_name = 'Untitled Quiz';
             var course_id = document.getElementById("courseOptions").value;
             var class_id = document.getElementById("classOptions").value;
@@ -297,7 +297,7 @@
         }
 
         async function check_quiz_exists(course_id, class_id, chapter_id){
-            checkQuizExistsURL = 'http://localhost:5100/quiz/checkQuizExists';
+            checkQuizExistsURL = 'http://13.213.133.176:5100/quiz/checkQuizExists';
 
             try{
                 var response = await fetch(

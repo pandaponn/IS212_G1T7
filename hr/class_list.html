@@ -137,7 +137,7 @@
       console.log(params.get('classid'));
       var course_id = params.get('courseid');
       var class_id = params.get('classid');
-      var getClassesURL = "http://127.0.0.1:5100/view_class_list/1/" + course_id + "/" + class_id;
+      var getClassesURL = "http://13.213.133.176:5100/view_class_list/1/" + course_id + "/" + class_id;
 
       try {
         const response = await fetch(getClassesURL, { method: "GET" });

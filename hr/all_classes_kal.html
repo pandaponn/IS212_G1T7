@@ -137,7 +137,7 @@
       const params = new URLSearchParams(queryString);
       console.log(params.get('courseid'));
       var course_id = params.get('courseid');
-      var getClassesURL = "http://127.0.0.1:5100/class_details/" + course_id;
+      var getClassesURL = "http://13.213.133.176:5100/class_details/" + course_id;
 
       try {
         const response = await fetch(getClassesURL, { method: "GET" });

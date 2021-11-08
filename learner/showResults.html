@@ -121,7 +121,7 @@
             document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
             document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
             
-            var getResultsURL = "http://127.0.0.1:5100/mono/allResults/1/" + ClassId + "/" + CourseId;
+            var getResultsURL = "http://13.213.133.176:5100/mono/allResults/1/" + ClassId + "/" + CourseId;
 
             try {
                 const response = await fetch(getResultsURL, { method: "GET" });

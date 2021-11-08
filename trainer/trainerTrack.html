@@ -115,7 +115,7 @@
         // anonymous async function
         // - using await requires the function that calls it to be async
         $(async () => {
-            var getResultsURL = "http://127.0.0.1:5100/mono/trackResults/allClasses/1";
+            var getResultsURL = "http://13.213.133.176:5100/mono/trackResults/allClasses/1";
 
             try {
                 const response = await fetch(getResultsURL, { method: "GET" });
@@ -173,7 +173,7 @@
 
             if (CourseId != 'CourseId' && ClassId != 'ClassId') {
                 $(async () => {
-                    var getResultsURL = "http://127.0.0.1:5100/mono/trackResults/quizByCourseClass/" + ClassId + '/' + CourseId;
+                    var getResultsURL = "http://13.213.133.176:5100/mono/trackResults/quizByCourseClass/" + ClassId + '/' + CourseId;
 
                     try {
                         const response = await fetch(getResultsURL, { method: "GET" });
@@ -222,7 +222,7 @@
 
             if (QuizId != 'QuizId') {
                 $(async () => {
-                    var getQuizResultsURL = "http://127.0.0.1:5100/mono/ClassQuizResults/" + QuizId;
+                    var getQuizResultsURL = "http://13.213.133.176:5100/mono/ClassQuizResults/" + QuizId;
 
                     try {
                         const response = await fetch(getQuizResultsURL, { method: "GET" });
