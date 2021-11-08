@@ -47,7 +47,7 @@
       }
       body,
       nav {
-          background-image: url(src/background.jpg);
+          background-image: url(../src/background.jpg);
           background-size: cover;
           /* <------ */
           background-repeat: no-repeat;
@@ -122,6 +122,7 @@
         </div>
       </form>
     </div>
+    <div id='msg'></div>
 
     <!-- Modal -->
     <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
@@ -177,6 +178,7 @@
 
         // Display an error under the main container
         $("#msg").append("<label>" + message + "</label>");
+        console.log(message)
       }
 
       // anonymous async function
@@ -287,7 +289,7 @@
             
           } else if (response.status == 501) { // course enrolled in already
             document.getElementById('resultModalTitle').innerText = "Sign Up Failed"
-            document.getElementById('resultModalBody').innerText = "You have already enrolled / applied for this course. Please try a different course.";
+            document.getElementById('resultModalBody').innerText = "You have already enrolled. Please try a different course.";
             document.getElementById('resultModalTitle').style.visibility = 'visible';
             // document.getElementById('dismissModal').style.visibility = 'visible';
             document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='all_courses.html'>Go To Courses</a>`;

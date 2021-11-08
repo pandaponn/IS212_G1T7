@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>View Available Engineers</title>
+  <title>Class List</title>
 
   <link rel="stylesheet" href="" />
   <!--[if lt IE 9]>
@@ -39,7 +39,7 @@
 
     body,
     nav {
-      background-image: url(src/background.jpg);
+      background-image: url(../src/background.jpg);
       background-size: cover;
       /* <------ */
       background-repeat: no-repeat;
@@ -68,41 +68,32 @@
 
 <body>
   <!-- Start of Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="all_courses.html">View Courses</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Search Courses<span class="sr-only">(current)</span></a>
-        </li>
-      </ul>
+  <nav>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="hr_home.html">Administrator Page</a></h5>
+        <div class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses_Kal.html"> Assign Engineers </a>
+            <a class="p-2 text-dark" href="admin_courses.html"> Created Courses</a>
+        </div>
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
-  </nav>
+</nav>
   <!-- End of Navigation Bar -->
 
   <div id="main-container" class="container">
     <div>
-      <h1 class="display-4"><b>Available Engineers</b></h1>
+      <h1 class="display-4"><b>Class List</b></h1>
       <!-- <button class="btn btn-success" onclick=getFilteredCourses(1) id="filtercourse">Filter</button> -->
       <!-- <button class="btn btn-secondary" onclick="window.location.reload()">Reset Filters</button> -->
     </div>
     <table id="courseclassTable" class="table table-bordered" border="1">
       <thead class="thead-dark">
         <tr>
-          <th>Engineer ID</th>
-          <th>Engineer Name</th>
-          <th>Total Classes</th>
-          <th>Course Completed</th>
-          <th>Trainer</th>
-          <th>Learner</th>
           <th>Learner ID</th>
-          <th>Assign</th>
+          <th>Learner Name</th>
+          <th>Course ID</th>
+          <th>Class ID</th>
           </th>
         </tr>
       </thead>
@@ -143,10 +134,10 @@
       const queryString = window.location.search;
       const params = new URLSearchParams(queryString);
       console.log(params.get('courseid'));
-      var course_id = params.get('courseid');
       console.log(params.get('classid'));
+      var course_id = params.get('courseid');
       var class_id = params.get('classid');
-      var getClassesURL = "http://127.0.0.1:5100/view_all_engineers/1/" + course_id;
+      var getClassesURL = "http://127.0.0.1:5100/view_class_list/1/" + course_id + "/" + class_id;
 
       try {
         const response = await fetch(getClassesURL, { method: "GET" });
@@ -154,44 +145,22 @@
         const result = await response.json();
         if (response.status === 200) {
           // success case
-          var AvailableEngineers = result.data.AvailableEngineers;
+          var ClassList = result.data.ClassList;
 
           // for loop to setup all table rows with obtained course information
           var rows = "<tbody>";
-          for (var AvailableEngineer of AvailableEngineers) {
-            var EngineerID = AvailableEngineer.EngineerID;
-            var EngineerName = AvailableEngineer.EngineerName;
-            var TotalClasses = AvailableEngineer.TotalClasses;
-            var CourseCompleted = AvailableEngineer.CourseCompleted;
-            var Trainer = AvailableEngineer.Trainer;
-            var Learner = AvailableEngineer.Learner;
-            var LearnerID = AvailableEngineer.LearnerId;
-
-
-            if (Trainer == 0) {
-              Trainer = '-'
-            } else {
-              Trainer = '✔'
-            }
-
-            if (Learner == 0) {
-              Learner = '-'
-            } else {
-              Learner = '✔'
-            }
+          for (var Details of ClassList) {
+            var LearnerID = Details.LearnerID;
+            var LearnerName = Details.LearnerName;
+            var CourseID = Details.CourseID;
+            var ClassID = Details.ClassID;
 
             rows += `
                                   <tr class="maincourse">
-                                    <td>${EngineerID}</td>
-                                    <td>${EngineerName}</td>
-                                    <td>${TotalClasses}</td>
-                                    <td>${CourseCompleted}</td>
-                                    <td>${Trainer}</td>
-                                    <td>${Learner}</td>
                                     <td>${LearnerID}</td>
-                                    <td>
-                                      <a class="nav-link" href="assigned_successful.html?learnerid=${LearnerID}&courseid=${course_id}&classid=${class_id}&learnername=${EngineerName}">✚ ${EngineerName}</a>
-                                    </td>
+                                    <td>${LearnerName}</td>
+                                    <td>${CourseID}</td>
+                                    <td>${ClassID}</td>
                                   </tr>
                                       `;
           }
