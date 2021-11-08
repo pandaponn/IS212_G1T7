@@ -1400,109 +1400,129 @@ def get_courseclass_details(ClassId):
 # check if course has NOT been taken before --> OK (duplicate entry will give error)
 @app.route("/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>", methods=['POST'])
 def validate_prereq(CourseID, LearnerID, ClassID):
-    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(CourseCompleted=1).all()
+    duplicate = Learner.query.filter_by(LearnerID=LearnerID).filter_by(
+        CourseID=CourseID).first()
+    learner = Learner.query.filter_by(LearnerID=LearnerID).filter_by(
+        CourseCompleted=1).all()
+
     course = Course.query.filter_by(CourseID=CourseID).first()
-    # print(course.CourseID)
-    print(course)
-    print(learner)
     coursePreReq = course.PreReq
     isCourseEnrollOpen = course.Open
-    print('course prerequisite: ', coursePreReq)
-    if not learner:
-        print('no learner')
-        return jsonify({
-            "code": "404",
-            "message": "no prequisites of learner"
-        }), 404
-    else:
-        if course.PreReq == None:
-            print('no prequisite for this course')
-            # return jsonify({
-            #     "code": "201",
-            #     "message": "course has no prerequisite. able to sign up"
-            # })
-            if isCourseEnrollOpen == 1:
-                return course_signup(LearnerID, CourseID, ClassID)
-            else:
-                return jsonify({
-                    "code": "502",
-                    "message": "enrollment for course is closed"
-                }),502
-        else:
-        # course has a prequisite
-            for each in learner:
-                print("looping")
-                if each.CourseID == coursePreReq:
-                    # print("learner has course' pre requisite")
-                    # return jsonify({
-                    #     "code": "200",
-                    #     "message": "learner has pre requisite"
-                    # }), 200
-                    if isCourseEnrollOpen==1:
-                        return course_signup(LearnerID, CourseID, ClassID)
-                    else:
-                        return jsonify({
-                            "code": "502",
-                            "message": "enrollment for course is closed"
-                        }),502
 
-def course_signup(LearnerID, CourseID, ClassID):
-    LearnerID = LearnerID
-    # LearnerName = request.json.get('LearnerName')
-    LearnerName = 'Ling Li'
-    CourseID = CourseID
-    ClassID = ClassID
-    assigned = 0
-    approved = None
-    CourseCompleted = 0
-    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, CourseID=CourseID, ClassID=ClassID, 
-                        assigned=assigned, approved=approved, CourseCompleted=CourseCompleted)
-    
     courseclass = CourseClass.query.filter_by(ClassId=ClassID).first() 
-    print(courseclass)
     SlotsAvailable = courseclass.SlotsAvailable
-    CourseName = courseclass.CourseName
-    # print(slotsAvailable)
-    
 
-    # if there are no available slots, do not allow sign up
-    if SlotsAvailable <= 0:
+    # check if learner has taken/is taking/applied the course
+    if duplicate:
         return jsonify(
                 {
-                    "code": 500,
-                    "data": {
-                        "CourseID": CourseID,
-                        "CourseName": CourseName,
-                        "ClassID": ClassID,
-                        "Slots Available": SlotsAvailable
-                    },
-                    "message": "No more available slots. Please try different class. "
-                }
-            ), 500
-    else: # slots available --> allow sign up
-        try:
-            # data = SlotsAvailable -1
-            # print(data)
-            # courseclass.SlotsAvailable = data
-
-            # slots available will reduce only if enrollment is approved?
-
-            db.session.add(learner)
-            db.session.commit()
-        except Exception as e:
-            return jsonify(
-                {
                     "code": 501,
-                    "message": "An error occurred while signing up. " + str(e) # duplicate
+                    "message": "Duplicate course. Already enrolled / applied for this course."
                 }
             ), 501
 
+    # check if course has prereq
+    if course.PreReq == None:
+        # no prereq and enrollment is open
+        if isCourseEnrollOpen == 1:
+            if SlotsAvailable <= 0:
+                 return jsonify(
+                    {
+                        "code": 500,
+                        "message": "No more available slots. Please try different class."
+                    }
+                ), 500
+            else:
+                return course_signup(LearnerID, CourseID, ClassID)
+                # return jsonify({
+                #     "code": "200",
+                #     "message": "Course has no prerequisite. Processing sign up."
+                # }), 200
+        # no prereq but enrollment is closed
+        return jsonify({
+            "code": "502",
+            "message": "Enrollment for course is closed"
+        }), 502
+    
+    # if course has prereq
+    else:
+        # learner did not complete any course before
+        if not learner:
+            print('no learner')
+            return jsonify({
+                "code": "404",
+                "message": "no prequisites of learner"
+            }), 404
+        else:
+            # learner completed some courses before
+            # loop through them to check if learner completed the prereq course
+            # print(learner[::-1])
+            # learner = learner[::-1]
+            for each in learner:
+                if each.CourseID == coursePreReq:
+                    # Prereq taken by learner and enrollment is open
+                    if isCourseEnrollOpen == 1:
+                        if SlotsAvailable <= 0:
+                            return jsonify(
+                                {
+                                    "code": 500,
+                                    "message": "No more available slots. Please try different class."
+                                }
+                            ), 500
+                        else:
+                            course_signup(LearnerID, CourseID, ClassID)
+                            return jsonify({
+                                "code": "200",
+                                "message": "Learner completed prereq course. Processing sign up"
+                            })
+                    # Prereq taken by learner but enrollment is closed
+                    else:
+                        return jsonify({
+                            "code": "502",
+                            "message": "Enrollment for course is closed"
+                        }),502
+                # learner did not take the prereq before
+                return jsonify({
+                    "code": "404",
+                    "message": "learner does not have pre requisite"
+                }), 404
+
+                
+def course_signup(LearnerID, CourseID, ClassID):
+    LearnerID = LearnerID
+    # include the engineerid (update class learner and engineer)
+
+    # LearnerName = request.json.get('LearnerName')
+    LearnerName = 'Ling Li'
+    EngineerID = Engineer.query.filter_by(LearnerId=LearnerID).first().EngineerID
+    CourseID = CourseID
+    ClassID = ClassID
+    Assigned = 0
+    Approved = None
+    CourseCompleted = 0
+    learner = Learner(LearnerID=LearnerID, LearnerName=LearnerName, EngineerID=EngineerID, CourseID=CourseID, ClassID=ClassID, 
+                        assigned=Assigned, approved=Approved, CourseCompleted=CourseCompleted)
+    
+    courseclass = CourseClass.query.filter_by(ClassId=ClassID).first() 
+    print(courseclass)
+
+    try:
+        db.session.add(learner)
+        db.session.commit()
+    except Exception as e:
         return jsonify(
             {
-                "code": 201,
-                "message": "Successful sign up for course."
+                "code": 501,
+                "message": "An error occurred while signing up. " + str(e) # duplicate
             }
-        ), 201
+        ), 501
+
+    return jsonify(
+        {
+            "code": 200,
+            "message": "Successful sign up for course."
+        }
+    ), 200
 
 # gets courses created by an admin
 @app.route("/admin_courses/<string:CreatedBy>")
@@ -1557,6 +1577,7 @@ def get_pending_courses():
 @app.route("/set_enrollment_period/<int:CourseID>", methods=["PUT"])
 def set_enrollment_period(CourseID):
     course = Course.query.filter_by(CourseID=CourseID).first()
+    Current = datetime.now()
     if not course:
         return jsonify({
             "code": 404,
@@ -1574,7 +1595,8 @@ def set_enrollment_period(CourseID):
             course.EndEnroll = data["End_Date"]
         
         course.Open = 1
-        
+        course.UpdatedBy = course.CreatedBy
+        course.UpdateTime = Current
         db.session.commit()
         
         return jsonify({
@@ -1682,6 +1704,7 @@ def get_learner_course(LearnerID, CourseID, ClassID):
 @app.route("/set_class_schedule/<int:CourseID>/<int:ClassID>", methods=["PUT"])
 def set_class_schedule(CourseID, ClassID):
     courseclass = CourseClass.query.filter_by(CourseId=CourseID).filter_by(ClassId=ClassID).first()
+    Current = datetime.now()
     if not courseclass:
         return jsonify({
             "code": 404,
@@ -1697,7 +1720,8 @@ def set_class_schedule(CourseID, ClassID):
             courseclass.StartDateTime = data["Start_Date"]
         if "End_Date" in data:
             courseclass.EndDateTime = data["End_Date"]
-
+        
+        
         
         db.session.commit()
         
