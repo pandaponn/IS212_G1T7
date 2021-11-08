@@ -1681,9 +1681,9 @@ def set_class_schedule(CourseID, ClassID):
         data = request.get_json()
         print(data)
         if "Start_Date" in data:
-            courseclass.StartEnroll = data["Start_Date"]
+            courseclass.StartDateTime = data["Start_Date"]
         if "End_Date" in data:
-            courseclass.EndEnroll = data["End_Date"]
+            courseclass.EndDateTime = data["End_Date"]
 
         
         db.session.commit()
