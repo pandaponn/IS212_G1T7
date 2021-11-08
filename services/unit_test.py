@@ -54,7 +54,12 @@ class QuestionsTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn('A', str(res.data))
 
-    # Retrieve specific question for specific quiz on create_quiz.html
+    # Fail to retrieve all questions for specific quiz as quiz does not exist
+    def test_fail_retrieve_all_questions(self):
+        res = self.app.post('/quiz/retrieveAllQuestions', data=json.dumps(dict(self.retrieve_all)), content_type='application/json')
+        self.assertEqual(res.status_code, 404)
+
+    # Retrieve specific question 
     def test_retrieve_question(self):
         self.app.post('/quiz/createQuestion', data=json.dumps(dict(self.question_mcq)), content_type='application/json')
         res = self.app.post('/quiz/retrieveQuestion', data=json.dumps(dict(self.retrieve_question)), content_type='application/json')
