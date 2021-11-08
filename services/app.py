@@ -4,8 +4,8 @@ from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/is212_project'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:8889/spm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3308/is212_project'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app)
@@ -561,6 +561,16 @@ class Learner(db.Model):
     approved = db.Column(db.Boolean, nullable=True)
     CourseCompleted = db.Column(db.Boolean, nullable=True)
 
+    def __init__(self, LearnerID, EngineerID, LearnerName, CourseID, ClassID, assigned, approved, CourseCompleted):
+        self.LearnerID = LearnerID
+        self.EngineerID = EngineerID
+        self.LearnerName = LearnerName
+        self.CourseID = CourseID
+        self.ClassID = ClassID
+        self.assigned = assigned
+        self.approved = approved
+        self.CourseCompleted = CourseCompleted
+
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -571,6 +581,9 @@ class Learner(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+
+    def json(self):
+        return {"learner_id": self.LearnerID, "engineer_id": self.EngineerID, "learner_name": self.LearnerName, "course_id": self.CourseID, "class_id": self.ClassID, "assigned": self.assigned, "approved": self.approved, "CourseCompleted": self.CourseCompleted}
 
 class Course(db.Model):
     __tablename__ = 'Course'
@@ -611,6 +624,16 @@ class CourseClass(db.Model):
     Capacity = db.Column(db.Integer, nullable=False)
     SlotsAvailable = db.Column(db.Integer, nullable=False)
 
+    def __init__(self, ClassId, CourseId, CourseName, TrainerId, StartDateTime, EndDateTime, Capacity, SlotsAvailable):
+        self.ClassId = ClassId
+        self.CourseId = CourseId
+        self.CourseName = CourseName
+        self.TrainerId = TrainerId
+        self.StartDateTime = StartDateTime
+        self.EndDateTime = EndDateTime
+        self.Capacity = Capacity
+        self.SlotsAvailable = SlotsAvailable
+
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -621,6 +644,9 @@ class CourseClass(db.Model):
         for column in columns:
             result[column] = getattr(self, column)
         return result
+
+    def json(self):
+        return {"ClassId": self.ClassId, "CourseId": self.CourseId, "CourseName": self.CourseName, "TrainerId": self.TrainerId, "StartDateTime": self.StartDateTime, "EndDateTime": self.EndDateTime, "Capacity": self.Capacity, "SlotsAvailable": self.CourseCompleted}
 
 class CourseMaterials(db.Model):
     __tablename__ = 'CourseMaterials'
