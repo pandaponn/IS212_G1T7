@@ -1,7 +1,10 @@
-from app import app, db
+from app import app, db, Course
 import json
 import unittest
 from app import CourseMaterials
+
+
+from datetime import datetime
 
 # Lim Zhi Hao (START)
 class QuestionsTestCase(unittest.TestCase):
@@ -128,6 +131,91 @@ class CourseMaterialsTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 # Chia Ling Li (END)
+
+# Trisha Olegario (START)
+class CourseTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = app.test_client()
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+        
+        with app.app_context():
+            db.create_all()
+            c1 = Course(
+                CourseID = 1,
+                CourseName = 'Python Basics',
+                PreReq = None,
+                Classes = 3,
+                StartEnroll = datetime(2021, 10, 1, 0,0,0),
+                EndEnroll = datetime(2021,10, 8, 0,0,0),
+                Open = 0,
+                CreatedBy = 1,
+                UpdatedBy = None,
+                CreatedTime = datetime(2021, 10, 10, 22,28,29),
+                UpdateTime = None,
+                IsFull = 0
+            )
+
+            db.session.add(c1)
+            db.session.commit()
+    
+    def test_to_dict(self):
+        c1 = Course(
+                CourseID = 1,
+                CourseName = 'Python Basics',
+                PreReq = None,
+                Classes = 3,
+                StartEnroll = datetime(2021, 10, 1, 0,0,0),
+                EndEnroll = datetime(2021,10, 8, 0,0,0),
+                Open = 0,
+                CreatedBy = 1,
+                UpdatedBy = None,
+                CreatedTime = datetime(2021, 10, 10, 22,28,29),
+                UpdateTime = None,
+                IsFull = 0
+            )
+        self.assertEqual(c1.to_dict(), {
+                'Classes': 3,
+                'CourseID': 1,
+                'CourseName': 'Python Basics',
+                'CreatedBy': 1,
+                'CreatedTime': datetime(2021, 10, 10, 22,28,29),
+                'EndEnroll': datetime(2021,10, 8, 0,0,0),
+                'IsFull': 0,
+                'Open': 0,
+                'PreReq': None,
+                'StartEnroll': datetime(2021, 10, 1, 0,0,0),
+                'UpdateTime': None,
+                'UpdatedBy': None
+        })
+    
+    def test_get_courses(self):
+        res = self.app.get("/view_all_courses")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Python Basics', str(res.data))
+    
+    def test_get_course_details(self):
+        res = self.app.get("/get_course/1")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Python Basics', str(res.data))
+    
+    def test_get_course_details_error(self):
+        res = self.app.get("get_course/6")
+        self.assertEqual(res.status_code, 404)
+
+    def test_get_courses_by_admin(self):
+        res = self.app.get("admin_courses/1")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Python Basics', str(res.data))
+
+    def test_get_courses_by_admin_error(self):
+        res = self.app.get("admin_courses/3")
+        self.assertEqual(res.status_code, 404)
+    
+    
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+# Trisha Olegario (END)
 
 if __name__ == "__main__":
     unittest.main()
