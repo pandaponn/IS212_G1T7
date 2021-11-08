@@ -39,7 +39,7 @@
     }
     body,
     nav {
-        background-image: url(src/background.jpg);
+        background-image: url(../src/background.jpg);
         background-size: cover;
         /* <------ */
         background-repeat: no-repeat;
@@ -50,53 +50,46 @@
 </head>
 
 <body>
-    <nav>
-        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
-            <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
-                    href="admin_courses.html">Administrator Page</a></h5>
-            <div class="my-2 my-md-0 mr-md-3">
-                <a class="p-2 text-dark" href="admin_courses.html"> View Created Courses</a>
-                <!-- <a class="p-2 text-dark" href="admin_set_enroll.html">Set Enrollment Period</a> -->
-                <!-- <a class="p-2 text-dark" href="admin_vet_learner.html">Vet Learner's Enrollment</a> -->
-            </div>
-            <a class="btn btn-outline-primary" href="#">Log Out</a>
+  <nav>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
+                href="hr_home.html">Administrator Page</a></h5>
+        <div class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" href="all_courses_Kal.html"> Assign Engineers </a>
+            <a class="p-2 text-dark" href="admin_courses.html"> Created Courses</a>
         </div>
-    </nav>
-    <!-- <script>
-        const queryString = window.location.search;
-        const params = new URLSearchParams(queryString);
-        var course_id = params.get("courseid");
-        console.log("course id is: ", course_id);
-    </script> -->
+        <a class="btn btn-outline-primary" href="#">Log Out</a>
+    </div>
+  </nav>
 
-  <div id="main-container" class="container">
+  <div class="container">
     <div>
-        <h2>Vet Self-Enrollment</h2>
+        <h2>Set Enrollment Period</h2>
         <form
-          id="vetEnrollForm"
-          name="vetEnrollForm"
-          
+          id="setEnrollPeriodForm"
+          name="setEnrollPeriodForm"
+          class="needs-validation was-validated"
+          novalidate
         >
-          <div class="form-group col-lg-4" >
-            <label for="learnerId">Learner ID: </label>
-            <div id='learnerIdDiv'></div>
-          </div>
           <div class="form-group col-lg-4" >
               <label for="courseId">Course ID: </label>
               <div id='courseIdDiv'></div>
           </div>
           <div class="form-group col-lg-4" >
-            <label for="classId">Class ID: </label>
-            <div id='classIdDiv'></div>
-          </div>
+            <label for="courseName">Course Name: </label>
+            <div id='courseNameDiv'></div>
+        </div>
           <div class="form-group col-lg-5">
-              <label for="approve">Final status: </label>
-              <div id='approve'></div>
+              <label for="start">Start of Enrollment: </label>
+              <div id='start'></div>
           </div>
-          
+            <div class="form-group col-lg-5" >
+              <label for="end">End of Enrollment: </label>
+              <div id='end'></div>
+          </div>
 
           <div class="form-group col-lg-4">
-            <button type="submit" id="vetEnroll" class="btn btn-primary" data-toggle='modal' data-target="#successModal">Set!</button>
+            <button type="submit" id="setEnrollPeriod" class="btn btn-primary" data-toggle='modal' data-target="#successModal">Set!</button>
           </div>
         </form>
     </div>
@@ -114,7 +107,7 @@
             
             </div>
             <div class="modal-footer" id='modal-footer'>
-            <a class="btn btn-primary" data-dismiss="modal" id="dismissModal" href='admin_courses.html'>Back</a>
+            <a class="btn btn-primary" data-dismiss="modal" id="dismissModal" href='all_courses.html'>Back</a>
             </div>
         </div>
         </div>
@@ -127,7 +120,7 @@
 
         // Fetch all the forms we want to apply custom Bootstrap validation styles to
         var forms = document.querySelectorAll('.needs-validation');
-        var submitBtn = document.getElementById('vetEnroll');
+        var submitBtn = document.getElementById('setEnrollPeriod');
 
         // Loop over them and prevent submission
         Array.prototype.slice.call(forms)
@@ -151,11 +144,10 @@
       // Helper function to display error message
       function showError(message) {
         // Hide the table and button in the event of error
-        $("#vetEnrollForm").hide();
+        $("#setEnrollPeriodForm").hide();
 
         // Display an error under the main container
         $("#main-container").append("<label>" + message + "</label>");
-        console.log(message)
       }
 
       // anonymous async function
@@ -163,37 +155,28 @@
       $(async () => {
         const queryString = window.location.search;
         const params = new URLSearchParams(queryString);
-        var learner_id = params.get("learnerid");
         var course_id = params.get("courseid");
-        var class_id = params.get("classid")
-        console.log("learner id is: ", learner_id);
         console.log("course id is: ", course_id);
-        console.log("class id is: ", class_id);
-        var getLearnerURL =
-          "http://127.0.0.1:5100/get_learner_course/" + learner_id + "/" + course_id + "/" + class_id;
+        var getCourseURL =
+          "http://127.0.0.1:5100/get_course/" + course_id;
 
         try {
-          const response = await fetch(getLearnerURL, { method: "GET" });
+          const response = await fetch(getCourseURL, { method: "GET" });
 
           const result = await response.json();
           if (response.status === 200) {
             // success case
-            var learner = result.data.learner_course;
+            var course = result.data.course;
 
-            var CourseID = learner.CourseID;
-            var ClassID = learner.ClassID;
-            var LearnerID = learner.LearnerID;
-            // var Approve = learner.approved;
+            var CourseID = course.CourseID;
+            var CourseName = course.CourseName;
+            var StartEnroll = course.StartEnroll;
+            var EndEnroll = course.EndEnroll;
 
             document.getElementById("courseIdDiv").innerHTML = `<input type="text" class="form-control" id="courseId" name="courseId" value=${CourseID} disabled required>`;
-            document.getElementById("classIdDiv").innerHTML = `<input type="text" class="form-control" id="classId" name="classId" value=${ClassID} disabled required>`;
-            document.getElementById("learnerIdDiv").innerHTML = `<input type="text" class="form-control" id="learnerId" name="learnerId" value=${LearnerID} disabled required>`;
-            document.getElementById("approve").innerHTML = `
-                                                            <select class="form-control" id="approveResponse">
-                                                              <option selected>Status</option>
-                                                              <option>approved</option>
-                                                              <option>rejected</option>
-                                                            </select>`;
+            document.getElementById("courseNameDiv").innerHTML = `<text> ${CourseName} </text>`;
+            document.getElementById("start").innerHTML = `<input type="datetime-local" class="form-control" id="newStart" name="newStart" required>`;
+            document.getElementById("end").innerHTML = `<input type="datetime-local" class="form-control" id="newEnd" name="newEnd" required>`;
           } else if (response.status == 404) {
             showError(result.message);
           } else {
@@ -210,61 +193,44 @@
         } // error
       });
 
-      $("#vetEnrollForm").submit(async (event) => {
+      $("#setEnrollPeriodForm").submit(async (event) => {
         event.preventDefault();
 
         // show loading before the showing the confirmation that the assignment is posted
-        var loading_str = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Processing...`;
+        var loading_str = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Setting new enrollment period...`;
         document.getElementById('resultModalBody').innerHTML = loading_str;
         document.getElementById('resultModalTitle').style.visibility = 'hidden';
         document.getElementById('dismissModal').style.visibility = 'hidden';
 
-        // var CourseID = $("#courseId").val();
-        // var StartEnroll = $("#newStart").val();
-        // console.log(StartEnroll)
-        // var EndEnroll = $("#newEnd").val()
-        var approve = $("#approveResponse").val()
-        
+        var CourseID = $("#courseId").val();
+        var StartEnroll = $("#newStart").val();
+        var EndEnroll = $("#newEnd").val()
 
         // http://localhost:5100/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>
 
-        var vetURL =
-          "http://localhost:5100/vet_self_enroll/0";
+        var setURL =
+          "http://localhost:5100/set_enrollment_period/" + CourseID;
 
         try {
-          const response = await fetch(vetURL, {
+          const response = await fetch(setURL, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                Approved: approve
+                Start_Date: StartEnroll,
+                End_Date: EndEnroll
             }),
           });
           console.log(response.status);
           if (response.status == 200) {
             console.log('success')
-            window.alert('Successful. Go back to courses?');
-            window.location.href = 'admin_courses.html'
             // var success_msg = `<h2>Sign Up successful</h2>`;
-            // document.getElementById('vetEnrollForm').style.visibility = 'hidden'
-            // document.getElementById('resultModalTitle').innerText = "Success"
-            // document.getElementById('resultModalTitle').style.visibility = 'visible';
-            // document.getElementById('resultModalBody').innerText = "You have successfully vetted learner's self enrollment.";
-            // document.getElementById('dismissModal').style.visibility = 'visible';
-            // document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='admin_courses.html'>Go To Courses</a>`;
+            // document.getElementById('signupForm').style.visibility = 'hidden'
+            document.getElementById('resultModalTitle').innerText = "Success"
+            document.getElementById('resultModalTitle').style.visibility = 'visible';
+            document.getElementById('resultModalBody').innerText = "You have successfully set a new enrollment period";
+            document.getElementById('dismissModal').style.visibility = 'visible';
+            document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='admin_courses.html'>Go To Courses</a>`;
             
-          }
-          else if (response.status == 500) {
-            window.alert('Enrollment cannot be approved or rejected as the enrollment period has closed or the class has started. Go back to courses?');
-            window.location.href = 'admin_courses.html'
-            // document.getElementById('resultModalTitle').innerText = "Failed"
-            // document.getElementById('resultModalTitle').style.visibility = 'visible';
-            // document.getElementById('resultModalBody').innerText = "Enrollment cannot be approved or rejected.";
-            // document.getElementById('resultModalTitle').style.visibility = 'visible';
-            // document.getElementById('modal-footer').innerHTML = `<a class="btn btn-primary" href='admin_courses.html'>Go To Courses</a>`;
-          }
-          else if (response.status == 501) {
-            window.alert('Invalid input. Please try again');
-            window.location.reload()
           }
           else {
             // unexpected outcome, throw the error

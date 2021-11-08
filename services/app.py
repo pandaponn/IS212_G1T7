@@ -632,6 +632,22 @@ class CourseMaterials(db.Model):
     chapter_name = db.Column(db.String(100), nullable=False)
     content = db.Column(db.String(100), nullable=False)
 
+    def __init__(self, course_id, class_id, chapter_id, subchapter_id, chapter_name, content):
+        self.course_id = course_id
+        self.class_id = class_id
+        self.chapter_id = chapter_id
+        self.subchapter_id = subchapter_id
+        self.chapter_name = chapter_name
+        self.content = content
+
+    def json(self):
+        return {"course_id": self.course_id,
+            "class_id": self.class_id, 
+            "chapter_id": self.chapter_id, 
+            "subchapter_id": self.subchapter_id, 
+            "chapter_name": self.chapter_name, 
+            "content": self.content}
+
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -1173,6 +1189,15 @@ def get_chapIdBy_courseClass(class_id, course_id):
                 }
             }
         )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "class_id": class_id,
+                "course_id": course_id
+            }
+        }
+    )
 
 @app.route("/mono/chapterValid/<string:class_id>/<string:course_id>/<string:chapter_id>")
 def check_chapterValid(class_id, course_id, chapter_id):
@@ -1188,7 +1213,7 @@ def check_chapterValid(class_id, course_id, chapter_id):
                     "ChapValid": ChapValid.to_dict()
                 }
             }
-        )
+        ), 200
     return jsonify(
         {
             "code": 404,
@@ -1575,6 +1600,7 @@ def vet_self_enroll(Assigned):
         }), 404
     else:
         print(learner)
+        LearnerID = learner.LearnerID
         courseToApprove = learner.CourseID
         classToApprove = learner.ClassID
         courseDetails = Course.query.filter_by(CourseID=courseToApprove).first()
@@ -1596,23 +1622,35 @@ def vet_self_enroll(Assigned):
             if data["Approved"] == "approved":
                 learner.approved = 1
                 classDetails.SlotsAvailable -= 1
+
+                addRowsToViewable(LearnerID, courseToApprove, classToApprove)
+                addRowsToQuizResults(LearnerID, courseToApprove, classToApprove)
+            
+                db.session.commit()
+
+                return jsonify({
+                    "code": "200",
+                    "data": {
+                        "pending_course": learner.to_dict(),
+                    },
+                    "message": "Enrollment has been " + data['Approved']
+                }), 200
             elif data["Approved"] == "rejected":
                 learner.approved = 0
+                db.session.commit()
+
+                return jsonify({
+                    "code": "200",
+                    "data": {
+                        "pending_course": learner.to_dict(),
+                    },
+                    "message": "Enrollment has been " + data['Approved']
+                }), 200
             else:
                 return jsonify({
                     "code": "501",
                     "message": "invalid input"
                 }), 501
-
-            db.session.commit()
-
-            return jsonify({
-                "code": "200",
-                "data": {
-                    "pending_course": learner.to_dict(),
-                },
-                "message": "Enrollment has been " + data['Approved']
-            }), 200
         else:
             return jsonify({
                 "code": "500",
@@ -1656,9 +1694,9 @@ def set_class_schedule(CourseID, ClassID):
         data = request.get_json()
         print(data)
         if "Start_Date" in data:
-            courseclass.StartEnroll = data["Start_Date"]
+            courseclass.StartDateTime = data["Start_Date"]
         if "End_Date" in data:
-            courseclass.EndEnroll = data["End_Date"]
+            courseclass.EndDateTime = data["End_Date"]
 
         
         db.session.commit()

@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width" />
 
-  <title>View Courses</title>
+  <title>Available Courses</title>
 
   <link rel="stylesheet" href="" />
   <!--[if lt IE 9]>
@@ -37,57 +37,89 @@
     .disabled {
       pointer-events: none;
     }
+
     body,
     nav {
-        background-image: url(src/background.jpg);
-        background-size: cover;
-        /* <------ */
-        background-repeat: no-repeat;
-        background-position: center center;
-        /* optional, center the image */
+      background-image: url(../src/background.jpg);
+      background-size: cover;
+      /* <------ */
+      background-repeat: no-repeat;
+      background-position: center center;
+      /* optional, center the image */
+    }
+
+    .table-bordered>tbody>tr>td,
+    .table-bordered>tbody>tr>th,
+    .table-bordered>tfoot>tr>td,
+    .table-bordered>tfoot>tr>th,
+    .table-bordered>thead>tr>td,
+    .table-bordered>thead>tr>th {
+      border: 1px solid black;
+    }
+
+    table {
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
+  <!-- Start of Navigation Bar -->
   <nav>
     <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
         <h5 class="my-0 mr-md-auto font-weight-normal"><a class="text-dark" style="text-decoration: none"
-                href="admin_courses.html">Administrator Page</a></h5>
+                href="hr_home.html">Administrator Page</a></h5>
         <div class="my-2 my-md-0 mr-md-3">
-            <a class="p-2 text-dark" href="admin_courses.html"> View Created Courses</a>
-            <!-- <a class="p-2 text-dark" href="admin_set_enroll.html">Set Enrollment Period</a> -->
-            <!-- <a class="p-2 text-dark" href="admin_vet_learner.html">Vet Learner's Enrollment</a> -->
+            <a class="p-2 text-dark" href="all_courses_Kal.html"> Assign Engineers </a>
+            <a class="p-2 text-dark" href="admin_courses.html"> Created Courses</a>
         </div>
         <a class="btn btn-outline-primary" href="#">Log Out</a>
     </div>
 </nav>
+  <!-- End of Navigation Bar -->
 
   <div id="main-container" class="container">
     <div>
-      <h1 class="display-4">View My Created Courses</h1>
-      <button class="btn btn-success" onclick=getPendingCourses(0) id="filtercourse">Pending</button>
-      <button class="btn btn-secondary" onclick="window.location.reload()">Reset</button>
+      <h1 class="display-4"><b>Available Courses</b></h1>
     </div>
 
-    <!-- <div>
-      <h1 class="display-4">View Courses</h1>
-      <button class="btn btn-success" onclick=getPendingCourses(0) id="filtercourse">Pending</button>
-      <button class="btn btn-secondary" onclick="window.location.reload()">Reset</button>
-    </div> -->
+    <br>
 
     <div>
-      <table id="courseTable" class="table table-striped" border="1">
+      <table id="courseTable" class="table table-bordered" border="1">
         <thead class="thead-dark">
           <tr>
             <th>Course ID</th>
             <th>Course Name</th>
-            <th>Enrollment Period</th>
-            <th>Classes</th>
+            <th>Pre-requisite Course</th>
+            <th>Number of Classes</th>
+            <th>Assign Status</th>
           </tr>
         </thead>
       </table>
 
+      <!-- Modal to confirmation message of accept/reject-->
+      <!-- <div class="modal fade" id="statusModel" tabindex="-1" role="dialog" aria-labelledby="statusModelTitle"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="statusModelTitle">Status Updated</h5>
+          </div>
+          <div class="modal-body" +AssignmentID>
+            <p id="statusModelBody"></p>
+          </div>
+          <div class="modal-footer">
+            <a id="dismissStatusModel" class="btn btn-success" href="check_tutee.html">Okay</a>
+          </div>
+        </div>
+      </div>
+    </div> -->
+      <!-- End of Modal-->
     </div>
 
     <script>
@@ -103,7 +135,7 @@
       // anonymous async function
       // - using await requires the function that calls it to be async
       $(async () => {
-        var getCoursesURL = "http://127.0.0.1:5100/admin_courses/1"; // admin id = 1
+        var getCoursesURL = "http://127.0.0.1:5100/view_all_courses/0";
 
         try {
           const response = await fetch(getCoursesURL, { method: "GET" });
@@ -111,24 +143,31 @@
           const result = await response.json();
           if (response.status === 200) {
             // success case
-            var courses = result.data.courses;
+            var AssignedCourses = result.data.AssignedCourses;
 
             // for loop to setup all table rows with obtained course information
             var rows = "<tbody>";
-            for (var course of courses) {
-              console.log(course);
-              var CourseID = course.CourseID;
-              var CourseName = course.CourseName;
-              var StartEnroll = course.StartEnroll;
-              var EndEnroll = course.EndEnroll;
-              var Classes = course.Classes;
+            for (var AssignedCourse of AssignedCourses) {
+              console.log(AssignedCourse);
+              var Classes = AssignedCourse.Classes;
+              var CourseID = AssignedCourse.CourseID;
+              var CourseName = AssignedCourse.CourseName;
+              var PreReq = AssignedCourse.PreReq;
+              var IsFull = AssignedCourse.IsFull;
+
+              if (IsFull == 0) {
+                IsFull = 'Available'
+              } else {
+                IsFull = 'Unavailable'
+              }
 
               rows += `
               <tr class="maincourse">
                   <td> ${CourseID} </td>
                   <td> ${CourseName} </td>
-                  <td><a class="nav-link" href="admin_set_enroll.html?courseid=${CourseID}"> ${StartEnroll} to ${EndEnroll}</a></td>
-                  <td><a class="nav-link" href="admin_classes.html?courseid=${CourseID}">${Classes}<a/></td>
+                  <td> ${PreReq} </td>
+                  <td><a class="nav-link" href="all_classes_kal.html?courseid=${CourseID}"> ${Classes} </a></td>
+                  <td> ${IsFull} </td>
               </tr>
                   `;
             }
@@ -153,46 +192,36 @@
         } // error
       });
 
-      function getPendingCourses(Assigned) {
-        $("#courseTable thead").empty()
+      // this function gets tutor details by assignment ID 
+      function getFilteredCourses(LearnerID) {
         $("#courseTable tbody").empty()
 
         $(async () => {
-          var getPendingCourses_URL = "http://127.0.0.1:5100/pending_courses" ;
+          var getFilteredCourses_URL = "http://127.0.0.1:5100/learner_prereq/" + LearnerID;
 
           try {
-            const response = await fetch(getPendingCourses_URL, { method: "GET" });
+            const response = await fetch(getFilteredCourses_URL, { method: "GET" });
             const result = await response.json();
 
             if (response.status === 200) {
               // success case
               if (result.code === 200) {
-                var courses = result.data.pending
-                var head = `
-                <thead class="thead-dark">
-                  <tr>
-                    <th>Learner ID</th>
-                    <th>Course ID</th>
-                    <th>Class ID</th>
-                    <th>Approved?</th>
-                  </tr>
-                </thead>
-                `;
-                $("#courseTable").append(head);
+                var courses = result.data.courses
                 var rows = "<tbody>";
 
                 for (var course of courses) {
-                  var LearnerID = course.LearnerID;
                   var CourseID = course.CourseID;
-                  var ClassID = course.ClassID;
-                  var Approved = course.approved
-
+                  console.log('CourseID: ', CourseID)
+                  var CourseName = course.CourseName;
+                  var PreReq = course.PreReq;
+                  var Classes = course.Classes
                   rows += ` 
                             <tr>
-                                <td> ${LearnerID} </td>
                                 <td> ${CourseID} </td>
-                                <td> ${ClassID} </td>
-                                <td> <a class="nav-link" href="admin_vet_learner.html?learnerid=${LearnerID}&courseid=${CourseID}&classid=${ClassID}">${Approved}</a> </td>
+                                <td> ${CourseName} </td>
+                                <td> ${PreReq} </td>
+                                <td> <a class="nav-link" href="all_classes.html?courseid=${CourseID}">${Classes} </a></td>
+                                
                             </tr>`;
                 }
 
@@ -201,11 +230,11 @@
                 $("#filtercourse").addClass('disabled')
               }
               else {
-                $("#courseTable").hide()
-                $("#nocourse").show()
+                console.log("no courses");
               }
 
             } else if (response.status == 404) {
+              // No books
               showError(result.message);
             } else {
               // unexpected outcome, throw the error
@@ -221,7 +250,6 @@
           } // error
         });
       }
-
 
     </script>
     <!-- Start of footer-->
