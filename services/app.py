@@ -1600,6 +1600,7 @@ def vet_self_enroll(Assigned):
         }), 404
     else:
         print(learner)
+        LearnerID = learner.LearnerID
         courseToApprove = learner.CourseID
         classToApprove = learner.ClassID
         courseDetails = Course.query.filter_by(CourseID=courseToApprove).first()
@@ -1621,23 +1622,35 @@ def vet_self_enroll(Assigned):
             if data["Approved"] == "approved":
                 learner.approved = 1
                 classDetails.SlotsAvailable -= 1
+
+                addRowsToViewable(LearnerID, courseToApprove, classToApprove)
+                addRowsToQuizResults(LearnerID, courseToApprove, classToApprove)
+            
+                db.session.commit()
+
+                return jsonify({
+                    "code": "200",
+                    "data": {
+                        "pending_course": learner.to_dict(),
+                    },
+                    "message": "Enrollment has been " + data['Approved']
+                }), 200
             elif data["Approved"] == "rejected":
                 learner.approved = 0
+                db.session.commit()
+
+                return jsonify({
+                    "code": "200",
+                    "data": {
+                        "pending_course": learner.to_dict(),
+                    },
+                    "message": "Enrollment has been " + data['Approved']
+                }), 200
             else:
                 return jsonify({
                     "code": "501",
                     "message": "invalid input"
                 }), 501
-
-            db.session.commit()
-
-            return jsonify({
-                "code": "200",
-                "data": {
-                    "pending_course": learner.to_dict(),
-                },
-                "message": "Enrollment has been " + data['Approved']
-            }), 200
         else:
             return jsonify({
                 "code": "500",
