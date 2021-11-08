@@ -122,6 +122,7 @@
         </div>
       </form>
     </div>
+    <div id='msg'></div>
 
     <!-- Modal -->
     <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
@@ -177,6 +178,7 @@
 
         // Display an error under the main container
         $("#msg").append("<label>" + message + "</label>");
+        console.log(message)
       }
 
       // anonymous async function
@@ -261,7 +263,7 @@
             }),
           });
           console.log(response.status);
-          if (response.status == 201) {
+          if (response.status == 200) {
             console.log('success')
             // var success_msg = `<h2>Sign Up successful</h2>`;
             // document.getElementById('signupForm').style.visibility = 'hidden'
