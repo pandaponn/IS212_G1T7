@@ -168,11 +168,16 @@
                 </ul>
             </div>
         </nav>
-
         <div>
             <div class="sidenav" id="chapters">
             </div>
             <div id="main-container" class="main container">
+                <div id="displayAlert" class="alert alert-success" role="alert" style="display: none; width:95%;">
+                    <strong>Successfully marked as viewed!</strong>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                </div>
                 <div id="materials">
 
                 </div>
@@ -343,6 +348,7 @@
                     console.log(result)
 
                     if (response.status === 200 || response.status === 201) {
+                        $('#displayAlert').show();
                         console.log('Successfully marked the chapter as viewed')
 
                     // } else if (response.status == 404) {
