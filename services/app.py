@@ -2110,8 +2110,8 @@ def view_class_list(approved, CourseID, ClassID):
         }
     ), 404
 
-# if __name__ == '__main__':
-#     app.run(host='172.31.80.86', port=5100, debug=True)
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5100, debug=True)
+    app.run(host='172.31.80.86', port=5100, debug=True)
+
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5100, debug=True)
