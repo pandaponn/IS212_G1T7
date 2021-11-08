@@ -1,6 +1,7 @@
 from app import app, db
 import json
 import unittest
+from app import CourseMaterials
 
 # Lim Zhi Hao (START)
 class QuestionsTestCase(unittest.TestCase):
@@ -58,6 +59,75 @@ class QuestionsTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 # Lim Zhi Hao (END)
+
+# Chia Ling Li (START)
+class CourseMaterialsTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = app.test_client()
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+
+        with app.app_context():
+            db.create_all()
+            cm1 = CourseMaterials(course_id = 1,
+                            class_id = 1,
+                            chapter_id = 1,
+                            subchapter_id = "1a",
+                            chapter_name = "Introduction to Python",
+                            content = "https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf")
+            db.session.add(cm1)
+            db.session.commit()
+    
+    def test_to_dict(self):
+        m1 = CourseMaterials(course_id=1,class_id=1,
+                          chapter_id=1, 
+                          subchapter_id='1a',
+                          chapter_name='Introduction to Python',
+                          content='https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf')
+        
+        self.assertEqual(m1.to_dict(), {
+            "course_id" : 1,
+            "class_id" : 1,
+            "chapter_id" : 1,
+            "subchapter_id" : "1a",
+            "chapter_name" : "Introduction to Python",
+            "content" : "https://bingchilling.s3.ap-southeast-1.amazonaws.com/IS212+Week+1+-+Introduction.pdf"
+            }
+        )
+
+    # Retrieve materials by chapter_id, class_id and course_id
+    def test_find_by_chapter_id(self):
+        res = self.app.get('/mono/chapterMaterial/1/1/1/1')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('1a', str(res.data))
+
+    # Error in retrieving materials by chapter_id, class_id and course_id
+    def test_find_by_chapter_id_404(self):
+        res = self.app.get('/mono/chapterMaterial/1/1/1/3')
+        self.assertEqual(res.status_code, 404)
+        self.assertIn('3', str(res.data))
+
+    # Retrieve all the chapters available for the class and course
+    def test_get_chapIdBy_courseClass(self):
+        res = self.app.get('/mono/allChaps/1/1')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('1', str(res.data))
+    
+    # This combination of classid, courseid and chapterid is valid
+    def test_check_chapterValid(self):
+        res = self.app.get('/mono/chapterValid/1/1/1')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('Introduction to Python', str(res.data))
+
+    # This combination of classid, courseid and chapterid is NOT valid
+    def test_check_chapterValid_404(self):
+        res = self.app.get('/mono/chapterValid/4/2/1')
+        self.assertEqual(res.status_code, 404)
+        self.assertIn('', str(res.data))
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+# Chia Ling Li (END)
 
 if __name__ == "__main__":
     unittest.main()

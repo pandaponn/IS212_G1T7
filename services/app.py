@@ -632,6 +632,22 @@ class CourseMaterials(db.Model):
     chapter_name = db.Column(db.String(100), nullable=False)
     content = db.Column(db.String(100), nullable=False)
 
+    def __init__(self, course_id, class_id, chapter_id, subchapter_id, chapter_name, content):
+        self.course_id = course_id
+        self.class_id = class_id
+        self.chapter_id = chapter_id
+        self.subchapter_id = subchapter_id
+        self.chapter_name = chapter_name
+        self.content = content
+
+    def json(self):
+        return {"course_id": self.course_id,
+            "class_id": self.class_id, 
+            "chapter_id": self.chapter_id, 
+            "subchapter_id": self.subchapter_id, 
+            "chapter_name": self.chapter_name, 
+            "content": self.content}
+
     def to_dict(self):
         """
         'to_dict' converts the object into a dictionary,
@@ -1173,6 +1189,15 @@ def get_chapIdBy_courseClass(class_id, course_id):
                 }
             }
         )
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "class_id": class_id,
+                "course_id": course_id
+            }
+        }
+    )
 
 @app.route("/mono/chapterValid/<string:class_id>/<string:course_id>/<string:chapter_id>")
 def check_chapterValid(class_id, course_id, chapter_id):
@@ -1188,7 +1213,7 @@ def check_chapterValid(class_id, course_id, chapter_id):
                     "ChapValid": ChapValid.to_dict()
                 }
             }
-        )
+        ), 200
     return jsonify(
         {
             "code": 404,
