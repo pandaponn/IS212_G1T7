@@ -168,19 +168,6 @@ class ClassesTestCase(unittest.TestCase):
         response = tester.get("/class_details/1")
         self.assertTrue(b'data' in response.data)
 
-    # def test_assign_trainer(self):
-    #     class1 = CourseClass(ClassId = 1,
-    #                     CourseId = 1,
-    #                     CourseName = "Python Basics",
-    #                     TrainerId = 1,
-    #                     StartDateTime = datetime(2021, 6, 14, 8, 15, 0),
-    #                     EndDateTime = datetime(2021, 12, 14, 8, 15, 0),
-    #                     Capacity = 40,
-    #                     SlotsAvailable = 35)
-
-    #     res = self.app.put('/assign_engineer/1/1/1', data=json.dumps(dict(class1)), content_type='application/json')
-    #     self.assertEqual(res.status_code, 201)
-
     def tearDown(self):
         db.session.remove()
         db.drop_all()
