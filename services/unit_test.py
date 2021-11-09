@@ -180,6 +180,10 @@ class ClassesTestCase(unittest.TestCase):
 
     #     res = self.app.put('/assign_engineer/1/1/1', data=json.dumps(dict(class1)), content_type='application/json')
     #     self.assertEqual(res.status_code, 201)
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
 # Kaldora Ng Kai Ying (END)
 
 # Chia Ling Li (START)
