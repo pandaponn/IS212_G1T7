@@ -131,7 +131,7 @@
       var learner_id = params.get('learnerid');
       console.log(params.get('learnername'));
       var learner_name = params.get('learnername');
-      var getClassesURL = "http://127.0.0.1:5100/assign_engineer/" + learner_id + "/" + course_id + "/" + class_id + "/" + learner_name;
+      var getClassesURL = "http://13.213.133.176:5100/assign_engineer/" + learner_id + "/" + course_id + "/" + class_id + "/" + learner_name;
 
       try {
         const response = await fetch(getClassesURL, { method: "POST" });

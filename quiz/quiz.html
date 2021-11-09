@@ -196,7 +196,7 @@
             <div class="row">
                 <div class="col-md-1 logo">
                     <a href="create_quiz.html" style="color: black; font-weight: bold;">
-                        <h3>FML.</h3>
+                        <h3>Phris Coskitt</h3>
                     </a>
                 </div>
                 <div class="fiverr-menu" style="margin-left: auto;">
@@ -268,7 +268,7 @@
     window.onload = retrieveQuestions();
     async function retrieveQuestions(){
         on();
-        var retrieveQuestionsURL = 'http://localhost:5100/quiz/retrieveAllQuestions';
+        var retrieveQuestionsURL = 'http://13.213.133.176:5100/quiz/retrieveAllQuestions';
 
         try{
             var response = await fetch(
@@ -344,7 +344,7 @@
         }
 
         // Check if quiz is graded & passing grade
-        var retrieveQuizInfo = 'http://localhost:5100/quiz/retrieveQuizInfo';
+        var retrieveQuizInfo = 'http://13.213.133.176:5100/quiz/retrieveQuizInfo';
 
         try{
             var response = await fetch(
@@ -387,7 +387,7 @@
     }
 
     async function save_results(pass, score, isGraded){
-        var updateScoreURL = 'http://localhost:5100/quiz/updateQuizResults';
+        var updateScoreURL = 'http://13.213.133.176:5100/quiz/updateQuizResults';
         var quizPass = pass;
         var score = score;
         var isGraded = isGraded;

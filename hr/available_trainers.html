@@ -146,7 +146,7 @@
       var course_id = params.get('courseid');
       console.log(params.get('classid'));
       var class_id = params.get('classid');
-      var getClassesURL = "http://127.0.0.1:5100/view_all_trainers/1/" + course_id;
+      var getClassesURL = "http://13.213.133.176:5100/view_all_trainers/1/" + course_id;
 
       try {
         const response = await fetch(getClassesURL, { method: "GET" });
@@ -217,7 +217,7 @@
 
     function sucessfully_assigned(course_id, class_id, TrainerID) {
       $(async () => {
-        var getClassesURL = "http://127.0.0.1:5100/assign_trainer/" + TrainerID + '/' + course_id + '/' + class_id;
+        var getClassesURL = "http://13.213.133.176:5100/assign_trainer/" + TrainerID + '/' + course_id + '/' + class_id;
 
         try {
           const response = await fetch(getClassesURL, { method: "PUT" });

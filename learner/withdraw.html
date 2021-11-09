@@ -102,7 +102,7 @@
         // anonymous async function
         // - using await requires the function that calls it to be async
         $(async () => {
-            var getClassesURL = "http://127.0.0.1:5100/mono/withdrawableClasses/1";
+            var getClassesURL = "http://13.213.133.176:5100/mono/withdrawableClasses/1";
 
             try {
                 const response = await fetch(getClassesURL, { method: "GET" });
@@ -178,7 +178,7 @@
 
             $(async () => {
                 // Change URL to your own
-                var withdrawURL = "http://127.0.0.1:5100/mono/withdraw/" + String(learner_id) + "/" + String(ClassId) + "/" + String(CourseId)
+                var withdrawURL = "http://13.213.133.176:5100/mono/withdraw/" + String(learner_id) + "/" + String(ClassId) + "/" + String(CourseId)
                 console.log(withdrawURL)
                 try {
                     const response =

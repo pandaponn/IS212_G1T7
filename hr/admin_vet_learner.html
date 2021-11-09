@@ -169,7 +169,7 @@
         console.log("course id is: ", course_id);
         console.log("class id is: ", class_id);
         var getLearnerURL =
-          "http://127.0.0.1:5100/get_learner_course/" + learner_id + "/" + course_id + "/" + class_id;
+          "http://13.213.133.176:5100/get_learner_course/" + learner_id + "/" + course_id + "/" + class_id;
 
         try {
           const response = await fetch(getLearnerURL, { method: "GET" });
@@ -227,7 +227,7 @@
         // http://localhost:5100/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>
 
         var vetURL =
-          "http://localhost:5100/vet_self_enroll/0";
+          "http://13.213.133.176:5100/vet_self_enroll/0";
 
         try {
           const response = await fetch(vetURL, {

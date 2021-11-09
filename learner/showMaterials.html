@@ -209,7 +209,7 @@
             document.getElementById("navQuiz").href = "showQuiz.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
             document.getElementById("navResult").href = "showResults.html?ClassId=" + ClassId + "&CourseId=" + CourseId;
 
-            var getChaptersURL = "http://127.0.0.1:5100/mono/allMaterial/1/" + "/" + ClassId + "/" + CourseId;
+            var getChaptersURL = "http://13.213.133.176:5100/mono/allMaterial/1/" + "/" + ClassId + "/" + CourseId;
 
             try {
                 const response = await fetch(getChaptersURL, { method: "GET" });
@@ -254,7 +254,7 @@
             $('#materials').empty();
             $(async () => {
                 console.log(classId)
-                var getMaterialsURL = "http://127.0.0.1:5100/mono/chapterMaterial/1/" + classId + "/" + courseId + "/" + chapterId;
+                var getMaterialsURL = "http://13.213.133.176:5100/mono/chapterMaterial/1/" + classId + "/" + courseId + "/" + chapterId;
                 console.log(getMaterialsURL)
                 try {
                     const response = await fetch(getMaterialsURL, { method: "GET" });
@@ -340,7 +340,7 @@
             strArr = LearnerId.split(',')
             console.log(strArr[4])
             $(async () => {
-                var markChapViewedURL = "http://127.0.0.1:5100/mono/markChapterMaterial/" + strArr[0] + "/" +  strArr[1] + "/" +  strArr[2] + "/" +  strArr[3] + '/' +  strArr[4];
+                var markChapViewedURL = "http://13.213.133.176:5100/mono/markChapterMaterial/" + strArr[0] + "/" +  strArr[1] + "/" +  strArr[2] + "/" +  strArr[3] + '/' +  strArr[4];
                 console.log(markChapViewedURL)
                 try {
                     const response = await fetch(markChapViewedURL, { method: "GET" });

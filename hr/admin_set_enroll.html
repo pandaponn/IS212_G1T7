@@ -158,7 +158,7 @@
         var course_id = params.get("courseid");
         console.log("course id is: ", course_id);
         var getCourseURL =
-          "http://127.0.0.1:5100/get_course/" + course_id;
+          "http://13.213.133.176:5100/get_course/" + course_id;
 
         try {
           const response = await fetch(getCourseURL, { method: "GET" });
@@ -209,7 +209,7 @@
         // http://localhost:5100/course_signup/<string:LearnerID>/<string:CourseID>/<string:ClassID>
 
         var setURL =
-          "http://localhost:5100/set_enrollment_period/" + CourseID;
+          "http://13.213.133.176:5100/set_enrollment_period/" + CourseID;
 
         try {
           const response = await fetch(setURL, {
